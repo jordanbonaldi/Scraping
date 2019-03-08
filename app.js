@@ -6,8 +6,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config/config');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const hotelsRouter = require('./src/routes/hotelsRouter');
 
 const app = express();
 
@@ -25,8 +24,7 @@ const initApp = () => {
     next();
   });
 
-  app.use('/', indexRouter);
-  app.use('/users', usersRouter);
+  app.use('/', hotelsRouter);
 
 // catch 404 and forward to error handler
   app.use(function(req, res, next) {
