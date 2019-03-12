@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config/config');
 
-const hotelsRouter = require('./src/routes/hotelsRouter');
+const hotelsRouter = require('./src/routes/HotelsRouter');
 
 const app = express();
 

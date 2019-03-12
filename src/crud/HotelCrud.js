@@ -8,6 +8,7 @@ class HotelCrud extends Crud {
 
     create(data) {
         let title = data.title;
+        console.log(data.city);
         return this.getByName(title).then(() => {
             return {
                 error: "Already existing hotel"

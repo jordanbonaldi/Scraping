@@ -14,10 +14,7 @@ class Crud {
             };
             this.model.create(data, (err, doc) => {
                     if (err) reject(true);
-                    else {
-                        Crud.removeDbField(doc);
-                        resolve(doc);
-                    }
+                    else resolve(doc);
                 }
             )
         });
@@ -27,10 +24,8 @@ class Crud {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
                 if (err) reject(true);
-                else {
-                    docs.forEach(doc => Crud.removeDbField(doc));
-                    resolve(docs);
-                }
+                else resolve(docs);
+
             })
         });
     };
@@ -60,12 +55,10 @@ class Crud {
     getOne(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
+                console.log(docs);
                 if (err) reject(true);
                 else if (!docs.length) reject(true);
-                else {
-                    Crud.removeDbField(docs[0]);
-                    resolve(docs[0]);
-                }
+                else resolve(docs[0]);
             })
         });
     };
@@ -77,13 +70,6 @@ class Crud {
     deleteById(id) {
         return this.delete({ 'id': id })
     }
-
-    static removeDbField(doc) {
-        Object.getOwnPropertyNames(doc._doc).forEach(prop => {
-            if (prop.slice(0, 1) === '_')
-                delete doc._doc[prop];
-        })
-    };
 }
 
 module.exports = Crud;
