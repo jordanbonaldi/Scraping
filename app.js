@@ -8,6 +8,10 @@ const config = require('./config/config');
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
 
+const EnginesManager = require('./src/engines/EnginesManager');
+
+new EnginesManager().load();
+
 const app = express();
 
 app.use(cors());
@@ -25,7 +29,6 @@ const initApp = () => {
   });
 
   app.use('/', hotelsRouter);
-
 // catch 404 and forward to error handler
   app.use(function(req, res, next) {
     next(createError(404));

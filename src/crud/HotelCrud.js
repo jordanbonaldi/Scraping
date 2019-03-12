@@ -6,10 +6,14 @@ class HotelCrud extends Crud {
         super('hotel', Hotel);
     }
 
+    /**
+     *
+     * @param data
+     * @returns {Promise<{error: string} | never | any>}
+     */
     create(data) {
-        let title = data.title;
-        console.log(data.city);
-        return this.getByName(title).then(() => {
+        let name = data.name;
+        return this.getByName(name).then(() => {
             return {
                 error: "Already existing hotel"
             }
@@ -18,10 +22,30 @@ class HotelCrud extends Crud {
         })
     }
 
+    /**
+     *
+     * @param hotel
+     * @returns {Promise<any | never>}
+     */
+    getCityId(hotel) {
+        return this.getOne(hotel).then((e) => {
+            return e.city;
+        })
+    }
+
+    /**
+     *
+     * @param name
+     * @returns {Promise<any>}
+     */
     getByName(name) {
-        return this.getOne({title: name});
+        return this.getOne({name: name});
     }
 
 }
 
+/**
+ *
+ * @type {HotelCrud}
+ */
 module.exports = new HotelCrud();

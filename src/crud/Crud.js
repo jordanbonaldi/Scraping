@@ -1,9 +1,19 @@
 class Crud {
+    /**
+     *
+     * @param name
+     * @param model
+     */
     constructor(name, model) {
         this.name = name;
         this.model = model;
     }
 
+    /**
+     *
+     * @param data
+     * @returns {Promise<any>}
+     */
     create(data) {
         return new Promise((resolve, reject) => {
             let date = new Date();
@@ -20,6 +30,11 @@ class Crud {
         });
     }
 
+    /**
+     *
+     * @param identifier
+     * @returns {Promise<any>}
+     */
     get(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
@@ -30,6 +45,12 @@ class Crud {
         });
     };
 
+    /**
+     *
+     * @param data
+     * @param identifier
+     * @returns {Promise<any>}
+     */
     update(data, identifier = {}) {
         return new Promise((resolve, reject) => {
             data._updatedAt = new Date();
@@ -42,6 +63,11 @@ class Crud {
         });
     };
 
+    /**
+     *
+     * @param identifier
+     * @returns {Promise<any>}
+     */
     delete(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.deleteMany(identifier, (err, result) => {
@@ -52,10 +78,14 @@ class Crud {
         });
     };
 
+    /**
+     *
+     * @param identifier
+     * @returns {Promise<any>}
+     */
     getOne(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
-                console.log(docs);
                 if (err) reject(true);
                 else if (!docs.length) reject(true);
                 else resolve(docs[0]);
@@ -63,13 +93,36 @@ class Crud {
         });
     };
 
-    updateById(data) {
-        return this.update(data, { 'id': data.id })
+    /**
+     *
+     * @param id
+     * @returns {Promise<any>}
+     */
+    getById(id) {
+        return this.getOne({ _id: id })
     }
 
+    /**
+     *
+     * @param data
+     * @returns {Promise<any>}
+     */
+    updateById(data) {
+        return this.update(data, { _id: data.id })
+    }
+
+    /**
+     *
+     * @param id
+     * @returns {Promise<any>}
+     */
     deleteById(id) {
-        return this.delete({ 'id': id })
+        return this.delete({ _id: id })
     }
 }
 
+/**
+ *
+ * @type {Crud}
+ */
 module.exports = Crud;

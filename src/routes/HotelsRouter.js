@@ -6,34 +6,51 @@ const CityCrud = require('../crud/CityCrud');
 /**
  * Get hotels
  */
-router.route('/get/:hotel').get((req, res) => {
+router.get('/hotels/get/:hotel', (req, res) => {
     let name = req.params.hotel;
-    HotelCrud.getByName(name).then(data => {
-        res.send(data);
-    }).catch((err) => {
-        res.send({error: err})
-    })
+
+    HotelCrud.getByName(name).then(data => res.send(data));
 });
 
 /**
  * Create hotels
  */
-router.route('/create/:hotel').get((req, res) => {
-    let title = req.params.hotel;
+router.post('/hotels/create/', (req, res) => {
+    let hotel = req.body;
 
-    CityCrud.getByName('nice').then((doc) => {
-        console.log(doc);
-        HotelCrud.create({
-            title: title,
-            city: doc._id
-        }).then((d) => {
-            CityCrud.addHotel('nice', d).then((z) => {
-                res.send(z)
-            })
-        }).catch(e => {
-            console.log(e);
+    CityCrud.getByName(hotel.city)
+        .then((doc) => {
+            return createHotel(hotel.name, doc._id, hotel.city)
         })
-    })
+        .catch(() => {
+            return CityCrud.create({
+                name: hotel.city,
+            }).then(city => {
+                return createHotel(hotel.name, city._id, hotel.city)
+            })
+        }).then(toSend => res.send(toSend));
 });
 
+/**
+ *
+ * @param name
+ * @param id
+ * @param city
+ * @returns {Promise|*|PromiseLike<T | never>|Promise<T | never>}
+ */
+createHotel = (name, id, city) => {
+    return HotelCrud.create({
+        name: name,
+        city: id
+    }).then(created => {
+        return CityCrud.addHotel(city, created).then(() => {
+            return created.hasOwnProperty('error') ? created : created._doc
+        })
+    });
+};
+
+/**
+ *
+ * @type {Router|router}
+ */
 module.exports = router;
