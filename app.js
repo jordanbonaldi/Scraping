@@ -8,9 +8,9 @@ const config = require('./config/config');
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
 
-const EnginesManager = require('./src/engines/EnginesManager');
+const EnginesManager = require('./src/handlers/EnginesManager');
 
-new EnginesManager().load();
+EnginesManager();
 
 const app = express();
 
