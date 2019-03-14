@@ -1,17 +1,18 @@
 const Query = require('./Query');
 const SearchData = require('./SearchData');
 const Generator = require('./Generator');
-
 const request = require('request-promise');
 
 class Engine {
     /**
      *
      * @param url
+     * @param defaultUrl
      * @param queries
      */
-    constructor(url, ...queries) {
+    constructor(url, defaultUrl, ...queries) {
         this._url = url;
+        this._defaultUrl = defaultUrl;
         this._query = new Query(...queries);
     }
 
@@ -31,6 +32,35 @@ class Engine {
         return {offset: 0, max: 0}
     }
 
+    _getCookie() {
+        let opt = {
+            uri: this._defaultUrl,
+            headers: {
+              'cache-control': 'no-cache',
+              'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
+              'Accept': '*/*',
+              'Host': 'fr.hotels.com',
+              'Connection': 'close'
+            },
+            resolveWithFullResponse: true
+        };
+
+        /**
+         * NOT GENERIC (GUID AND SESSID)
+         */
+
+        return request(opt)
+            .then(response => {
+                return response.caseless.dict['set-cookie']
+            }).then((array) => {
+                return array.map((e) =>
+                    e.split(';')[0]
+                )
+            }).then((a) => {
+                return a.join(';');
+            })
+    }
+
     /**
      *
      * @param url
@@ -38,18 +68,38 @@ class Engine {
      * @private
      */
     _request(url) {
-        return request("https://www.booking.com/searchresults.html?checkin_month=3&checkin_monthday=13&checkin_year=2019&checkout_month=3&checkout_monthday=14&checkout_year=2019&group_adults=1&group_children=0&no_rooms=1&ss=nice&").then((data) => {
-            let urls = [];
-            let {offset, max} = this.getBasicInformation(data);
+        return this._getCookie().then((cookies) => {
+            console.log(cookies);
+            let opt = (_url) => {
+                return {
+                    uri: _url,
+                    headers: {
+                        'cookie': `${cookies}`,
+                        'cache-control': 'no-cache',
+                        'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
+                        'Accept': '*/*',
+                        'Host': 'fr.hotels.com',
+                        'Connection': 'close'
+                    },
+                    json: true
+                }
+            };
 
-            for (let i = 0; i < max; i ++)
-                urls.push(this._generator.addOffSet(i * offset));
+            return request(opt(url)).then((data) => {
+                let urls = [];
+                console.log(data);
+                let {offset, max} = this.getBasicInformation(data);
 
-            let promises = urls.map(url => request(url));
 
-            Promise.all(promises).then(data => {
-                data.forEach(e => {
-                    this.parseSite(e)
+                for (let i = 0; i < max; i ++)
+                    urls.push(this._generator.addOffSet(i * offset));
+
+                let promises = urls.map(url => request(opt(url)));
+
+                Promise.all(promises).then(data => {
+                    data.forEach(e => {
+                        this.parseSite(e)
+                    })
                 })
             })
         })

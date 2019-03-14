@@ -26,13 +26,21 @@ class SearchData {
      */
     linkQuery(query) {
         {
-            query.checkin_month = this.checkin_date.getMonth() + 1;
-            query.checkin_day = this.checkin_date.getDate();
-            query.checkin_year = this.checkin_date.getFullYear();
+            if (query.checkin_day === null) {
+                query.checkin_month = this.checkin_date.getFullYear()+'-'+this.checkin_date.getMonth() + 1 + '-' + this.checkin_date.getDate();
+            } else {
+                query.checkin_month = this.checkin_date.getMonth() + 1;
+                query.checkin_day = this.checkin_date.getDate();
+                query.checkin_year = this.checkin_date.getFullYear();
+            }
 
-            query.checkout_month = this.checkout_date.getMonth() + 1;
-            query.checkout_day = this.checkout_date.getDate();
-            query.checkout_year = this.checkout_date.getFullYear()
+            if (query.checkout_day === null) {
+                query.checkout_month = this.checkout_date.getFullYear()+'-'+this.checkout_date.getMonth() + 1 + '-' + this.checkout_date.getDate();
+            } else {
+                query.checkout_month = this.checkout_date.getMonth() + 1;
+                query.checkout_day = this.checkout_date.getDate();
+                query.checkout_year = this.checkout_date.getFullYear()
+            }
         }{
             query.adults = this.adults;
             query.children = this.children

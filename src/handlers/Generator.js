@@ -34,9 +34,11 @@ class Generator {
      */
     generateUrl(callback = null) {
         Object.keys(this._query)
-            .forEach(e =>
-                this._baseUrl += this._query[e].data.query + "=" + this._query[e].data.value + "&"
-            );
+            .forEach(e => {
+                console.log(this._query[e]);
+                if (this._query[e].data !== null)
+                    this._baseUrl += this._query[e].data.query + "=" + this._query[e].data.value + "&"
+            });
 
         if (callback !== null)
             callback(this._baseUrl);

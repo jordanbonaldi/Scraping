@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cheerio": "latest",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -17,9 +18,11 @@
     "mongoose": "^5.4.17",
     "morgan": "~1.9.0",
     "node-sass-middleware": "0.11.0",
+    "phantomjs": "^2.1.7",
     "pug": "^2.0.3",
     "query-string": "^6.3.0",
     "request-promise": "^4.2.4",
-    "cheerio": "latest"
+    "scrape-it": "^5.1.4",
+    "scraperjs": "^1.2.0"
   }
 }
