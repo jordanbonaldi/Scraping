@@ -62,6 +62,6 @@ const connectToMongo = () => new Promise((resolve) => {
   }, 3000);
 });
 
-connectToMongo().then(initApp);
+//connectToMongo().then(initApp);
 
 module.exports = app;

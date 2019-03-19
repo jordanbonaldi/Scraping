@@ -40,7 +40,7 @@ class Engine {
               'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
               'Accept': '*/*',
               'Host': 'fr.hotels.com',
-              'Connection': 'close'
+              'Connection': 'close',
             },
             resolveWithFullResponse: true
         };
@@ -72,7 +72,7 @@ class Engine {
             console.log(cookies);
             let opt = (_url) => {
                 return {
-                    uri: _url,
+                    uri: 'https://fr.hotels.com/search.do?resolved-location=CITY%3A494528%3AUNKNOWN%3AUNKNOWN&destination-id=494528&q-destination=Nice,%20France&q-check-in=2019-03-20&q-check-out=2019-03-21&q-rooms=1&q-room-0-adults=1&q-room-0-children=0',
                     headers: {
                         'cookie': `${cookies}`,
                         'cache-control': 'no-cache',
@@ -87,7 +87,6 @@ class Engine {
 
             return request(opt(url)).then((data) => {
                 let urls = [];
-                console.log(data);
                 let {offset, max} = this.getBasicInformation(data);
 
 
