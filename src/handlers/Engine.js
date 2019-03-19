@@ -38,10 +38,11 @@ class Engine {
     /**
      *
      * @param index
+     * @param read
      * @returns {Number}
      */
-    handleOffset(index = 0) {
-      return index
+    handleOffset(index = 0, read = 0) {
+      return index * read;
     }
 
     /**
@@ -95,13 +96,13 @@ class Engine {
      * @private
      */
     _launchRequest(max, read = 0, index = 0) {
-        let url = this._generator.addOffSet(this.handleOffset(index));
+        let url = this._generator.addOffSet(this.handleOffset(index, read));
         return request(this._opt(url)).then((data) => {
             let e = this.parseSite(data);
 
             read += e;
 
-            console.log(this._name + " loading : " + (((read*100)/max) | 0) + "%");
+            console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%");
 
             if (max - read > 0)
                 return this._launchRequest(max, read, index + 1);

@@ -1,4 +1,5 @@
 const HotelsComEngine = require('../sites/HotelsComEngine');
+const BookingEngine = require('../sites/BookingEngine');
 
 class EnginesManager {
 
@@ -42,7 +43,7 @@ class EnginesManager {
 
 }
 
-const engine = new EnginesManager(HotelsComEngine);
+const engine = new EnginesManager(BookingEngine);
 
 load = () => {
     engine.loadSearch('nice')

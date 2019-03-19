@@ -5,10 +5,13 @@ class BookingEngine extends Engine {
 
     constructor() {
         super(
+            'booking.com',
             /**
              * Booking URL
              */
             'https://www.booking.com/searchresults.html?&selected_currency=EUR&room1=A%2CA&sb_price_type=total&',
+
+            'https://booking.com',
 
             /**
              * QUERIES
@@ -42,12 +45,11 @@ class BookingEngine extends Engine {
 
         let max = pagination[pagination_length - 2].children[1].children[0].data;
 
-        console.log(data);
+        return max * length;
+    }
 
-        return {
-            offset: length,
-            max: max
-        }
+    handleOffset(index, read) {
+        return read;
     }
 
     /**
@@ -66,6 +68,7 @@ class BookingEngine extends Engine {
             console.log(f)
         }
 
+        return search.length;
     }
 
 }
