@@ -36,12 +36,12 @@ class BookingEngine extends Engine {
     }
 
     getBasicInformation(data) {
-        let length = data.data.body.searchResults.results.length;
-        let max = data.data.body.searchResults.totalCount;
+        let search = $('li.hotel', data);
+        let length = search.length;
 
         return {
             offset: length,
-            max: max
+            max: 15
         }
     }
 
@@ -51,7 +51,19 @@ class BookingEngine extends Engine {
      * @returns {Promise<any>}
      */
     parseSite(data) {
-        console.log(data)
+        let search = $('li.hotel', data);
+
+        for (let i = 0; i < search.length; i++) {
+            let name = search[i].attribs['data-title'];
+            let id = search[i].attribs['data-hotel-id'];
+
+            let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0].children[0];
+
+            f = f.next === null ? f.children[0].data : f.next.children[0].data;
+
+            console.log(name + ' -> ' + f);
+
+        }
     }
 
 }
