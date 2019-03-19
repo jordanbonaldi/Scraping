@@ -6,11 +6,13 @@ const request = require('request-promise');
 class Engine {
     /**
      *
+     * @param name
      * @param url
      * @param defaultUrl
      * @param queries
      */
-    constructor(url, defaultUrl, ...queries) {
+    constructor(name, url, defaultUrl, ...queries) {
+        this._name = name;
         this._url = url;
         this._defaultUrl = defaultUrl;
         this._query = new Query(...queries);
@@ -18,20 +20,44 @@ class Engine {
 
     /**
      *
-     * @param data
+     * @returns {*}
      */
-    parseSite(data = null) {
-        return false
-    };
+    get name() {
+        return this._name;
+    }
 
     /**
      *
      * @param data
+     * @returns {Number}
      */
-    getBasicInformation(data = null) {
-        return {offset: 0, max: 0}
+    parseSite(data = null) {
+        return 0
+    };
+
+    /**
+     *
+     * @param index
+     * @returns {Number}
+     */
+    handleOffset(index = 0) {
+      return index
     }
 
+    /**
+     *
+     * @param data
+     * @returns {number}
+     */
+    getBasicInformation(data = null) {
+        return 0
+    }
+
+    /**
+     *
+     * @returns {PromiseLike<string | never>}
+     * @private
+     */
     _getCookie() {
         let opt = {
             uri: this._defaultUrl,
@@ -39,14 +65,13 @@ class Engine {
               'cache-control': 'no-cache',
               'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
               'Accept': '*/*',
-              'Host': 'fr.hotels.com',
               'Connection': 'close',
             },
             resolveWithFullResponse: true
         };
 
         /**
-         * NOT GENERIC (GUID AND SESSID)
+         * Got all cookies
          */
 
         return request(opt)
@@ -63,43 +88,60 @@ class Engine {
 
     /**
      *
+     * @param max
+     * @param read
+     * @param index
+     * @returns {Promise|*|PromiseLike<T | never>|Promise<T | never>}
+     * @private
+     */
+    _launchRequest(max, read = 0, index = 0) {
+        let url = this._generator.addOffSet(this.handleOffset(index));
+        return request(this._opt(url)).then((data) => {
+            let e = this.parseSite(data);
+
+            read += e;
+
+            console.log(this._name + " loading : " + (((read*100)/max) | 0) + "%");
+
+            if (max - read > 0)
+                return this._launchRequest(max, read, index + 1);
+        });
+    }
+
+    /**
+     *
+     * @param _url
+     * @param cookies
+     * @returns {{headers: {cookie: string, Accept: string, "User-Agent": string, Connection: string, "cache-control": string}, json: boolean, uri: *}}
+     * @private
+     */
+    _opt(_url, cookies) {
+        return {
+            uri: _url,
+            headers: {
+                'cookie': `${cookies}`,
+                'cache-control': 'no-cache',
+                'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
+                'Accept': '*/*',
+                'Connection': 'close'
+            },
+            json: true
+        }
+    }
+
+    /**
+     *
      * @param url
      * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
      * @private
      */
     _request(url) {
         return this._getCookie().then((cookies) => {
-            console.log(cookies);
-            let opt = (_url) => {
-                return {
-                    uri: 'https://fr.hotels.com/search.do?resolved-location=CITY%3A494528%3AUNKNOWN%3AUNKNOWN&destination-id=494528&q-destination=Nice,%20France&q-check-in=2019-03-20&q-check-out=2019-03-21&q-rooms=1&q-room-0-adults=1&q-room-0-children=0',
-                    headers: {
-                        'cookie': `${cookies}`,
-                        'cache-control': 'no-cache',
-                        'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
-                        'Accept': '*/*',
-                        'Host': 'fr.hotels.com',
-                        'Connection': 'close'
-                    },
-                    json: true
-                }
-            };
 
-            return request(opt(url)).then((data) => {
-                let urls = [];
-                let {offset, max} = this.getBasicInformation(data);
+            return request(this._opt(url, cookies)).then((data) => {
+                let max = this.getBasicInformation(data);
 
-
-                for (let i = 0; i < max; i ++)
-                    urls.push(this._generator.addOffSet(i * offset));
-
-                let promises = urls.map(url => request(opt(url)));
-
-                Promise.all(promises).then(data => {
-                    data.forEach(e => {
-                        this.parseSite(e)
-                    })
-                })
+                return this._launchRequest(max);
             })
         })
     }

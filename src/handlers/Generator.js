@@ -36,7 +36,7 @@ class Generator {
         Object.keys(this._query)
             .forEach(e => {
                 console.log(this._query[e]);
-                if (this._query[e].data !== null)
+                if (this._query[e].data !== null && this._query[e].data.hasOwnProperty('query'))
                     this._baseUrl += this._query[e].data.query + "=" + this._query[e].data.value + "&"
             });
 

@@ -34,7 +34,9 @@ class EnginesManager {
                 children,
                 rooms,
                 callback
-            )
+            ).then(() => {
+                console.log("Finished for " + e._name);
+            })
         })
     }
 

@@ -27,7 +27,9 @@ class SearchData {
     linkQuery(query) {
         {
             if (query.checkin_day === null) {
-                query.checkin_month = this.checkin_date.getFullYear()+'-'+this.checkin_date.getMonth() + 1 + '-' + this.checkin_date.getDate();
+                let month = this.checkin_date.getMonth()+1;
+                month = month < 10 ? '0' + month : month;
+                query.checkin_month = this.checkin_date.getFullYear()+'-'+ month + '-' + this.checkin_date.getDate();
             } else {
                 query.checkin_month = this.checkin_date.getMonth() + 1;
                 query.checkin_day = this.checkin_date.getDate();
@@ -35,7 +37,9 @@ class SearchData {
             }
 
             if (query.checkout_day === null) {
-                query.checkout_month = this.checkout_date.getFullYear()+'-'+this.checkout_date.getMonth() + 1 + '-' + this.checkout_date.getDate();
+                let month = this.checkin_date.getMonth()+1;
+                month = month < 10 ? '0' + month : month;
+                query.checkout_month = this.checkout_date.getFullYear()+'-'+ month + '-' + this.checkout_date.getDate();
             } else {
                 query.checkout_month = this.checkout_date.getMonth() + 1;
                 query.checkout_day = this.checkout_date.getDate();

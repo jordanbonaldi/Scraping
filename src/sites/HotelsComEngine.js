@@ -5,10 +5,11 @@ class BookingEngine extends Engine {
 
     constructor() {
         super(
+            'hotels.com',
             /**
              * Booking URL
              */
-            'https://fr.hotels.com/search/listings.json?f-price-currency-code=EUR&',
+            'https://fr.hotels.com/search.do?f-price-currency-code=EUR&',
 
             'https://fr.hotels.com/',
 
@@ -31,39 +32,51 @@ class BookingEngine extends Engine {
 
             'q-destination',
 
-            'start-index'
+            'pn'
         );
     }
 
     getBasicInformation(data) {
-        let search = $('li.hotel', data);
-        let length = search.length;
+        let search = $('p.total-count', data)[0].children[0].data;
+        let max = search.match(/\d/g);
+        max = max.join('');
 
-        return {
-            offset: length,
-            max: 15
-        }
+        return max
+    }
+
+    handleOffset(index) {
+        return index + 1
     }
 
     /**
      * @param data
      *
-     * @returns {Promise<any>}
+     * @returns {Number}
      */
     parseSite(data) {
         let search = $('li.hotel', data);
+
+        console.log('\n');
 
         for (let i = 0; i < search.length; i++) {
             let name = search[i].attribs['data-title'];
             let id = search[i].attribs['data-hotel-id'];
 
-            let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0].children[0];
+            let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0];
 
-            f = f.next === null ? f.children[0].data : f.next.children[0].data;
+            if (f != null && f.hasOwnProperty('children')) {
+                f = f.children[0];
 
-            console.log(name + ' -> ' + f);
+                f = f.next === null ? f.children[0].data : f.next.children[0].data;
+
+                console.log(name + ' -> ' + f);
+            }
 
         }
+
+        console.log('\n');
+
+        return search.length;
     }
 
 }
