@@ -83,14 +83,25 @@ class Crud {
      * @param identifier
      * @returns {Promise<any>}
      */
-    getOne(identifier = {}) {
+    getAll(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
                 if (err) reject(true);
                 else if (!docs.length) reject(true);
-                else resolve(docs[0]);
+                else resolve(docs);
             })
         });
+    }
+
+    /**
+     *
+     * @param identifier
+     * @returns {Promise<any>}
+     */
+    getOne(identifier = {}) {
+        return this.getAll(identifier).then(e => {
+            return e[0]
+        })
     };
 
     /**
@@ -108,7 +119,7 @@ class Crud {
      * @returns {Promise<any>}
      */
     updateById(data) {
-        return this.update(data, { _id: data.id })
+        return this.update(data, { _id: data._id })
     }
 
     /**

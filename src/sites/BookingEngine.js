@@ -55,20 +55,35 @@ class BookingEngine extends Engine {
     /**
      * @param data
      *
-     * @returns {Promise<any>}
+     * @returns {Array}
      */
     parseSite(data) {
         let search = $('.sr_item', data);
+
+        let hotel = [];
 
         for (let i = 0; i < search.length; i++) {
             let id = search[i].attribs['data-hotelid'];
 
             let f = $('[data-hotelid='+'"'+id+'"'+'] .sr-hotel__name', data)[0].children[0].data;
 
-            console.log(f)
+            f = f.replace(/\s+/g, ' ').trim();
+
+            hotel.push({
+                name: f,
+                address: '',
+                city: super.city,
+                engine: {
+                    name: 'Booking.com',
+                    price: '',
+                    rate: '',
+                    reviews: ''
+                }
+            });
+
         }
 
-        return search.length;
+        return hotel;
     }
 
 }

@@ -10,8 +10,6 @@ const hotelsRouter = require('./src/routes/HotelsRouter');
 
 const EnginesManager = require('./src/handlers/EnginesManager');
 
-EnginesManager();
-
 const app = express();
 
 app.use(cors());
@@ -62,6 +60,8 @@ const connectToMongo = () => new Promise((resolve) => {
   }, 3000);
 });
 
-//connectToMongo().then(initApp);
+connectToMongo().then(initApp);
+
+EnginesManager();
 
 module.exports = app;

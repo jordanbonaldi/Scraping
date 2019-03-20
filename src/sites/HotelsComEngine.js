@@ -44,17 +44,54 @@ class BookingEngine extends Engine {
         return max
     }
 
-    handleOffset(index) {
+    handleOffset(index, read = 0) {
         return index + 1
+    }
+
+    _getData(id, data, classes) {
+        return $('[data-hotel-id='+'"'+id+'"'+'] ' + classes, data)[0].children[0].data
+    }
+
+    _getAddress(id, data) {
+        return this._getData(id, data, '.hotel-wrap .contact span')
+    }
+
+    _getPrice(id, data) {
+        let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0];
+
+        let price = 0;
+
+        if (f != null && f.hasOwnProperty('children')) {
+            f = f.children[0];
+
+            price = f.next === null ? f.children[0].data.match(/\d/g) : f.next.children[0].data.match(/\d/g);
+            price = price.join('')
+        }
+
+        return price
+    }
+
+    _getRate(id, data) {
+        let rate = this._getData(id, data, '.reviews-box .guest-reviews-badge').match(/\d/g);
+
+        return rate.join('')
+    }
+
+    _getReviews(id, data) {
+        let reviews = this._getData(id, data, '.trip-advisor .ta-total-reviews').match(/\d/g);
+
+        return reviews.join('')
     }
 
     /**
      * @param data
      *
-     * @returns {Number}
+     * @returns {Array}
      */
     parseSite(data) {
         let search = $('li.hotel', data);
+
+        let hotel = [];
 
         console.log('\n');
 
@@ -62,21 +99,30 @@ class BookingEngine extends Engine {
             let name = search[i].attribs['data-title'];
             let id = search[i].attribs['data-hotel-id'];
 
-            let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0];
+            let price = this._getPrice(id, data);
+            let address = this._getAddress(id, data);
 
-            if (f != null && f.hasOwnProperty('children')) {
-                f = f.children[0];
+            let rate = this._getRate(id, data);
+            let reviews = this._getReviews(id, data);
 
-                f = f.next === null ? f.children[0].data : f.next.children[0].data;
+            hotel.push({
+                name: name,
+                address: address,
+                city: super.city,
+                engine: {
+                    name: 'Hotels.com',
+                    price: price,
+                    rate: rate/10,
+                    reviews: reviews
+                }
+            });
 
-                console.log(name + ' -> ' + f);
-            }
-
+            console.log(hotel)
         }
 
         console.log('\n');
 
-        return search.length;
+        return hotel;
     }
 
 }

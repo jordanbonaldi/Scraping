@@ -1,6 +1,8 @@
 const Query = require('./Query');
 const SearchData = require('./SearchData');
 const Generator = require('./Generator');
+const City = require('../crud/CityCrud');
+const Hotel = require('../crud/HotelCrud');
 const request = require('request-promise');
 
 class Engine {
@@ -16,6 +18,11 @@ class Engine {
         this._url = url;
         this._defaultUrl = defaultUrl;
         this._query = new Query(...queries);
+        this._city = null;
+    }
+
+    get city() {
+        return this._city;
     }
 
     /**
@@ -29,7 +36,7 @@ class Engine {
     /**
      *
      * @param data
-     * @returns {Number}
+     * @returns {Array}
      */
     parseSite(data = null) {
         return 0
@@ -97,15 +104,19 @@ class Engine {
      */
     _launchRequest(max, read = 0, index = 0) {
         let url = this._generator.addOffSet(this.handleOffset(index, read));
-        return request(this._opt(url)).then((data) => {
+        return request(Engine._opt(url)).then((data) => {
             let e = this.parseSite(data);
 
-            read += e;
+            let hotels = e.map(a => Hotel.create(a));
 
-            console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%");
+            return Promise.all(hotels).then(() => {
+                read += e.length;
 
-            if (max - read > 0)
-                return this._launchRequest(max, read, index + 1);
+                console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%");
+
+                if (max - read > 0)
+                    return this._launchRequest(max, read, index + 1);
+            })
         });
     }
 
@@ -116,7 +127,7 @@ class Engine {
      * @returns {{headers: {cookie: string, Accept: string, "User-Agent": string, Connection: string, "cache-control": string}, json: boolean, uri: *}}
      * @private
      */
-    _opt(_url, cookies) {
+    static _opt(_url, cookies) {
         return {
             uri: _url,
             headers: {
@@ -139,7 +150,7 @@ class Engine {
     _request(url) {
         return this._getCookie().then((cookies) => {
 
-            return request(this._opt(url, cookies)).then((data) => {
+            return request(Engine._opt(url, cookies)).then((data) => {
                 let max = this.getBasicInformation(data);
 
                 return this._launchRequest(max);
@@ -166,28 +177,33 @@ class Engine {
         rooms = 1,
         callback = null
     ) {
-        if (checkin === null)
-            checkin = new Date();
+        return City.getByName(city).then((e) => {
+          this._city = e._id;
+        }).then(() => {
+            if (checkin === null)
+                checkin = new Date();
 
-        if (checkout === null) {
-            checkout = new Date();
-            checkout.setDate(checkin.getDate() + 1)
-        }
+            if (checkout === null) {
+                checkout = new Date();
+                checkout.setDate(checkin.getDate() + 1)
+            }
 
-        this._searchData = new SearchData(
-            checkin,
-            checkout,
-            adults,
-            children,
-            rooms,
-            city
-        );
+            this._searchData = new SearchData(
+                checkin,
+                checkout,
+                adults,
+                children,
+                rooms,
+                city
+            );
 
-        this._generator = new Generator(this._url, this._searchData, this._query);
+            this._generator = new Generator(this._url, this._searchData, this._query);
 
-        this._generator.generateUrl(callback);
+            this._generator.generateUrl(callback);
 
-        return this._request(this._generator.baseUrl);
+            return this._request(this._generator.baseUrl);
+        })
+
     }
 
 }

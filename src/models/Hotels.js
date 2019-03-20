@@ -5,7 +5,9 @@ let hotel = new Schema(
     {
         __id: Schema.Types.ObjectId,
         name: String,
-        city: { type: Schema.Types.ObjectId, ref: 'City'}
+        city: { type: Schema.Types.ObjectId, ref: 'City'},
+        address: String,
+        engines: [{ type: Object }]
     }
 );
 
