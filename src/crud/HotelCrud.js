@@ -17,11 +17,20 @@ class HotelCrud extends Crud {
     }
 
     _getHotel(data, _data) {
-        let obj = _data.engines.filter(e => e.name == newData.engine.name)[0];
-        if (obj)
-            _data.engines.filter(e => e.name == newData.engine.name)[0] = data.engine;
+        let obj = _data.engines.filter(e => e.name == data.engine.name)[0];
+
+        console.log("toto");
+
+        console.log(obj);
+
+        console.log(obj !== null)
+
+        if (obj !== null)
+            _data.engines.filter(e => e.name == data.engine.name)[0] = data.engine;
         else
             _data.engines.push(data.engine);
+
+        console.log(_data)
 
         return _data;
     }
@@ -34,8 +43,11 @@ class HotelCrud extends Crud {
     create(data) {
         let name = data.name;
         return this.getByName(name).then((_data) => {
-            if (!this._compare(data, _data))
+
+            if (!this._compare(data, _data)) {
+                console.log("toto");
                 return super.updateById(this._getHotel(data, _data));
+            }
 
             return {
                 error: "Already existing hotel"
@@ -45,7 +57,7 @@ class HotelCrud extends Crud {
             delete data.engine;
 
             data.engines = [ obj ];
-            return super.create(data);
+            //return super.create(data);
         })
     }
 
@@ -67,7 +79,12 @@ class HotelCrud extends Crud {
      */
     getByName(name) {
         return this.getAll().then(e => {
-            console.log(e)
+            let names = e.map(i => i.name);
+            let agv = Similarity.findBestMatch(name, names);
+            let res = e.filter(i => i.name === agv.bestMatch.target)[0];
+            return new Promise((resolve, reject) => {
+                return agv.bestMatch.rating > 0.81 ? resolve(res) : reject(true)
+            });
         })
     }
 
