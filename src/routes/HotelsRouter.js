@@ -23,6 +23,7 @@ router.post('/hotels/create/', (req, res) => {
             return createHotel(hotel.name, doc._id, hotel.city)
         })
         .catch(() => {
+            console.log("No city found with name " + hotel.city);
             return CityCrud.create({
                 name: hotel.city,
             }).then(city => {
