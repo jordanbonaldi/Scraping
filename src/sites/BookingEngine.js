@@ -52,6 +52,22 @@ class BookingEngine extends Engine {
         return read;
     }
 
+    _getData(id, data, classes) {
+        return $('[data-hotelid='+'"'+id+'"'+'] ' + classes, data)[0].children[0].data;
+    }
+
+    _getName(id, data) {
+        return this._getData(id, data, '.sr-hotel__name').replace(/\s+/g, ' ').trim();
+    }
+
+    _getRate(id, data) {
+        return this._getData(id, data, '.bui-review-score__badge').match(/\d/g).join('');
+    }
+
+    _getReviews(id, data) {
+        return this._getData(id, data, '.bui-review-score__text').match(/\d/g).join('');
+    }
+
     /**
      * @param data
      *
@@ -65,19 +81,15 @@ class BookingEngine extends Engine {
         for (let i = 0; i < search.length; i++) {
             let id = search[i].attribs['data-hotelid'];
 
-            let f = $('[data-hotelid='+'"'+id+'"'+'] .sr-hotel__name', data)[0].children[0].data;
-
-            f = f.replace(/\s+/g, ' ').trim();
-
             hotel.push({
-                name: f,
-                address: '',
+                name: this._getName(id, data),
+                address: 'none',
                 city: super.city,
                 engine: {
                     name: 'Booking.com',
                     price: '',
-                    rate: '',
-                    reviews: ''
+                    rate: this._getRate(id, data)/10,
+                    reviews: this._getReviews(id, data)
                 }
             });
 

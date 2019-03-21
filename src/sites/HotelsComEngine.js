@@ -64,23 +64,18 @@ class BookingEngine extends Engine {
         if (f != null && f.hasOwnProperty('children')) {
             f = f.children[0];
 
-            price = f.next === null ? f.children[0].data.match(/\d/g) : f.next.children[0].data.match(/\d/g);
-            price = price.join('')
+            price = f.next === null ? f.children[0].data.match(/\d/g) : f.next.children[0].data.match(/\d/g).join('')
         }
 
         return price
     }
 
     _getRate(id, data) {
-        let rate = this._getData(id, data, '.reviews-box .guest-reviews-badge').match(/\d/g);
-
-        return rate.join('')
+        return this._getData(id, data, '.reviews-box .guest-reviews-badge').match(/\d/g).join('')
     }
 
     _getReviews(id, data) {
-        let reviews = this._getData(id, data, '.trip-advisor .ta-total-reviews').match(/\d/g);
-
-        return reviews.join('')
+        return this._getData(id, data, '.trip-advisor .ta-total-reviews').match(/\d/g).join('')
     }
 
     /**
