@@ -1,5 +1,6 @@
 const HotelsComEngine = require('../sites/HotelsComEngine');
 const BookingEngine = require('../sites/BookingEngine');
+const TripAdvisor = require('../sites/TripAdvisor/TripAdvisorEngine');
 
 class EnginesManager {
 
@@ -43,7 +44,7 @@ class EnginesManager {
 
 }
 
-const engine = new EnginesManager(BookingEngine);
+const engine = new EnginesManager(TripAdvisor);
 
 load = () => {
     engine.loadSearch('nice')

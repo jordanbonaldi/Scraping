@@ -167,4 +167,4 @@ class Query {
 
 }
 
-module.exports = Query;
+module.exports = {Query, QuerySetter};

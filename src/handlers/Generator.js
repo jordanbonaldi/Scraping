@@ -19,6 +19,10 @@ class Generator {
         return this._baseUrl;
     }
 
+    set baseUrl(value) {
+        this._baseUrl = value;
+    }
+
     /**
      *
      * @private

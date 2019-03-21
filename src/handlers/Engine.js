@@ -1,4 +1,4 @@
-const Query = require('./Query');
+const {Query} = require('./Query');
 const SearchData = require('./SearchData');
 const Generator = require('./Generator');
 const City = require('../crud/CityCrud');
@@ -23,6 +23,18 @@ class Engine {
 
     get city() {
         return this._city;
+    }
+
+    set city(value) {
+        this._city = value;
+    }
+
+    get defaultUrl() {
+        return this._defaultUrl;
+    }
+
+    get url() {
+        return this._url;
     }
 
     /**
@@ -156,6 +168,17 @@ class Engine {
                 return this._launchRequest(max);
             })
         })
+    }
+
+    /**
+     *
+     * @param generator {Generator}
+     * @param url
+     * @returns {Promise|*|PromiseLike<any|never>|Promise<any|never>}
+     */
+    newGeneratorRequester(generator, url) {
+        this._generator = generator;
+        return this._request(url);
     }
 
     /**
