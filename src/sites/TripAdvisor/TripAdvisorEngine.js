@@ -108,12 +108,67 @@ class TripAdvisorEngine extends Engine{
     }
 
     /**
+     *
+     * @param data
+     * @param id
+     * @private
+     */
+    _getPrices(data, id) {
+        let prices = $('[data-locationid='+'"'+id+'"'+'] .no_cpu', data);
+        let length = prices.length;
+
+        /**
+         * Recuperation tarifaire des X -> length derniers prix
+         */
+        for (let i = 0; i < length; i++) {
+            let attribs = prices[i].attribs;
+
+            let name = attribs['data-vendorname'];
+            let price = attribs['data-pernight'];
+
+            if (name != null || price != null)
+                console.log(name + " => " + price);
+        }
+    }
+
+    /**
+     * 
+     * @param data
+     * @param id
+     * @returns {string}
+     * @private
+     */
+    _getRate(data, id) {
+        let rate = $('[data-locationid='+'"'+id+'"'+'] .prw_rup .ui_bubble_rating', data)[0].attribs['alt'].match(/\d/g).join('');
+
+        return (rate/100).toFixed(1);
+    }
+
+    /**
+     *
+     * @param data
+     * @param id
+     * @returns {string}
+     * @private
+     */
+    _getRateReview(data, id) {
+        return $('[data-locationid='+'"'+id+'"'+'] .review_count', data)[0].children[0].data.match(/\d/g).join('');
+    }
+
+    /**
      * @param data
      *
      * @returns {Array}
      */
     parseSite(data) {
-        console.log("PARSING MODE")
+        let id = $('.listing .meta_listing .ui_columns', data)[0].attribs['data-locationid'];
+
+        let rate = this._getRate(data, id);
+        let review = this._getRateReview(data, id);
+
+        console.log(rate);
+        console.log(review);
+
     }
 
 }
