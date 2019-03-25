@@ -44,7 +44,7 @@ class EnginesManager {
 
 }
 
-const engine = new EnginesManager(TripAdvisor);
+const engine = new EnginesManager(HotelsComEngine);
 
 load = () => {
     engine.loadSearch('nice')

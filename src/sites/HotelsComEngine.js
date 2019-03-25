@@ -64,7 +64,7 @@ class BookingEngine extends Engine {
         if (f != null && f.hasOwnProperty('children')) {
             f = f.children[0];
 
-            price = f.next === null ? f.children[0].data.match(/\d/g) : f.next.children[0].data.match(/\d/g).join('')
+            price = f.next === null ? f.children[0].data.match(/\d/g).join('') : f.next.children[0].data.match(/\d/g).join('')
         }
 
         return price
@@ -87,12 +87,12 @@ class BookingEngine extends Engine {
         let search = $('li.hotel', data);
 
         let hotel = [];
-
-        console.log('\n');
-
+        
         for (let i = 0; i < search.length; i++) {
             let name = search[i].attribs['data-title'];
             let id = search[i].attribs['data-hotel-id'];
+
+            console.log(name + " done!");
 
             let price = this._getPrice(id, data);
             let address = this._getAddress(id, data);
@@ -112,10 +112,7 @@ class BookingEngine extends Engine {
                 }
             });
 
-            console.log(hotel)
         }
-
-        console.log('\n');
 
         return hotel;
     }
