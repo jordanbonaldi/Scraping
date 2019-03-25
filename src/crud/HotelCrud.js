@@ -7,7 +7,17 @@ class HotelCrud extends Crud {
         super('hotel', Hotel);
     }
 
+    /**
+     *
+     * @param newData
+     * @param oldData
+     * @returns {boolean}
+     * @private
+     */
     _compare(newData, oldData) {
+        if (Array.isArray(newData.engine))
+            return false;
+
         let oldEngine = oldData.engines.filter(e => e.name == newData.engine.name)[0];
 
         if (oldEngine == null)
@@ -16,7 +26,13 @@ class HotelCrud extends Crud {
         return oldEngine.price === newData.engine.price
     }
 
-    _getHotel(data, _data) {
+    /**
+     *
+     * @param data
+     * @param _data
+     * @private
+     */
+    _getData(data, _data){
         let obj = _data.engines.filter(e => e.name == data.engine.name)[0];
 
         if (_data.address == 'none' && data.address != 'none')
@@ -33,12 +49,45 @@ class HotelCrud extends Crud {
     /**
      *
      * @param data
+     * @param _data
+     * @private
+     */
+    _getHotelArray(data, _data) {
+        data.engine.forEach(e => {
+            let hotel = {
+                name: data.name,
+                address: data.address,
+                city: data.city,
+                engine: e
+            };
+
+            _data = this._getData(hotel, _data);
+        });
+
+        return _data
+    }
+
+    /**
+     *
+     * @param data
+     * @param _data
+     * @returns {*}
+     * @private
+     */
+    _getHotel(data, _data) {
+        if (Array.isArray(data.engine))
+            return this._getHotelArray(data, _data);
+
+        return this._getData(data, _data);
+    }
+
+    /**
+     *
+     * @param data
      * @returns {Promise<{error: string} | never | any>}
      */
     create(data) {
-        let name = data.name;
-        return this.getByName(name).then((_data) => {
-
+        return this.getByName(data.name).then((_data) => {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 
@@ -46,11 +95,17 @@ class HotelCrud extends Crud {
                 error: "Already existing hotel"
             }
         }).catch(() => {
-            let obj = data.engine;
+            let obj = [];
+
+            if (Array.isArray(data.engine))
+                obj = data.engine;
+            else obj = [ data.engine ];
+
             delete data.engine;
 
-            data.engines = [ obj ];
-            return super.create(data);
+            data.engines = obj;
+
+            return super.create(data)
         })
     }
 

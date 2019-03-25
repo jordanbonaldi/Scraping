@@ -111,11 +111,16 @@ class TripAdvisorEngine extends Engine{
      *
      * @param data
      * @param id
+     * @param review
+     * @param rate
+     * @returns {Array}
      * @private
      */
-    _getPrices(data, id) {
-        let prices = $('[data-locationid='+'"'+id+'"'+'] .no_cpu', data);
+    _getPrices(review = 0, rate = 0) {
+        let prices = $('[data-locationid='+'"'+this._id+'"'+'] .no_cpu', this._data);
         let length = prices.length;
+
+        let engines = [];
 
         /**
          * Recuperation tarifaire des X -> length derniers prix
@@ -126,22 +131,17 @@ class TripAdvisorEngine extends Engine{
             let name = attribs['data-vendorname'];
             let price = attribs['data-pernight'];
 
-            if (name != null || price != null)
-                console.log(name + " => " + price);
+            if ((name != null || price != null)
+                    && engines.filter(e => e.name === name)[0] == null)
+                engines.push({
+                    name: name,
+                    price: price,
+                    rate: rate,
+                    review: review
+                })
         }
-    }
 
-    /**
-     * 
-     * @param data
-     * @param id
-     * @returns {string}
-     * @private
-     */
-    _getRate(data, id) {
-        let rate = $('[data-locationid='+'"'+id+'"'+'] .prw_rup .ui_bubble_rating', data)[0].attribs['alt'].match(/\d/g).join('');
-
-        return (rate/100).toFixed(1);
+        return engines.sort((a, b) => a.price - b.price)
     }
 
     /**
@@ -151,8 +151,61 @@ class TripAdvisorEngine extends Engine{
      * @returns {string}
      * @private
      */
-    _getRateReview(data, id) {
-        return $('[data-locationid='+'"'+id+'"'+'] .review_count', data)[0].children[0].data.match(/\d/g).join('');
+    _getRate() {
+        let rate = $('[data-locationid='+'"'+this._id+'"'+'] .prw_rup .ui_bubble_rating', this._data)[0].attribs['alt'].match(/\d/g).join('');
+
+        rate = rate.substr(0, rate.length - 1);
+
+        if (rate.length > 1)
+            rate = (rate/10).toFixed(1);
+
+        return rate;
+    }
+
+    /**
+     *
+     * @param data
+     * @param id
+     * @returns {string}
+     * @private
+     */
+    _getRateReview() {
+        return $('[data-locationid='+'"'+this._id+'"'+'] .review_count', this._data)[0].children[0].data.match(/\d/g).join('');
+    }
+
+    _getName() {
+        return $('[data-locationid='+'"'+this._id+'"'+'] .listing_title a', this._data)[0].children[0].data;
+    }
+
+    /**
+     *
+     * @param data
+     * @param columns
+     * @param start
+     * @private
+     */
+    _getHotels(columns, start = 0) {
+        let hotels = [];
+
+        for (let i = start; i < columns.length; i++) {
+            this._id = $('.listing .meta_listing .ui_columns', this._data)[i].attribs['data-locationid'];
+
+            let name = this._getName();
+
+            console.log(name + " done!");
+
+            hotels.push({
+                name: name,
+                address: 'none',
+                city: super.city,
+                engine: this._getPrices(
+                    this._getRateReview(),
+                    this._getRate()
+                )
+            })
+        }
+
+        return hotels;
     }
 
     /**
@@ -161,14 +214,16 @@ class TripAdvisorEngine extends Engine{
      * @returns {Array}
      */
     parseSite(data) {
-        let id = $('.listing .meta_listing .ui_columns', data)[0].attribs['data-locationid'];
+        this._data = data;
 
-        let rate = this._getRate(data, id);
-        let review = this._getRateReview(data, id);
+        let i = -1;
+        let columns = $('.listing .meta_listing .ui_columns', this._data);
 
-        console.log(rate);
-        console.log(review);
+        {
+            while (columns[++i].attribs['data-locationid'] === undefined) ;
+        }
 
+        return this._getHotels(columns, i);
     }
 
 }
