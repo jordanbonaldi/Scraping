@@ -6,6 +6,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config/config');
 
+const HotelConsumer = require('./src/consumer/HotelConsumer');
+
+HotelConsumer.connect();
+
 const hotelsRouter = require('./src/routes/HotelsRouter');
 
 const EnginesManager = require('./src/handlers/EnginesManager');
@@ -62,6 +66,6 @@ const connectToMongo = () => new Promise((resolve) => {
 
 connectToMongo().then(initApp);
 
-EnginesManager();
+//EnginesManager();
 
 module.exports = app;

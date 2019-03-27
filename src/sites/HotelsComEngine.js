@@ -87,7 +87,7 @@ class BookingEngine extends Engine {
         let search = $('li.hotel', data);
 
         let hotel = [];
-        
+
         for (let i = 0; i < search.length; i++) {
             let name = search[i].attribs['data-title'];
             let id = search[i].attribs['data-hotel-id'];
