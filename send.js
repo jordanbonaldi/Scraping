@@ -9,6 +9,6 @@ rabbit.connect('amqp://localhost', (err, conn) => {
 			city: 'Nice',
 			classement: '5',
 		}
-		ch.sendToQueue('scraping', new Buffer(JSON.stringify(obj)));
+		ch.sendToQueue('scraping', Buffer.from(JSON.stringify(obj)));
 	});
 });
