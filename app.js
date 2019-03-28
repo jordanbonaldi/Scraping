@@ -8,11 +8,12 @@ const config = require('./config/config');
 
 const HotelConsumer = require('./src/consumer/HotelConsumer');
 
+/**
+ * Launch du RabbitMQ Consumer
+ */
 HotelConsumer.connect();
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
-
-const EnginesManager = require('./src/handlers/EnginesManager');
 
 const app = express();
 
@@ -27,13 +28,13 @@ const initApp = () => {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
         res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type');
-        next();
+        next()
     });
 
     app.use('/', hotelsRouter);
 // catch 404 and forward to error handler
     app.use(function(req, res, next) {
-        next(createError(404));
+        next(createError(404))
     });
 
 // error handler
@@ -44,14 +45,14 @@ const initApp = () => {
 
         // render the error page
         res.status(err.status || 500);
-        res.render('error');
-    });
+        res.render('error')
+    })
 };
 
 const tryMongoConnection = () => new Promise((resolve) => {
     mongoose.connect(config.mongo, {useNewUrlParser: true})
         .then(() => { console.log('[Mongo] Connected'); resolve() })
-        .catch(e => { console.log('[Mongo]', e.message); console.log('[Mongo] Retrying to connect in a few seconds...') });
+        .catch(e => { console.log('[Mongo]', e.message); console.log('[Mongo] Retrying to connect in a few seconds...') })
 });
 
 const connectToMongo = () => new Promise((resolve) => {
@@ -59,13 +60,11 @@ const connectToMongo = () => new Promise((resolve) => {
         tryMongoConnection()
             .then(() => {
                 clearInterval(interval);
-                resolve();
-            });
-    }, 3000);
+                resolve()
+            })
+    }, 3000)
 });
 
 connectToMongo().then(initApp);
-
-//EnginesManager();
 
 module.exports = app;
