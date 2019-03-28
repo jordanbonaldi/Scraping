@@ -13,6 +13,8 @@ const HotelConsumer = require('./src/consumer/HotelConsumer');
  */
 HotelConsumer.connect();
 
+require('./src/handlers/EnginesManager')();
+
 const hotelsRouter = require('./src/routes/HotelsRouter');
 
 const app = express();

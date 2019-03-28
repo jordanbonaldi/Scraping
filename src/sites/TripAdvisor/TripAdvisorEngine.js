@@ -94,7 +94,7 @@ class TripAdvisorEngine extends Engine{
      * @returns {Number}
      */
     getBasicInformation(data) {
-        return $('.descriptive_header_text span.highlight', data)[0].children[0].data.match(/\d/g).join('');
+        return super.getData('', '.descriptive_header_text span.highlight', data).match(/\d/g).join('')
     }
 
     /**
@@ -105,6 +105,14 @@ class TripAdvisorEngine extends Engine{
      */
     handleOffset(index, read) {
         return read;
+    }
+
+    /**
+     *
+     * @param classes
+     */
+    _getData(classes) {
+        super.getData('[data-locationid='+'"'+this._id+'"'+']', classes, this._data)
     }
 
     /**
@@ -170,11 +178,11 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getRateReview() {
-        return $('[data-locationid='+'"'+this._id+'"'+'] .review_count', this._data)[0].children[0].data.match(/\d/g).join('');
+        return this._getData('.review_count').match(/\d/g).join('')
     }
 
     _getName() {
-        return $('[data-locationid='+'"'+this._id+'"'+'] .listing_title a', this._data)[0].children[0].data;
+        return this._getData('.listing_title a')
     }
 
     /**

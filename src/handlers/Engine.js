@@ -1,4 +1,5 @@
 const {Query} = require('./Query');
+const $ = require('cheerio');
 const SearchData = require('./SearchData');
 const Generator = require('./Generator');
 const City = require('../crud/CityCrud');
@@ -19,6 +20,7 @@ class Engine {
         this._defaultUrl = defaultUrl;
         this._query = new Query(...queries);
         this._city = null;
+        this._time = 0;
     }
 
     get city() {
@@ -37,6 +39,10 @@ class Engine {
         return this._url;
     }
 
+    get time() {
+        return this._time;
+    }
+
     /**
      *
      * @returns {*}
@@ -51,8 +57,8 @@ class Engine {
      * @returns {Array}
      */
     parseSite(data = null) {
-        return 0
-    };
+        return []
+    }
 
     /**
      *
@@ -62,6 +68,31 @@ class Engine {
      */
     handleOffset(index = 0, read = 0) {
       return index * read;
+    }
+
+    /**
+     *
+     * @param schema
+     * @param classes
+     * @param data
+     * @param digit
+     * @returns {*}
+     */
+    getData(schema, classes, data, digit = 0) {
+        let _data = $(schema + ' ' + classes, data);
+        if (_data[0] == null ||
+            _data[0].children == null ||
+            _data[0].children[0] == null ||
+            _data[0].children[0].data
+        )
+            return null;
+
+        _data = _data[0].children[0].data;
+
+        if (digit)
+             _data = _data.match(/\d/g).join('');
+
+        return _data
     }
 
     /**
@@ -117,6 +148,9 @@ class Engine {
     _launchRequest(max, read = 0, index = 0) {
         let url = this._generator.addOffSet(this.handleOffset(index, read));
         return request(Engine._opt(url)).then((data) => {
+            if (read === 0)
+                this._time = Date.now();
+
             let e = this.parseSite(data);
 
             let hotels = e.map(a => Hotel.create(a));
@@ -124,7 +158,9 @@ class Engine {
             return Promise.all(hotels).then(() => {
                 read += e.length;
 
-                console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%");
+                this._time = Math.abs(this._time -= Date.now());
+
+                console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%" + " in " + this._time + " seconds");
 
                 if (max - read > 0)
                     return this._launchRequest(max, read, index + 1);

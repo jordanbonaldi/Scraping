@@ -36,6 +36,11 @@ class BookingEngine extends Engine {
         );
     }
 
+    /**
+     *
+     * @param data
+     * @returns {string}
+     */
     getBasicInformation(data) {
         let search = $('p.total-count', data)[0].children[0].data;
         let max = search.match(/\d/g);
@@ -44,18 +49,46 @@ class BookingEngine extends Engine {
         return max
     }
 
+    /**
+     *
+     * @param index
+     * @param read
+     * @returns {*}
+     */
     handleOffset(index, read = 0) {
         return index + 1
     }
 
-    _getData(id, data, classes) {
-        return $('[data-hotel-id='+'"'+id+'"'+'] ' + classes, data)[0].children[0].data
+    /**
+     *
+     * @param id
+     * @param data
+     * @param classes
+     * @param digit
+     * @returns {*}
+     */
+    _getData(id, data, classes, digit = 0) {
+        return super.getData('[data-hotel-id='+'"'+id+'"'+']', classes, data, digit)
     }
 
+    /**
+     *
+     * @param id
+     * @param data
+     * @returns {*}
+     * @private
+     */
     _getAddress(id, data) {
-        return this._getData(id, data, '.hotel-wrap .contact span')
+        return this._getData(id, data, '.hotel-wrap .contact span', false)
     }
 
+    /**
+     *
+     * @param id
+     * @param data
+     * @returns {number}
+     * @private
+     */
     _getPrice(id, data) {
         let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0];
 
@@ -70,12 +103,26 @@ class BookingEngine extends Engine {
         return price
     }
 
+    /**
+     *
+     * @param id
+     * @param data
+     * @returns {string}
+     * @private
+     */
     _getRate(id, data) {
-        return this._getData(id, data, '.reviews-box .guest-reviews-badge').match(/\d/g).join('')
+        return this._getData(id, data, '.reviews-box .guest-reviews-badge', true)
     }
 
+    /**
+     *
+     * @param id
+     * @param data
+     * @returns {string}
+     * @private
+     */
     _getReviews(id, data) {
-        return this._getData(id, data, '.trip-advisor .ta-total-reviews').match(/\d/g).join('')
+        return this._getData(id, data, '.trip-advisor .ta-total-reviews', true)
     }
 
     /**
@@ -91,6 +138,9 @@ class BookingEngine extends Engine {
         for (let i = 0; i < search.length; i++) {
             let name = search[i].attribs['data-title'];
             let id = search[i].attribs['data-hotel-id'];
+
+            if (this._getRate(id, data) == null)
+                continue;
 
             console.log(name + " done!");
 
