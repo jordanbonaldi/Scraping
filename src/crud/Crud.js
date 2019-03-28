@@ -17,12 +17,13 @@ class Crud {
     create(data) {
         return new Promise((resolve, reject) => {
             let date = new Date();
-            data = {
+            let dot = {
                 ...data,
-                _createdAt: date,
-                _updatedAt: date
+                createdAt: date,
+                updatedAt: date
             };
-            this.model.create(data, (err, doc) => {
+
+            this.model.create(dot, (err, doc) => {
                     if (err) reject(true);
                     else resolve(doc);
                 }
@@ -53,7 +54,7 @@ class Crud {
      */
     update(data, identifier = {}) {
         return new Promise((resolve, reject) => {
-            data._updatedAt = new Date();
+            data.updatedAt = new Date();
             this.model.updateOne(identifier, data, (err, res) => {
                     (err)
                         ? reject(true)
