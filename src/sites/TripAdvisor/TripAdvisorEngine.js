@@ -110,9 +110,10 @@ class TripAdvisorEngine extends Engine{
     /**
      *
      * @param classes
+     * @param digit
      */
-    _getData(classes) {
-        super.getData('[data-locationid='+'"'+this._id+'"'+']', classes, this._data)
+    _getData(classes, digit = 0) {
+        return super.getData('[data-locationid='+'"'+this._id+'"'+']', classes, this._data, digit)
     }
 
     /**
@@ -178,11 +179,11 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getRateReview() {
-        return this._getData('.review_count').match(/\d/g).join('')
+        return this._getData('.review_count', true)
     }
 
     _getName() {
-        return this._getData('.listing_title a')
+        return this._getData('.listing_title a', false)
     }
 
     /**
@@ -199,6 +200,9 @@ class TripAdvisorEngine extends Engine{
             this._id = $('.listing .meta_listing .ui_columns', this._data)[i].attribs['data-locationid'];
 
             let name = this._getName();
+
+            if (this._getRateReview() == null)
+                continue;
 
             console.log(name + " done!");
 

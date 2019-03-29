@@ -42,11 +42,7 @@ class BookingEngine extends Engine {
      * @returns {string}
      */
     getBasicInformation(data) {
-        let search = $('p.total-count', data)[0].children[0].data;
-        let max = search.match(/\d/g);
-        max = max.join('');
-
-        return max
+        return super.getData('', 'p.total-count', data, true)
     }
 
     /**
@@ -61,36 +57,30 @@ class BookingEngine extends Engine {
 
     /**
      *
-     * @param id
-     * @param data
      * @param classes
      * @param digit
      * @returns {*}
      */
-    _getData(id, data, classes, digit = 0) {
-        return super.getData('[data-hotel-id='+'"'+id+'"'+']', classes, data, digit)
+    _getData(classes, digit = 0) {
+        return super.getData('[data-hotel-id='+'"'+this._id+'"'+']', classes, this._data, digit)
     }
 
     /**
      *
-     * @param id
-     * @param data
      * @returns {*}
      * @private
      */
-    _getAddress(id, data) {
-        return this._getData(id, data, '.hotel-wrap .contact span', false)
+    _getAddress() {
+        return this._getData('.hotel-wrap .contact span', false)
     }
 
     /**
      *
-     * @param id
-     * @param data
      * @returns {number}
      * @private
      */
-    _getPrice(id, data) {
-        let f = $('[data-hotel-id='+'"'+id+'"'+'] .pricing .price a', data)[0];
+    _getPrice() {
+        let f = $('[data-hotel-id='+'"'+this._id+'"'+'] .pricing .price a', this._data)[0];
 
         let price = 0;
 
@@ -105,24 +95,25 @@ class BookingEngine extends Engine {
 
     /**
      *
-     * @param id
-     * @param data
      * @returns {string}
      * @private
      */
-    _getRate(id, data) {
-        return this._getData(id, data, '.reviews-box .guest-reviews-badge', true)
+    _getRate() {
+        let rate = this._getData('.reviews-box .guest-reviews-badge', true);
+
+        if (rate != null && rate.length > 1)
+            rate = (rate/10).toFixed(1);
+
+        return rate;
     }
 
     /**
      *
-     * @param id
-     * @param data
      * @returns {string}
      * @private
      */
-    _getReviews(id, data) {
-        return this._getData(id, data, '.trip-advisor .ta-total-reviews', true)
+    _getReviews() {
+        return this._getData('.trip-advisor .ta-total-reviews', true)
     }
 
     /**
@@ -131,24 +122,25 @@ class BookingEngine extends Engine {
      * @returns {Array}
      */
     parseSite(data) {
+        this._data = data;
         let search = $('li.hotel', data);
 
         let hotel = [];
 
         for (let i = 0; i < search.length; i++) {
             let name = search[i].attribs['data-title'];
-            let id = search[i].attribs['data-hotel-id'];
-
-            if (this._getRate(id, data) == null)
-                continue;
+            this._id = search[i].attribs['data-hotel-id'];
 
             console.log(name + " done!");
 
-            let price = this._getPrice(id, data);
-            let address = this._getAddress(id, data);
+            if (this._getRate() == null)
+                continue;
 
-            let rate = this._getRate(id, data);
-            let reviews = this._getReviews(id, data);
+            let price = this._getPrice();
+            let address = this._getAddress();
+
+            let rate = this._getRate();
+            let reviews = this._getReviews();
 
             hotel.push({
                 name: name,

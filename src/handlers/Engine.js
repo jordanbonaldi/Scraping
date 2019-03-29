@@ -21,6 +21,7 @@ class Engine {
         this._query = new Query(...queries);
         this._city = null;
         this._time = 0;
+        this._frequence = 0;
     }
 
     get city() {
@@ -80,10 +81,11 @@ class Engine {
      */
     getData(schema, classes, data, digit = 0) {
         let _data = $(schema + ' ' + classes, data);
+
         if (_data[0] == null ||
             _data[0].children == null ||
             _data[0].children[0] == null ||
-            _data[0].children[0].data
+            _data[0].children[0].data == null
         )
             return null;
 
@@ -133,7 +135,7 @@ class Engine {
                     e.split(';')[0]
                 )
             }).then((a) => {
-                return a.join(';');
+                return a.join(';')
             })
     }
 
@@ -148,8 +150,8 @@ class Engine {
     _launchRequest(max, read = 0, index = 0) {
         let url = this._generator.addOffSet(this.handleOffset(index, read));
         return request(Engine._opt(url)).then((data) => {
-            if (read === 0)
-                this._time = Date.now();
+
+            this._time = Date.now();
 
             let e = this.parseSite(data);
 
@@ -158,9 +160,11 @@ class Engine {
             return Promise.all(hotels).then(() => {
                 read += e.length;
 
-                this._time = Math.abs(this._time -= Date.now());
+                this._time = Math.abs(this._time -= Date.now())/1000;
 
-                console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%" + " in " + this._time + " seconds");
+                this._frequence = this._time;
+
+                console.log(this._name + " loading : " + read + "/" + max + " " + (((read*100)/max) | 0) + "%" + " in " + this._frequence + " seconds");
 
                 if (max - read > 0)
                     return this._launchRequest(max, read, index + 1);

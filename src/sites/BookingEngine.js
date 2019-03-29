@@ -36,6 +36,11 @@ class BookingEngine extends Engine {
         );
     }
 
+    /**
+     *
+     * @param data
+     * @returns {number}
+     */
     getBasicInformation(data) {
         let search = $('.sr_item', data);
         let length = search.length;
@@ -48,24 +53,52 @@ class BookingEngine extends Engine {
         return max * length;
     }
 
+    /**
+     *
+     * @param index
+     * @param read
+     * @returns {*}
+     */
     handleOffset(index, read) {
         return read;
     }
 
-    _getData(id, data, classes) {
-        return $('[data-hotelid='+'"'+id+'"'+'] ' + classes, data)[0].children[0].data;
+    /**
+     *
+     * @param classes
+     * @param digit
+     * @returns {*}
+     * @private
+     */
+    _getData(classes, digit = 0) {
+        return super.getData('[data-hotelid='+'"'+this._id+'"'+']', classes, this._data, digit)
     }
 
-    _getName(id, data) {
-        return this._getData(id, data, '.sr-hotel__name').replace(/\s+/g, ' ').trim();
+    /**
+     *
+     * @returns {string}
+     * @private
+     */
+    _getName() {
+        return this._getData('.sr-hotel__name').replace(/\s+/g, ' ').trim();
     }
 
-    _getRate(id, data) {
-        return this._getData(id, data, '.bui-review-score__badge').match(/\d/g).join('');
+    /**
+     *
+     * @returns {*}
+     * @private
+     */
+    _getRate() {
+        return this._getData('.bui-review-score__badge', true)
     }
 
-    _getReviews(id, data) {
-        return this._getData(id, data, '.bui-review-score__text').match(/\d/g).join('');
+    /**
+     *
+     * @returns {string}
+     * @private
+     */
+    _getReviews() {
+        return this._getData('.bui-review-score__text', true)
     }
 
     /**
@@ -74,22 +107,30 @@ class BookingEngine extends Engine {
      * @returns {Array}
      */
     parseSite(data) {
+        this._data = data;
         let search = $('.sr_item', data);
 
         let hotel = [];
 
         for (let i = 0; i < search.length; i++) {
-            let id = search[i].attribs['data-hotelid'];
+            this._id = search[i].attribs['data-hotelid'];
+
+            if (this._getRate() == null)
+                continue;
+
+            let name = this._getName();
+
+            console.log(name + " done!");
 
             hotel.push({
-                name: this._getName(id, data),
+                name: name,
                 address: 'none',
                 city: super.city,
                 engine: {
                     name: 'Booking.com',
                     price: '',
-                    rate: this._getRate(id, data)/10,
-                    reviews: this._getReviews(id, data)
+                    rate: this._getRate()/10,
+                    reviews: this._getReviews()
                 }
             });
 
