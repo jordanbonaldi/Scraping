@@ -161,7 +161,12 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getRate() {
-        let rate = $('[data-locationid='+'"'+this._id+'"'+'] .prw_rup .ui_bubble_rating', this._data)[0].attribs['alt'].match(/\d/g).join('');
+        let rate = $('[data-locationid='+'"'+this._id+'"'+'] .prw_rup .ui_bubble_rating', this._data)[0];
+
+        if (rate == null)
+            return rate;
+
+        rate = rate.attribs['alt'].match(/\d/g).join('');
 
         rate = rate.substr(0, rate.length - 1);
 

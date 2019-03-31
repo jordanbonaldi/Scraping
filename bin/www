@@ -20,15 +20,18 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-const server = http.createServer(app);
+new Promise((resolve, reject) => {
+  setTimeout(() => {
+      const server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+      server.listen(port);
+      server.on('error', onError);
+      server.on('listening', () => onListening(server));
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+      resolve(server)
+
+  }, 1000)
+}).then(() => console.log("Server started"));
 
 /**
  * Normalize a port into a number, string, or false.
@@ -82,7 +85,7 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
+function onListening(server) {
   let addr = server.address();
   let bind = typeof addr === 'string'
     ? 'pipe ' + addr

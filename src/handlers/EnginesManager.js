@@ -8,6 +8,10 @@ class EnginesManager {
         this._engines = engines;
     }
 
+    eta() {
+        return this._engines[0].frequence;
+    }
+
     /**
      *
      * @param city
@@ -27,8 +31,8 @@ class EnginesManager {
         rooms = 1,
         callback = null
     ) {
-        this._engines.forEach(e => {
-            e.search(
+        return Promise.all(this._engines.map(engine => {
+            return engine.search(
                 city,
                 checkin,
                 checkout,
@@ -37,17 +41,17 @@ class EnginesManager {
                 rooms,
                 callback
             ).then(() => {
-                console.log("Finished for " + e._name);
+                console.log("Finished for " + city);
             })
-        })
+        }))
     }
 
 }
 
-const engine = new EnginesManager(BookingEngine);
+const engine = new EnginesManager(TripAdvisor);
 
-load = () => {
-    engine.loadSearch('nice')
+const load = () => {
+    return engine.loadSearch('nice')
 };
 
-module.exports = load;
+module.exports = {load, engine};

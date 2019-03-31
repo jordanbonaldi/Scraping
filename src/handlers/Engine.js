@@ -40,8 +40,8 @@ class Engine {
         return this._url;
     }
 
-    get time() {
-        return this._time;
+    get frequence() {
+        return this._frequence;
     }
 
     /**

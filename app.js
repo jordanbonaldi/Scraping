@@ -13,7 +13,9 @@ const HotelConsumer = require('./src/consumer/HotelConsumer');
  */
 HotelConsumer.connect();
 
-require('./src/handlers/EnginesManager')();
+let {load} = require('./src/handlers/EnginesManager');
+
+load();
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
 
@@ -48,7 +50,8 @@ const initApp = () => {
         // render the error page
         res.status(err.status || 500);
         res.render('error')
-    })
+    });
+
 };
 
 const tryMongoConnection = () => new Promise((resolve) => {

@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const HotelCrud = require('../crud/HotelCrud');
 const CityCrud = require('../crud/CityCrud');
+const {load, engine} = require('../handlers/EnginesManager');
 
 /**
  * Get hotels
  */
-router.get('/hotels/get/:hotel', (req, res) => {
-    let name = req.params.hotel;
-
-    HotelCrud.getByName(name).then(data => res.send(data));
+router.get('/hotels/get/', (req, res) => {
+    console.log(engine.eta());
+    res.send("eta : ");
 });
 
 /**
