@@ -13,25 +13,13 @@ const config = require('../config/config');
  * Get port from environment and store in Express.
  */
 
+/**
+ *
+ * @type {string}
+ */
 const port = normalizePort(config.server.port);
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
-
-new Promise((resolve, reject) => {
-  setTimeout(() => {
-      const server = http.createServer(app);
-
-      server.listen(port);
-      server.on('error', onError);
-      server.on('listening', () => onListening(server));
-
-      resolve(server)
-
-  }, 1000)
-}).then(() => console.log("Server started"));
 
 /**
  * Normalize a port into a number, string, or false.
@@ -90,5 +78,30 @@ function onListening(server) {
   let bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
 }
+
+/**
+ * Create HTTP server.
+ */
+
+let create = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const server = http.createServer(app);
+
+      server.listen(port);
+      server.on('error', onError);
+      server.on('listening', () => onListening(server));
+
+      resolve(server)
+
+    }, 1000)
+  }).then(() => console.log("Server started"));
+};
+
+/**
+ *
+ * @type {function(): Promise<void | never>}
+ */
+module.exports = create;

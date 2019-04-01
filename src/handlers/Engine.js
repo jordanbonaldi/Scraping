@@ -24,22 +24,42 @@ class Engine {
         this._frequence = 0;
     }
 
+    /**
+     *
+     * @returns {null|*}
+     */
     get city() {
         return this._city;
     }
 
+    /**
+     *
+     * @param value
+     */
     set city(value) {
         this._city = value;
     }
 
+    /**
+     *
+     * @returns {*}
+     */
     get defaultUrl() {
         return this._defaultUrl;
     }
 
+    /**
+     *
+     * @returns {*}
+     */
     get url() {
         return this._url;
     }
 
+    /**
+     *
+     * @returns {number|*}
+     */
     get frequence() {
         return this._frequence;
     }

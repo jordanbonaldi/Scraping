@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/preLaunch",
+    "trip": "node ./bin/preLaunch tripadvisor",
+    "hotelscom": "node ./bin/preLaunch hotels.com",
+    "booking": "node ./bin/preLaunch booking.com"
   },
   "dependencies": {
     "amqplib": "^0.5.3",

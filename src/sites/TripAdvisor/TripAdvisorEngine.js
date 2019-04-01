@@ -14,11 +14,11 @@ class TripAdvisorEngine extends Engine{
             /**
              * Parse URL
              */
-            'https://www.tripadvisor.fr/TypeAheadJson?',
+            'https://server.js.tripadvisor.fr/TypeAheadJson?',
             /**
              * Default URL
              */
-            'https://www.tripadvisor.fr/',
+            'https://server.js.tripadvisor.fr/',
             /**
              * Queries -> none
              */
@@ -118,8 +118,6 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @param data
-     * @param id
      * @param review
      * @param rate
      * @returns {Array}
@@ -155,8 +153,6 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @param data
-     * @param id
      * @returns {string}
      * @private
      */
@@ -178,8 +174,6 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @param data
-     * @param id
      * @returns {string}
      * @private
      */
@@ -193,14 +187,12 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @param data
      * @param columns
      * @param start
      * @private
      */
     _getHotels(columns, start = 0) {
         let hotels = [];
-
         for (let i = start; i < columns.length; i++) {
             this._id = $('.listing .meta_listing .ui_columns', this._data)[i].attribs['data-locationid'];
 
