@@ -13,6 +13,7 @@ class ProcessCrud extends Crud {
      * @returns {Promise<T | never>}
      */
     create(data) {
+        console.log(data);
         let name = data.name;
 
         return this.getByName(name).then((currentData) => {
