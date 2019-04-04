@@ -125,11 +125,11 @@ class Crud {
 
     /**
      *
-     * @param id
+     * @param data
      * @returns {Promise<any>}
      */
-    deleteById(id) {
-        return this.delete({ _id: id })
+    deleteById(data) {
+        return this.delete({ _id: data._id })
     }
 }
 

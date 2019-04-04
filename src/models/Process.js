@@ -11,6 +11,9 @@ let Process = new Schema(
         chunk: Number,
         perChunk: Number,
         eta: Number,
+        index: Number,
+        offsets: Array,
+        freq: Array,
         createdAt: Date,
         updatedAt: Date
     }

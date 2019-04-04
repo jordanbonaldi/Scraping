@@ -21,10 +21,11 @@ class Engine {
         this._defaultUrl = defaultUrl;
         this._query = new Query(...queries);
         this._city = null;
-        this._frequence = 0;
+        this._frequence = [];
+        this._offset = [];
         this._max = 0;
         this._read = 0;
-        this._offset = 0;
+        this._now = 0;
     }
 
     /**
@@ -156,24 +157,30 @@ class Engine {
 
     /**
      *
-     * @returns {Promise<T|never>}
+     * @returns {Promise<any>}
      */
     updateSchema() {
-        let op = this._max/this._offset;
+        let offsetAver = Math.round(this._offset.reduce((a, b) => a + b, 0) / this._offset.length);
+        let freqAver = Math.round(this._frequence.reduce((a, b) => a + b, 0) / this._frequence.length);
+
+        let op = (this._max - this._read) / (offsetAver);
+
 
         return ProcessCrud.create({
             name: this._name,
             max: this._max,
             current: this._read,
-            chunk: this._offset,
-            perChunk: this._frequence,
-            eta: Math.round(op * this._frequence) + 30
+            chunk: offsetAver,
+            perChunk: this._now,
+            index: this._index,
+            freq: this._frequence,
+            offsets: this._offset,
+            eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
         });
     }
 
     /**
      *
-     * @param index
      * @returns {Promise|*|PromiseLike<T | never>|Promise<T | never>}
      * @private
      */
@@ -181,19 +188,27 @@ class Engine {
         let url = this._generator.addOffSet(this.handleOffset(++this._index));
         return request(Engine._opt(url)).then((data) => {
 
-            this._frequence = Date.now();
+            this._now = Date.now();
 
             let e = this.parseSite(data);
 
             let hotels = e.map(a => Hotel.create(a));
 
             return Promise.all(hotels).then(() => {
-                this._offset = e.length;
+                this._offset.push(e.length);
                 this._read += e.length;
 
-                this._frequence = Math.abs(this._frequence -= Date.now())/1000;
+                this._now = Math.abs(this._now -= Date.now())/1000;
 
-                console.log(this._name + " loading : " + this._read + "/" + this._max + " " + (((this._read*100)/this._max) | 0) + "%" + " in " + this._frequence + " seconds");
+                this._frequence.push(this._now);
+
+                console.log(
+                    this._name + " loading : " +
+                    this._read + "/" + this._max + " " +
+                    (((this._read*100)/this._max) | 0) + "%" +
+                    " in " +
+                    this._now + " seconds"
+                );
 
                 return this.updateSchema().then(() => {
                     if (this._max - this._read > 0)
@@ -226,6 +241,23 @@ class Engine {
 
     /**
      *
+     * @returns {Promise<T | boolean>}
+     * @private
+     */
+    _getRunningProcess() {
+        return ProcessCrud.getByName(this.name.toLowerCase()).then(doc => {
+            this._max = doc.max;
+            this._index = doc.index;
+            this._read = doc.current;
+            this._frequence = doc.freq;
+            this._offset = doc.offsets;
+
+            return true
+        }).catch(() => false)
+    }
+
+    /**
+     *
      * @param url
      * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
      * @private
@@ -234,10 +266,14 @@ class Engine {
         return this._getCookie().then((cookies) => {
 
             return request(Engine._opt(url, cookies)).then((data) => {
-                this._max = this.getBasicInformation(data);
-                this._index = -1;
+                return this._getRunningProcess().then(res => {
+                    if (!res) {
+                        this._max = this.getBasicInformation(data);
+                        this._index = -1;
+                    }
 
-                return this._launchRequest();
+                    return this._launchRequest()
+                })
             })
         })
     }

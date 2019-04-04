@@ -10,7 +10,7 @@ class ProcessCrud extends Crud {
     /**
      *
      * @param data
-     * @returns {Promise<T | never>}
+     * @returns {Promise<any>}
      */
     create(data) {
         console.log(data);
@@ -18,6 +18,10 @@ class ProcessCrud extends Crud {
 
         return this.getByName(name).then((currentData) => {
             data._id = currentData._id;
+
+            if (data.current >= data.max)
+                return super.deleteById(data);
+
             return super.updateById(data)
         }).catch(() => {
             return super.create(data);

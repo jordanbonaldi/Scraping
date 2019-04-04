@@ -3,6 +3,11 @@ const EngineManager = require('../src/handlers/EnginesManager');
 
 let args = process.argv;
 
+if (args.length === 3) {
+    console.log("Please enter city name !");
+    process.exit(1)
+}
+
 if (args.length > 3) {
     let engine = args[2];
     let city = args[3];
