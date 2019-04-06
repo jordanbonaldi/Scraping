@@ -175,6 +175,7 @@ class Engine {
             index: this._index,
             freq: this._frequence,
             offsets: this._offset,
+            city: this._city,
             eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
         });
     }

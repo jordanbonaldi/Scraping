@@ -5,7 +5,6 @@ let City = new Schema(
     {
         __id: Schema.Types.ObjectId,
         name: String,
-        hotels: [{type: Schema.Types.ObjectId, ref: 'Hotel'}],
         createdAt: Date,
         updatedAt: Date
     }

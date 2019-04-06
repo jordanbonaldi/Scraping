@@ -14,6 +14,7 @@ let Process = new Schema(
         index: Number,
         offsets: Array,
         freq: Array,
+        city: { type: Schema.Types.ObjectId, ref: 'City'},
         createdAt: Date,
         updatedAt: Date
     }

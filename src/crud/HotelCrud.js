@@ -1,6 +1,7 @@
-const Crud = require('../crud/Crud');
+const Crud = require('./Crud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
+const CityCrud = require('./CityCrud');
 
 class HotelCrud extends Crud {
     constructor() {
@@ -91,9 +92,7 @@ class HotelCrud extends Crud {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 
-            return {
-                error: "Already existing hotel"
-            }
+            return { error: 'Already existing hotel' }
         }).catch(() => {
             let obj = [];
 
@@ -115,9 +114,7 @@ class HotelCrud extends Crud {
      * @returns {Promise<any | never>}
      */
     getCityId(hotel) {
-        return this.getOne(hotel).then((e) => {
-            return e.city;
-        })
+        return this.getOne(hotel).then((e) => e.city)
     }
 
     /**
@@ -131,10 +128,17 @@ class HotelCrud extends Crud {
             let agv = Similarity.findBestMatch(name, names);
             let res = e.filter(i => i.name === agv.bestMatch.target)[0];
 
-            return new Promise((resolve, reject) => {
-                return agv.bestMatch.rating > 0.81 ? resolve(res) : reject(true)
-            });
+            return new Promise((resolve, reject) => agv.bestMatch.rating > 0.81 ? resolve(res) : reject(true));
         })
+    }
+
+    /**
+     *
+     * @param id
+     * @returns {Promise<any>}
+     */
+    getData(id) {
+        return super.getById(id);
     }
 
 }

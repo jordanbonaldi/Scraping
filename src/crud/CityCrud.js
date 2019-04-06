@@ -1,4 +1,4 @@
-const Crud = require('../crud/Crud');
+const Crud = require('./Crud');
 const City = require('../models/Cities');
 
 class CityCrud extends Crud {
@@ -21,20 +21,6 @@ class CityCrud extends Crud {
             }
         }).catch(() => {
             return super.create(data);
-        })
-    }
-
-    /**
-     *
-     * @param city
-     * @param hotel
-     * @returns {Promise|*|PromiseLike<T | never>|Promise<T | never>}
-     */
-    addHotel(city, hotel) {
-        return this.getByName(city).then((data) => {
-            data.hotels.push(hotel._id);
-
-            return this.update(data, {name: city});
         })
     }
 
