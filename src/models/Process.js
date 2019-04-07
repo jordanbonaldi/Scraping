@@ -13,6 +13,7 @@ let Process = new Schema(
         eta: Number,
         index: Number,
         offsets: Array,
+        running: Boolean,
         freq: Array,
         city: { type: Schema.Types.ObjectId, ref: 'City'},
         createdAt: Date,

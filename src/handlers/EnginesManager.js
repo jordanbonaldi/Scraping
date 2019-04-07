@@ -80,6 +80,10 @@ class EnginesManager {
         }))
     }
 
+    exists(engine) {
+        return this._engines.filter(e => e.name == engine)[0];
+    }
+
 }
 
 const fs = require('fs');

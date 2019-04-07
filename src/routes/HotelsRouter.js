@@ -13,7 +13,7 @@ router.get('/hotels/:city', (req, res) => {
             return res.send(getEta(a))
         }).catch(() =>
             HotelCrud.getAll({city: doc._id}).then(e => res.send({
-                ...e,
+                data: e,
                 status: 0
             }))
         )
@@ -21,8 +21,6 @@ router.get('/hotels/:city', (req, res) => {
 });
 
 const getEta = (processes) => {
-
-    let sumEta = processes.reduce((a, b) => a + b.eta, 0);
     let sumHotels = processes.reduce((a, b) => a + b.current, 0);
     let sumMax = processes.reduce((a, b) => a + b.max, 0);
 
@@ -32,7 +30,9 @@ const getEta = (processes) => {
         current: sumHotels,
         max: sumMax,
         pct: pct,
-        eta: sumEta,
+        eta: processes.reduce((a, b) => a + b.eta, 0),
+        chunk: processes.reduce((a, b) => a + b.chunk, 0),
+        perChunk: processes.reduce((a, b) => a + b.perChunk, 0),
         running: processes,
         status: 1
     }

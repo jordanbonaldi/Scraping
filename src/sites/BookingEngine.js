@@ -9,7 +9,7 @@ class BookingEngine extends Engine {
             /**
              * Booking URL
              */
-            'https://server.js.booking.com/searchresults.html?&selected_currency=EUR&room1=A%2CA&sb_price_type=total&',
+            'https://booking.com/searchresults.html?&selected_currency=EUR&room1=A%2CA&sb_price_type=total&',
 
             'https://booking.com',
 

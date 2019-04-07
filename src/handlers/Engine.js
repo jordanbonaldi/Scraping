@@ -334,8 +334,10 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        })
-
+        }).catch(() => City.create({
+                name: city
+            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+        )
     }
 
 }

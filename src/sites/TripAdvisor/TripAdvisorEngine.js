@@ -14,11 +14,11 @@ class TripAdvisorEngine extends Engine{
             /**
              * Parse URL
              */
-            'https://server.js.tripadvisor.fr/TypeAheadJson?',
+            'https://tripadvisor.fr/TypeAheadJson?',
             /**
              * Default URL
              */
-            'https://server.js.tripadvisor.fr/',
+            'https://tripadvisor.fr/',
             /**
              * Queries -> none
              */
