@@ -26,6 +26,19 @@ class CityCrud extends Crud {
 
     /**
      *
+     * @param data
+     * @param scan
+     * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
+     */
+    setLastScan(data, scan) {
+        return this.getByName(data.toLowerCase()).then((d) => super.update({
+            ...d,
+            lastScan: scan
+        }))
+    }
+
+    /**
+     *
      * @param name
      */
     getByName(name) {

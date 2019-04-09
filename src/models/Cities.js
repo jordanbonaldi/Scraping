@@ -5,6 +5,7 @@ let City = new Schema(
     {
         __id: Schema.Types.ObjectId,
         name: String,
+        lastScan: String,
         createdAt: Date,
         updatedAt: Date
     }

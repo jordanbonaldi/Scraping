@@ -1,9 +1,9 @@
 const server = require('./server');
 const EngineManager = require('../src/handlers/EnginesManager');
 const ProcessCrud = require('../src/crud/ProcessCrud');
+const {checkDate} = require('../src/utils/utils');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
-const checkDate = (date) => Math.abs(((new Date().getTime() - date.getTime()) / 1000)/60);
 
 const action = (engine, city) => {
     launch(city, engine);
@@ -14,7 +14,10 @@ const action = (engine, city) => {
                 data.running = false;
 
                 return ProcessCrud.updateById(data).then(() => process.exit())
-            }).catch(() => console.log("Non-existing process"));
+            }).catch(() => {
+                console.log("Non-existing process");
+                process.exit();
+            });
     })
 };
 
@@ -36,12 +39,10 @@ if (args.length > 3) {
         }
 
         ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase()).then((e) => {
-            console.log(checkDate(e.updatedAt));
 
-            if (checkDate(e.updatedAt) >= 10) {
-                console.log(e);
-                ProcessCrud.deleteById(e).then(() => action(engine, city))
-            } else if (e.running === false) {
+            if (checkDate(e.updatedAt) >= 10)
+                ProcessCrud.deleteById(e).then(() => action(engine, city));
+            else if (e.running === false) {
                 e.running = true;
                 ProcessCrud.updateById(e).then(() => action(engine, city))
             } else {

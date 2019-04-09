@@ -1,3 +1,5 @@
+const CityCrud = require('../crud/CityCrud');
+
 class EnginesManager {
 
     /**
@@ -76,14 +78,19 @@ class EnginesManager {
                 children,
                 rooms,
                 callback
-            ).then(() => resolve(true));
+            ).then(() => {
+                CityCrud.update(city, engine.name).then(() => resolve(true));
+            });
         }))
     }
 
     exists(engine) {
-        return this._engines.filter(e => e.name == engine)[0];
+        return this._engines.filter(e => e.name.toLowerCase() == engine.toLowerCase())[0];
     }
 
+    get engines() {
+        return this._engines;
+    }
 }
 
 const fs = require('fs');
