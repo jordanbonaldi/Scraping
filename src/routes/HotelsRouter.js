@@ -3,6 +3,7 @@ const router = express.Router();
 const HotelCrud = require('../crud/HotelCrud');
 const CityCrud = require('../crud/CityCrud');
 const ProcessCrud = require('../crud/ProcessCrud');
+const {checkDate} = require('../utils/utils');
 
 /**
  * Get hotels
@@ -21,6 +22,7 @@ router.get('/hotels/:city', (req, res) => {
 });
 
 const getEta = (processes) => {
+    processes = processes.filter(a => checkDate(a.updatedAt) < 10);
     let sumHotels = processes.reduce((a, b) => a + b.current, 0);
     let sumMax = processes.reduce((a, b) => a + b.max, 0);
 

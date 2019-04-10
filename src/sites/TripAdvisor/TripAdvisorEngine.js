@@ -42,6 +42,8 @@ class TripAdvisorEngine extends Engine{
             data = JSON.parse(data);
             let url = data.results[0].urls[0].url;
 
+            console.log(url);
+
             return request(this.defaultUrl + url).then((data) => {
                 return this.defaultUrl + $('.brand-quick-links-QuickLinkTileItem__link--1k5lE', data)[0].attribs.href;
             })
@@ -229,7 +231,7 @@ class TripAdvisorEngine extends Engine{
         let columns = $('.listing .meta_listing .ui_columns', this._data);
 
         {
-            while (columns[++i].attribs['data-locationid'] === undefined) ;
+            while (columns[++i] === undefined && columns[++i].attribs['data-locationid'] === undefined) ;
         }
 
         return this._getHotels(columns, i);

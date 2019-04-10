@@ -186,7 +186,7 @@ class Engine {
      * @private
      */
     _launchRequest() {
-        let url = this._generator.addOffSet(this.handleOffset(++this._index));
+        let url = this._generator.addOffSet(this.handleOffset(++this._index, this._read));
         return request(Engine._opt(url)).then((data) => {
 
             this._now = Date.now();
@@ -246,7 +246,7 @@ class Engine {
      * @private
      */
     _getRunningProcess() {
-        return ProcessCrud.getByName(this.name.toLowerCase()).then(doc => {
+        return ProcessCrud.getByName(this.name).then(doc => {
             this._max = doc.max;
             this._index = doc.index;
             this._read = doc.current;
