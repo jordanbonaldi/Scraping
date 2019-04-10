@@ -200,8 +200,10 @@ class TripAdvisorEngine extends Engine{
 
             let name = this._getName();
 
-            if (this._getRateReview() == null)
+            if (this._getRateReview() == null) {
+                this.incrRead();
                 continue;
+            }
 
             console.log(name + " done!");
 
@@ -230,8 +232,13 @@ class TripAdvisorEngine extends Engine{
         let i = -1;
         let columns = $('.listing .meta_listing .ui_columns', this._data);
 
+        console.log(columns.length);
+
+        if (columns.length <= 1)
+            return [];
+
         {
-            while (columns[++i] === undefined && columns[++i].attribs['data-locationid'] === undefined) ;
+            while (columns[++i] === undefined || columns[i].attribs['data-locationid'] === undefined) ;
         }
 
         return this._getHotels(columns, i);

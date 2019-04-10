@@ -3,8 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const config = require('./config/config');
 
 const HotelConsumer = require('./src/consumer/HotelConsumer');
 
@@ -50,22 +48,6 @@ const initApp = () => {
 
 };
 
-const tryMongoConnection = () => new Promise((resolve) => {
-    mongoose.connect(config.mongo, {useNewUrlParser: true})
-        .then(() => { console.log('[Mongo] Connected'); resolve() })
-        .catch(e => { console.log('[Mongo]', e.message); console.log('[Mongo] Retrying to connect in a few seconds...') })
-});
-
-const connectToMongo = () => new Promise((resolve) => {
-    let interval = setInterval(() => {
-        tryMongoConnection()
-            .then(() => {
-                clearInterval(interval);
-                resolve()
-            })
-    }, 3000)
-});
-
-connectToMongo().then(initApp);
+initApp();
 
 module.exports = app;

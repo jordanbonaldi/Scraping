@@ -156,6 +156,13 @@ class Engine {
     }
 
     /**
+     * Increment read
+     */
+    incrRead() {
+        this._read++;
+    }
+
+    /**
      *
      * @returns {Promise<any>}
      */

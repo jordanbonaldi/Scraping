@@ -1,5 +1,6 @@
 const rabbit = require('amqplib/callback_api');
 
+
 rabbit.connect('amqp://localhost', (err, conn) => {
 
 	conn.createChannel((err, ch) => {
