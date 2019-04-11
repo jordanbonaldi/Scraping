@@ -79,7 +79,7 @@ class EnginesManager {
                 rooms,
                 callback
             ).then(() => {
-                CityCrud.update(city, engine.name).then(() => resolve(true));
+                CityCrud.setLastScan(city, engine.name).then(() => resolve(true));
             });
         }))
     }

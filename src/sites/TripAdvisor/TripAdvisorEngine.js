@@ -196,25 +196,34 @@ class TripAdvisorEngine extends Engine{
     _getHotels(columns, start = 0) {
         let hotels = [];
         for (let i = start; i < columns.length; i++) {
-            this._id = $('.listing .meta_listing .ui_columns', this._data)[i].attribs['data-locationid'];
+            this._id = columns[i].attribs['data-locationid'];
 
             let name = this._getName();
 
             if (this._getRateReview() == null) {
                 this.incrRead();
-                continue;
+
+                continue
             }
 
-            console.log(name + " done!");
+            let engines = this._getPrices(
+                this._getRateReview(),
+                this._getRate()
+            );
 
+            if (engines.length === 0) {
+                console.log("No price data for " + name);
+                this.incrRead();
+
+                continue
+            } else console.log(name + " done!");
+
+            
             hotels.push({
                 name: name,
                 address: 'none',
                 city: super.city,
-                engine: this._getPrices(
-                    this._getRateReview(),
-                    this._getRate()
-                )
+                engine: engines
             })
         }
 
@@ -230,7 +239,7 @@ class TripAdvisorEngine extends Engine{
         this._data = data;
 
         let i = -1;
-        let columns = $('.listing .meta_listing .ui_columns', this._data);
+        let columns = $('.listing .meta_listing.ui_columns', this._data);
 
         console.log(columns.length);
 

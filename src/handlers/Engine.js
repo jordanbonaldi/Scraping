@@ -194,6 +194,7 @@ class Engine {
      */
     _launchRequest() {
         let url = this._generator.addOffSet(this.handleOffset(++this._index, this._read));
+        console.log(url);
         return request(Engine._opt(url)).then((data) => {
 
             this._now = Date.now();
