@@ -253,7 +253,7 @@ class Engine {
      * @private
      */
     _getRunningProcess() {
-        return ProcessCrud.getByName(this.name).then(doc => {
+        return ProcessCrud.getByName(this.name.trim().toLowerCase()).then(doc => {
             this._max = doc.max;
             this._index = doc.index;
             this._read = doc.current;

@@ -198,18 +198,18 @@ class TripAdvisorEngine extends Engine{
             .children[0]
             .children[1];
 
-        console.log(review);
-
-        if (review == null)
-            review = this._columns[i]
-                .children[1]
-                .children[1]
-                .children[1]
-                .children[1]
-                .children[1]
-                .children[0].data;
-        else
-            review = review.children[0].data;
+        try {
+            if (review == null)
+                review = this._columns[i]
+                    .children[1]
+                    .children[1]
+                    .children[1]
+                    .children[1]
+                    .children[1]
+                    .children[0].data;
+            else
+                review = review.children[0].data;
+        } catch(e) { return 0 }
 
         return review.match(/\d/g).join('')
     }
@@ -222,8 +222,6 @@ class TripAdvisorEngine extends Engine{
      */
     _getName(i) {
         let name = this._columns[i].children[1].children[0].children[0].children[0].children[0].data;
-
-        console.log(this._columns[i].children[1].children[0].children[0].children[0]);
 
         return name == null ? this._columns[i]
             .children[1]
@@ -244,9 +242,6 @@ class TripAdvisorEngine extends Engine{
         for (let i = start; i < this._columns.length; i++) {
 
             let name;
-
-            if (((name = this._getName(i)) == null))
-                return;
 
             if (((name = this._getName(i)) == null) || (this._rateReview = this._getRateReview(i)) == null) {
                 this.incrRead();
