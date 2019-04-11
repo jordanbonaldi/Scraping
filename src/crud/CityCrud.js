@@ -31,10 +31,12 @@ class CityCrud extends Crud {
      * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
      */
     setLastScan(data, scan) {
-        return this.getByName(data.toLowerCase()).then((d) => super.update({
-            ...d,
-            lastScan: scan
-        }))
+        return this.getByName(data.toLowerCase()).then((d) => {
+            return super.update({
+                ...d._doc,
+                lastScan: scan
+            });
+        })
     }
 
     /**

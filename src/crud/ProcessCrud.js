@@ -14,7 +14,6 @@ class ProcessCrud extends Crud {
      * @returns {Promise<any>}
      */
     create(data) {
-        console.log(data);
         let name = data.name;
         data.running = true;
 

@@ -1,4 +1,5 @@
 const CityCrud = require('../crud/CityCrud');
+const ProcessCrud = require('../crud/ProcessCrud');
 
 class EnginesManager {
 
@@ -79,6 +80,10 @@ class EnginesManager {
                 rooms,
                 callback
             ).then(() => {
+                ProcessCrud.getByName(engine.name.trim().toLowerCase())
+                    .then((d) => ProcessCrud.deleteById(d._id))
+                    .catch(() => console.log('No process to delete'));
+
                 CityCrud.setLastScan(city, engine.name).then(() => resolve(true));
             });
         }))

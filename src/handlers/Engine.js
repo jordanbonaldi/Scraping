@@ -172,9 +172,8 @@ class Engine {
 
         let op = (this._max - this._read) / (offsetAver);
 
-
         return ProcessCrud.create({
-            name: this._name,
+            name: this._name.trim().toLowerCase(),
             max: this._max,
             current: this._read,
             chunk: offsetAver,

@@ -42,8 +42,6 @@ class TripAdvisorEngine extends Engine{
             data = JSON.parse(data);
             let url = data.results[0].urls[0].url;
 
-            console.log(url);
-
             return request(this.defaultUrl + url).then((data) => {
                 return this.defaultUrl + $('.brand-quick-links-QuickLinkTileItem__link--1k5lE', data)[0].attribs.href;
             })
@@ -111,62 +109,74 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @param classes
-     * @param digit
+     * @param offer
+     * @private
      */
-    _getData(classes, digit = 0) {
-        return super.getData('[data-locationid='+'"'+this._id+'"'+']', classes, this._data, digit)
+    _getEngine(offer) {
+        let name = offer.attribs['data-vendorname'];
+        let price = offer.attribs['data-pernight'];
+
+        if ((name != null || price != null)
+            && this._engines.filter(e => e.name === name)[0] == null)
+            this._engines.push({
+                name: name,
+                price: price,
+                rate: this._rate,
+                review: this._rateReview
+            })
     }
 
     /**
      *
-     * @param review
-     * @param rate
+     * @param i
      * @returns {Array}
      * @private
      */
-    _getPrices(review = 0, rate = 0) {
-        let prices = $('[data-locationid='+'"'+this._id+'"'+'] .no_cpu', this._data);
-        let length = prices.length;
+    _getPrices(i) {
+        let prices = this._columns[i]
+            .children[1]
+            .children[1]
+            .children[0]
+            .children[0]
+            .children[0];
 
-        let engines = [];
+        let bestOffer = prices.children[1].children[0];
+        let other = prices.children[2].children;
 
-        /**
-         * Recuperation tarifaire des X -> length derniers prix
-         */
-        for (let i = 0; i < length; i++) {
-            let attribs = prices[i].attribs;
+        this._engines = [];
 
-            let name = attribs['data-vendorname'];
-            let price = attribs['data-pernight'];
+        other.forEach(e => this._getEngine(e));
+        this._getEngine(bestOffer);
 
-            if ((name != null || price != null)
-                    && engines.filter(e => e.name === name)[0] == null)
-                engines.push({
-                    name: name,
-                    price: price,
-                    rate: rate,
-                    review: review
-                })
-        }
-
-        return engines.sort((a, b) => a.price - b.price)
+        return this._engines.sort((a, b) => a.price - b.price)
     }
 
     /**
      *
+     * @param i
      * @returns {string}
      * @private
      */
-    _getRate() {
-        let rate = $('[data-locationid='+'"'+this._id+'"'+'] .prw_rup .ui_bubble_rating', this._data)[0];
+    _getRate(i) {
+        let rate = this._columns[i]
+            .children[1]
+            .children[1]
+            .children[1]
+            .children[0]
+            .children[0].attribs['alt'];
+
+        if (rate == null)
+            rate = this._columns[i]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[0].attribs['alt'];
 
         if (rate == null)
             return rate;
 
-        rate = rate.attribs['alt'].match(/\d/g).join('');
-
-        rate = rate.substr(0, rate.length - 1);
+        rate = rate.match(/\d/g).join('').substr(0, rate.length - 1);
 
         if (rate.length > 1)
             rate = (rate/10).toFixed(1);
@@ -176,40 +186,77 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
-     * @returns {string}
+     * @param i
+     * @returns {number}
      * @private
      */
-    _getRateReview() {
-        return this._getData('.review_count', true)
-    }
+    _getRateReview(i) {
+        let review = this._columns[i]
+            .children[1]
+            .children[1]
+            .children[1]
+            .children[0]
+            .children[1];
 
-    _getName() {
-        return this._getData('.listing_title a', false)
+        console.log(review);
+
+        if (review == null)
+            review = this._columns[i]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[0].data;
+        else
+            review = review.children[0].data;
+
+        return review.match(/\d/g).join('')
     }
 
     /**
      *
-     * @param columns
+     * @param i
+     * @returns {*}
+     * @private
+     */
+    _getName(i) {
+        let name = this._columns[i].children[1].children[0].children[0].children[0].children[0].data;
+
+        console.log(this._columns[i].children[1].children[0].children[0].children[0]);
+
+        return name == null ? this._columns[i]
+            .children[1]
+            .children[0]
+            .children[0]
+            .children[1]
+            .children[0]
+            .children[0].data : name;
+    }
+
+    /**
+     *
      * @param start
      * @private
      */
-    _getHotels(columns, start = 0) {
+    _getHotels(start = 0) {
         let hotels = [];
-        for (let i = start; i < columns.length; i++) {
-            this._id = columns[i].attribs['data-locationid'];
+        for (let i = start; i < this._columns.length; i++) {
 
-            let name = this._getName();
+            let name;
 
-            if (this._getRateReview() == null) {
+            if (((name = this._getName(i)) == null))
+                return;
+
+            if (((name = this._getName(i)) == null) || (this._rateReview = this._getRateReview(i)) == null) {
                 this.incrRead();
 
                 continue
             }
 
-            let engines = this._getPrices(
-                this._getRateReview(),
-                this._getRate()
-            );
+            this._rate = this._getRate(i);
+
+            let engines = this._getPrices(i);
 
             if (engines.length === 0) {
                 console.log("No price data for " + name);
@@ -218,7 +265,7 @@ class TripAdvisorEngine extends Engine{
                 continue
             } else console.log(name + " done!");
 
-            
+
             hotels.push({
                 name: name,
                 address: 'none',
@@ -239,18 +286,17 @@ class TripAdvisorEngine extends Engine{
         this._data = data;
 
         let i = -1;
-        let columns = $('.listing .meta_listing.ui_columns', this._data);
+        this._columns = $('.hasDates .listing .meta_listing.ui_columns', this._data);
 
-        console.log(columns.length);
 
-        if (columns.length <= 1)
+        if (this._columns.length <= 1)
             return [];
 
         {
-            while (columns[++i] === undefined || columns[i].attribs['data-locationid'] === undefined) ;
+            while (this._columns[++i] === undefined || this._columns[i].attribs['data-locationid'] === undefined) ;
         }
 
-        return this._getHotels(columns, i);
+        return this._getHotels(i);
     }
 
 }
