@@ -182,6 +182,7 @@ class Engine {
             freq: this._frequence,
             offsets: this._offset,
             city: this._city,
+            cityName: this._cityName,
             eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
         });
     }
@@ -253,7 +254,8 @@ class Engine {
      * @private
      */
     _getRunningProcess() {
-        return ProcessCrud.getByName(this.name.trim().toLowerCase()).then(doc => {
+        return ProcessCrud.getByNameAndCity(this.name.trim().toLowerCase(), this._cityName.toLowerCase()).then(doc => {
+            console.log(doc);
             this._max = doc.max;
             this._index = doc.index;
             this._read = doc.current;
@@ -317,7 +319,8 @@ class Engine {
         callback = null
     ) {
         return City.getByName(city).then((e) => {
-          this._city = e._id;
+          this._cityName = e.name;
+          this._city = e._id
         }).then(() => {
             if (checkin === null)
                 checkin = new Date();
@@ -341,10 +344,13 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).catch(() => City.create({
+        }).catch(() =>{
+            console.log("CREATING");
+            City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
-        )
+
+        })
     }
 
 }

@@ -17,7 +17,7 @@ class ProcessCrud extends Crud {
         let name = data.name;
         data.running = true;
 
-        return this.getByName(name).then((currentData) => {
+        return this.getByNameAndCity(name, data.cityName).then((currentData) => {
             data._id = currentData._id;
 
             if (data.current >= data.max)
