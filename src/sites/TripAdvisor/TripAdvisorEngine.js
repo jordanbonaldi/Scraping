@@ -69,6 +69,7 @@ class TripAdvisorEngine extends Engine{
     ) {
         return City.getByName(city).then((e) => {
             this.city = e._id;
+            super._cityName = e.name;
 
             return e.name
         }).then((name) => {

@@ -255,7 +255,6 @@ class Engine {
      */
     _getRunningProcess() {
         return ProcessCrud.getByNameAndCity(this.name.trim().toLowerCase(), this._cityName.toLowerCase()).then(doc => {
-            console.log(doc);
             this._max = doc.max;
             this._index = doc.index;
             this._read = doc.current;
