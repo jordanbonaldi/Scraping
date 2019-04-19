@@ -236,7 +236,7 @@ class Engine {
                         return this._launchRequest()
                 })
             })
-        });
+        })
     }
 
     /**
@@ -290,7 +290,7 @@ class Engine {
                 return this._getRunningProcess().then(res => {
                     if (!res) {
                         this._max = this.getBasicInformation(data);
-                        this._index = -1;
+                        this._index = -1
                     }
 
                     return this._launchRequest()

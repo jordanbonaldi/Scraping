@@ -55,6 +55,10 @@ class SearchData {
         }
     }
 
+    search(search) {
+        return false
+    }
+
 }
 
 module.exports = SearchData;

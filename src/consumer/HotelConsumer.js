@@ -25,7 +25,7 @@ class HotelConsumer extends RabbitMQConsumer {
             let hotel = JSON.parse(msg);
             CityCrud.getByName(hotel.city.toLowerCase()).then((doc) => {
                 console.log(checkDate(doc.updatedAt));
-                if (checkDate(doc.updatedAt) > 1440)
+                if (checkDate(doc.updatedAt) > 1/*440*/)
                     this.execCommand(hotel.city)
             }).catch(() => this.execCommand(hotel.city))
         })

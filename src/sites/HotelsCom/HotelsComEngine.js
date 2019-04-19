@@ -1,4 +1,4 @@
-const Engine = require('../handlers/Engine');
+const Engine = require('../../handlers/Engine');
 const $ = require('cheerio');
 
 class HotelsComEngine extends Engine {
@@ -152,6 +152,7 @@ class HotelsComEngine extends Engine {
                 city: super.city,
                 engine: {
                     name: 'Hotels.com',
+                    id: this._id,
                     price: price,
                     rate: rate/10,
                     reviews: reviews
