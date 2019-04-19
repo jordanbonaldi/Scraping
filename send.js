@@ -7,7 +7,7 @@ rabbit.connect('amqp://localhost', (err, conn) => {
 
 		let obj = {
 			name: 'Negresco',
-			city: 'nice',
+			city: 'paris',
 			classement: '5',
 		}
 		ch.sendToQueue('scraping', Buffer.from(JSON.stringify(obj)));

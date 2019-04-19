@@ -114,9 +114,13 @@ class BookingEngine extends Engine {
 
         for (let i = 0; i < search.length; i++) {
             this._id = search[i].attribs['data-hotelid'];
+            let rate;
 
-            if (this._getRate() == null)
-                continue;
+            if ((rate = this._getRate()) == null) {
+                this.incrRead();
+
+                continue
+            }
 
             let name = this._getName();
 
@@ -129,7 +133,7 @@ class BookingEngine extends Engine {
                 engine: {
                     name: 'Booking.com',
                     price: '',
-                    rate: this._getRate()/10,
+                    rate: rate/10,
                     reviews: this._getReviews()
                 }
             });

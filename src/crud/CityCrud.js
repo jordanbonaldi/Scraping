@@ -26,13 +26,13 @@ class CityCrud extends Crud {
 
     /**
      *
-     * @param data
+     * @param city
      * @param scan
      * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
      */
-    setLastScan(data, scan) {
-        return this.getByName(data.toLowerCase()).then((d) => {
-            return super.update({
+    setLastScan(city, scan) {
+        return this.getByName(city.toLowerCase()).then((d) => {
+            return super.updateById({
                 ...d._doc,
                 lastScan: scan
             });

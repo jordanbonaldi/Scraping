@@ -68,6 +68,10 @@ class Engine {
         return this._name;
     }
 
+    get frequence() {
+        return this._frequence;
+    }
+
     /**
      *
      * @param data
@@ -162,13 +166,21 @@ class Engine {
         this._read++;
     }
 
+    getFrequences() {
+        return this._frequence.reduce((a, b) => a + b, 0)
+    }
+
+    getOffset() {
+        return this._offset.reduce((a, b) => a + b, 0)
+    }
+
     /**
      *
      * @returns {Promise<any>}
      */
     updateSchema() {
-        let offsetAver = Math.round(this._offset.reduce((a, b) => a + b, 0) / this._offset.length);
-        let freqAver = Math.round(this._frequence.reduce((a, b) => a + b, 0) / this._frequence.length);
+        let offsetAver = Math.round( this.getOffset() / this._offset.length);
+        let freqAver = Math.round( this.getFrequences() / this._frequence.length);
 
         let op = (this._max - this._read) / (offsetAver);
 
@@ -343,12 +355,11 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).catch(() =>{
+        }).catch(() => {
             console.log("CREATING");
             City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
-
         })
     }
 

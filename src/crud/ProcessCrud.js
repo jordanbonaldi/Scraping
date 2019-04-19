@@ -20,9 +20,6 @@ class ProcessCrud extends Crud {
         return this.getByNameAndCity(name, data.cityName).then((currentData) => {
             data._id = currentData._id;
 
-            if (data.current >= data.max)
-                return super.deleteById(data);
-
             return super.updateById(data)
         }).catch(() => {
             return super.create(data);

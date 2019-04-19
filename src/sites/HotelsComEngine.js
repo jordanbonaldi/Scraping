@@ -131,15 +131,19 @@ class HotelsComEngine extends Engine {
             let name = search[i].attribs['data-title'];
             this._id = search[i].attribs['data-hotel-id'];
 
-            if (this._getRate() == null)
-                continue;
+            let rate;
+
+            if ((rate = this._getRate()) == null) {
+                this.incrRead();
+
+                continue
+            }
 
             console.log(name + " done!");
 
             let price = this._getPrice();
             let address = this._getAddress();
 
-            let rate = this._getRate();
             let reviews = this._getReviews();
 
             hotel.push({

@@ -86,7 +86,11 @@ class TripAdvisorEngine extends Engine{
                 this._generator.baseUrl = url;
                 return super.newGeneratorRequester(this._generator, url)
             })
-        })
+        }).catch(() =>
+            City.create({
+                name: city
+            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+        )
     }
 
     /**
@@ -134,12 +138,15 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getPrices(i) {
-        let prices = this._columns[i]
-            .children[1]
-            .children[1]
-            .children[0]
-            .children[0]
-            .children[0];
+        let prices;
+        try {
+            prices = this._columns[i]
+                .children[1]
+                .children[1]
+                .children[0]
+                .children[0]
+                .children[0];
+        } catch (e) { return [] }
 
         let bestOffer = prices.children[1].children[0];
         let other = prices.children[2].children;
@@ -155,24 +162,28 @@ class TripAdvisorEngine extends Engine{
     /**
      *
      * @param i
-     * @returns {string}
+     * @returns {string | number}
      * @private
      */
     _getRate(i) {
-        let rate = this._columns[i]
-            .children[1]
-            .children[1]
-            .children[1]
-            .children[0]
-            .children[0].attribs['alt'];
+        let rate = 0;
 
-        if (rate == null)
+        try {
             rate = this._columns[i]
                 .children[1]
                 .children[1]
                 .children[1]
-                .children[1]
+                .children[0]
                 .children[0].attribs['alt'];
+
+            if (rate == null)
+                rate = this._columns[i]
+                    .children[1]
+                    .children[1]
+                    .children[1]
+                    .children[1]
+                    .children[0].attribs['alt'];
+        } catch(e) { return rate }
 
         if (rate == null)
             return rate;
@@ -192,14 +203,16 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getRateReview(i) {
-        let review = this._columns[i]
-            .children[1]
-            .children[1]
-            .children[1]
-            .children[0]
-            .children[1];
+        let review;
 
         try {
+            review = this._columns[i]
+                .children[1]
+                .children[1]
+                .children[1]
+                .children[0]
+                .children[1];
+
             if (review == null)
                 review = this._columns[i]
                     .children[1]
@@ -243,16 +256,18 @@ class TripAdvisorEngine extends Engine{
         for (let i = start; i < this._columns.length; i++) {
 
             let name;
+            let engines;
 
-            if (((name = this._getName(i)) == null) || (this._rateReview = this._getRateReview(i)) == null) {
+            if ((name = this._getName(i)) == null ||
+                (engines = this._getPrices(i)) == null
+            ) {
                 this.incrRead();
 
                 continue
             }
 
+            this._rateReview = this._getRateReview(i);
             this._rate = this._getRate(i);
-
-            let engines = this._getPrices(i);
 
             if (engines.length === 0) {
                 console.log("No price data for " + name);

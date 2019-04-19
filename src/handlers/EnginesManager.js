@@ -84,7 +84,17 @@ class EnginesManager {
                     .then((d) => ProcessCrud.deleteById(d._id))
                     .catch(() => console.log('No process to delete'));
 
-                CityCrud.setLastScan(city, engine.name).then(() => resolve(true));
+                console.log(
+                    "Finished for " +
+                    city +
+                    " with " +
+                    engine.name +
+                    " in " +
+                    Math.round(engine.getFrequences()) +
+                    " seconds"
+                );
+
+                return CityCrud.setLastScan(city.toLowerCase(), engine.name).then(() => resolve(true)).catch()
             });
         }))
     }
