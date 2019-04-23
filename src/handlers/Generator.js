@@ -23,13 +23,14 @@ class Generator {
         this._baseUrl = value;
     }
 
+
     /**
-     *
-     * @private
+     * Link query and generator
      */
     _searchDataLink() {
         this._searchData.linkQuery(this._query);
     }
+
 
     /**
      *
@@ -39,13 +40,12 @@ class Generator {
     generateUrl(callback = null) {
         Object.keys(this._query)
             .forEach(e => {
-                console.log(this._query[e]);
                 if (this._query[e].data !== null && this._query[e].data.hasOwnProperty('query'))
                     this._baseUrl += this._query[e].data.query + "=" + this._query[e].data.value + "&"
             });
 
         if (callback !== null)
-            callback(this._baseUrl);
+            this._baseUrl = callback(this._baseUrl);
 
         return this._baseUrl
     }

@@ -281,7 +281,8 @@ class TripAdvisorEngine extends Engine{
                 name: name,
                 address: 'none',
                 city: super.city,
-                engine: engines
+                engine: engines,
+                rate: 0
             })
         }
 

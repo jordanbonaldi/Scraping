@@ -6,7 +6,8 @@
     "start": "node ./bin/preLaunch",
     "trip": "node ./bin/preLaunch tripadvisor",
     "hotelscom": "node ./bin/preLaunch hotels.com",
-    "booking": "node ./bin/preLaunch booking.com"
+    "booking": "node ./bin/preLaunch booking.com",
+    "addr": "node ./bin/preLaunch addr"
   },
   "dependencies": {
     "amqplib": "^0.5.3",

@@ -1,9 +1,9 @@
 const Crud = require('./Crud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
-const CityCrud = require('./CityCrud');
 
 class HotelCrud extends Crud {
+
     constructor() {
         super('hotel', Hotel);
     }
@@ -124,9 +124,11 @@ class HotelCrud extends Crud {
      */
     getByName(name) {
         return this.getAll().then(e => {
-            let names = e.map(i => i.name);
-            let agv = Similarity.findBestMatch(name, names);
-            let res = e.filter(i => i.name === agv.bestMatch.target)[0];
+            let names = e.map(i => i.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
+            let agv = Similarity.findBestMatch(name.normalize('NFD').replace(/[\u0300-\u036f]/g, ""), names);
+            let res = e.filter(i =>
+                i.name.toLowerCase().normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, "") === agv.bestMatch.target)[0];
 
             return new Promise((resolve, reject) => agv.bestMatch.rating > 0.81 ? resolve(res) : reject(true));
         })

@@ -1,4 +1,5 @@
 const EngineManager = require('../src/handlers/EnginesManager');
+const InformationManager = require('../src/handlers/InformationsManager');
 const ProcessCrud = require('../src/crud/ProcessCrud');
 const {checkDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');
@@ -25,8 +26,16 @@ const preLaunch = () => {
     let args = process.argv;
 
     if (args.length === 3) {
-        console.log("Please enter city name !");
-        process.exit(1)
+        if (args[2] == 'addr')
+            InformationManager.launch().then(() =>
+                process.exit(0)
+            );
+        else {
+            console.log("Please enter city name !");
+            process.exit(1)
+        }
+
+        return;
     }
 
     if (args.length > 3) {

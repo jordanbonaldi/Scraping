@@ -130,6 +130,7 @@ class BookingEngine extends Engine {
                 name: name,
                 address: 'none',
                 city: super.city,
+                rate: 0,
                 engine: {
                     name: 'Booking.com',
                     price: '',

@@ -150,6 +150,7 @@ class HotelsComEngine extends Engine {
                 name: name,
                 address: address,
                 city: super.city,
+                rate: 0,
                 engine: {
                     name: 'Hotels.com',
                     id: this._id,
