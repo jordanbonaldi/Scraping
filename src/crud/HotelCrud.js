@@ -124,13 +124,18 @@ class HotelCrud extends Crud {
      */
     getByName(name) {
         return this.getAll().then(e => {
-            let names = e.map(i => i.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ""));
-            let agv = Similarity.findBestMatch(name.normalize('NFD').replace(/[\u0300-\u036f]/g, ""), names);
+            let names = e.map(i => i.name.toLowerCase().normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, "")
+            );
+            let agv = Similarity.findBestMatch(
+                name.normalize('NFD').toLowerCase()
+                    .replace(/[\u0300-\u036f]/g, "")
+                , names);
             let res = e.filter(i =>
                 i.name.toLowerCase().normalize('NFD')
                     .replace(/[\u0300-\u036f]/g, "") === agv.bestMatch.target)[0];
 
-            return new Promise((resolve, reject) => agv.bestMatch.rating > 0.81 ? resolve(res) : reject(true));
+            return new Promise((resolve, reject) => agv.bestMatch.rating > 0.61 ? resolve(res) : reject(true));
         })
     }
 

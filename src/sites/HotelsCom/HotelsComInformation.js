@@ -64,6 +64,8 @@ class HotelsComInformation extends Information
             url.split(' ').join('%20').split("'").join('%20').split('`').join('%20')
         );
 
+        console.log(url);
+
         return request(url).then((res) => JSON.parse(res.substring(4, res.length - 2)))
             .then((res) => {
                 let hotels;
