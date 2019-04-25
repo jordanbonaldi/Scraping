@@ -25,7 +25,9 @@ class Engine {
         this._offset = [];
         this._max = 0;
         this._read = 0;
+        this._falseRead = 0;
         this._now = 0;
+        this._totalFalse = 0;
     }
 
     /**
@@ -163,7 +165,8 @@ class Engine {
      * Increment read
      */
     incrRead() {
-        this._read++;
+        this._falseRead++;
+        this._totalFalse++;
     }
 
     getFrequences() {
@@ -216,8 +219,11 @@ class Engine {
             let hotels = e.map(a => Hotel.create(a));
 
             return Promise.all(hotels).then(() => {
+                console.log(hotels.length + " - " + e.length);
                 this._offset.push(e.length);
                 this._read += e.length;
+                this._read += this._falseRead;
+                this._falseRead = 0;
 
                 this._now = Math.abs(this._now -= Date.now())/1000;
 
@@ -228,7 +234,7 @@ class Engine {
                     this._read + "/" + this._max + " " +
                     (((this._read*100)/this._max) | 0) + "%" +
                     " in " +
-                    this._now + " seconds"
+                    this._now + " seconds -> with " + this._totalFalse + " not pushed"
                 );
 
                 return this.updateSchema().then(() => {

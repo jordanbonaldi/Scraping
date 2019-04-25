@@ -6,6 +6,8 @@ class HotelCrud extends Crud {
 
     constructor() {
         super('hotel', Hotel);
+
+        this.count = 0;
     }
 
     /**
@@ -89,12 +91,16 @@ class HotelCrud extends Crud {
      */
     create(data) {
         return this.getByName(data.name).then((_data) => {
+            console.log(data.name + " -> " + _data.name);
+            ++this.count;
+
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 
             return { error: 'Already existing hotel' }
         }).catch(() => {
             let obj = [];
+            console.log(++this.count);
 
             if (Array.isArray(data.engine))
                 obj = data.engine;
@@ -103,6 +109,8 @@ class HotelCrud extends Crud {
             delete data.engine;
 
             data.engines = obj;
+
+
 
             return super.create(data)
         })
@@ -123,19 +131,25 @@ class HotelCrud extends Crud {
      * @returns {Promise<any>}
      */
     getByName(name) {
+        name = name.normalize('NFD').toLowerCase()
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace('hotel', '');
+
         return this.getAll().then(e => {
             let names = e.map(i => i.name.toLowerCase().normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, "")
+                .replace('hotel', '')
             );
             let agv = Similarity.findBestMatch(
-                name.normalize('NFD').toLowerCase()
-                    .replace(/[\u0300-\u036f]/g, "")
+                name
                 , names);
             let res = e.filter(i =>
                 i.name.toLowerCase().normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, "") === agv.bestMatch.target)[0];
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace('hotel', '') === agv.bestMatch.target)[0];
 
-            return new Promise((resolve, reject) => agv.bestMatch.rating > 0.61 ? resolve(res) : reject(true));
+            return new Promise((resolve, reject) =>
+                agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
         })
     }
 

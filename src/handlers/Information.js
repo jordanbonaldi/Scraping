@@ -116,7 +116,7 @@ class Information
     loadProcedure() {
         return this._loadHotels().then(hotels => {
             // return Promise.all(hotels.map(e => {
-                let e = hotels[0];
+                let e = hotels[2];
                 console.log(e)
                 return City.getById(e.city).then(city => {
                     let engine = this._getCorrespondingEngine(e);
