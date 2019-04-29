@@ -110,52 +110,63 @@ class Information
         return temp
     }
 
+    loadHotel(hotels, index = 0) {
+
+        let next = () => this.loadHotel(hotels, ++index);
+
+        if (index >= hotels.length)
+            return;
+
+        let e = hotels[index];
+
+        return City.getById(e.city).then(city => {
+            let engine = this._getCorrespondingEngine(e);
+            let promiseUrl, id;
+
+            this._currentHotelIndex = e;
+
+            if ((id = this._actionToPerform(engine))) promiseUrl = this.getUrlFromId(id);
+            else {
+                this._search.search(e.name.toLowerCase() + ' ' + city.name + ' France');
+
+                this._generator = new Generator(
+                    this._url,
+                    this._search,
+                    this._clone(this._query)
+                );
+
+                promiseUrl = this.getUrl(e.name.toLowerCase());
+            }
+
+            return promiseUrl.then((url) => {
+                if (url == null) {
+                    console.log("No address found for " + e.name);
+                    return next();
+                }
+
+                return request(url).then(this.getInformations).then((data) => {
+                    e.address = data.address != null ? data.address : e.address;
+                    e.rate = data.rate != null ? data.rate : e.rate;
+
+                    console.log(e.name + " updated -> address:" + e.address + " rate: " + e.rate);
+
+                    return Hotel.updateById(e).then(() => {
+                        return next();
+                    })
+                })
+            }).catch(() => {
+                console.log('Error while loading ' + e.name);
+                return next()
+            })
+        })
+    }
+
     /**
      *
      */
     loadProcedure() {
         return this._loadHotels().then(hotels => {
-            // return Promise.all(hotels.map(e => {
-                let e = hotels[2];
-                console.log(e)
-                return City.getById(e.city).then(city => {
-                    let engine = this._getCorrespondingEngine(e);
-                    let promiseUrl, id;
-
-                    this._currentHotelIndex = e;
-
-                    if ((id = this._actionToPerform(engine))) promiseUrl = this.getUrlFromId(id);
-                    else {
-                        this._search.search(e.name.toLowerCase() + ' ' + city.name + ' France');
-
-                        this._generator = new Generator(
-                            this._url,
-                            this._search,
-                            this._clone(this._query)
-                        );
-
-                        promiseUrl = this.getUrl(e.name.toLowerCase());
-                    }
-
-                    return promiseUrl.then((url) => {
-                        if (url == null) {
-                            console.log("No address found for " + e.name);
-                            return;
-                        }
-
-                        return request(url).then(this.getInformations).then((data) => {
-                            e.address = data.address != null ? data.address : e.address;
-                            e.rate = data.rate != null ? data.rate : e.rate;
-
-                            console.log(e.name + " updated -> address:" + e.address + " rate: " + e.rate);
-
-                            return Hotel.updateById(e);
-                        })
-                    })
-                })
-            // })).then(() => {
-            //     console.log("done")
-            // })
+            return this.loadHotel(hotels)
         })
     }
 
