@@ -9,7 +9,8 @@ class HotelsComEngine extends Engine {
             /**
              * Booking URL
              */
-            'https://fr.hotels.com/search.do?f-price-currency-code=EUR&',
+            //'https://fr.hotels.com/search.do?f-price-currency-code=EUR&',
+            'https://fr.hotels.com/search/listings.json?sort-order=BEST_SELLER&',
 
             'https://fr.hotels.com/',
 

@@ -110,6 +110,14 @@ class Information
         return temp
     }
 
+    /**
+     *
+     * Recursive system
+     *
+     * @param hotels
+     * @param index
+     * @returns {Promise<any | never>}
+     */
     loadHotel(hotels, index = 0) {
 
         let next = () => this.loadHotel(hotels, ++index);
