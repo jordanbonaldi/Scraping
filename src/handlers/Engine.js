@@ -6,6 +6,7 @@ const City = require('../crud/CityCrud');
 const Hotel = require('../crud/HotelCrud');
 const request = require('request-promise');
 const ProcessCrud = require('../crud/ProcessCrud');
+const fs = require('fs');
 
 class Engine {
     /**
@@ -13,9 +14,10 @@ class Engine {
      * @param name
      * @param url
      * @param defaultUrl
+     * @param cookieFile
      * @param queries
      */
-    constructor(name, url, defaultUrl, ...queries) {
+    constructor(name, url, defaultUrl, cookieFile, ...queries) {
         this._name = name;
         this._url = url;
         this._defaultUrl = defaultUrl;
@@ -28,6 +30,8 @@ class Engine {
         this._falseRead = 0;
         this._now = 0;
         this._totalFalse = 0;
+        this._cookieFile = cookieFile;
+        this._cookieData = null;
     }
 
     /**
@@ -151,13 +155,18 @@ class Engine {
 
         return request(opt)
             .then(response => {
-                return response.caseless.dict['set-cookie']
+                return this._cookieData ? this._cookieData : response.caseless.dict['set-cookie']
             }).then((array) => {
                 return array.map((e) =>
                     e.split(';')[0]
                 )
             }).then((a) => {
                 return a.join(';')
+            }).then((a) => {
+                if (this._cookieFile)
+                    return (this._cookieData = fs.readFileSync(this._cookieFile, 'utf8').replace(/(\r\n|\n|\r)/gm, ""));
+                else
+                    return a
             })
     }
 
@@ -210,7 +219,7 @@ class Engine {
     _launchRequest() {
         let url = this._generator.addOffSet(this.handleOffset(++this._index, this._read));
         console.log(url);
-        return request(Engine._opt(url)).then((data) => {
+        return request(Engine._opt(url, this._cookieData)).then((data) => {
 
             this._now = Date.now();
 
@@ -219,7 +228,6 @@ class Engine {
             let hotels = e.map(a => Hotel.create(a));
 
             return Promise.all(hotels).then(() => {
-                console.log(hotels.length + " - " + e.length);
                 this._offset.push(e.length);
                 this._read += e.length;
                 this._read += this._falseRead;
@@ -262,7 +270,7 @@ class Engine {
                 'Accept': '*/*',
                 'Connection': 'close'
             },
-            json: true
+            json: true,
         }
     }
 
@@ -291,7 +299,6 @@ class Engine {
      */
     _request(url) {
         return this._getCookie().then((cookies) => {
-
             return request(Engine._opt(url, cookies)).then((data) => {
                 return this._getRunningProcess().then(res => {
                     if (!res) {

@@ -19,6 +19,9 @@ class TripAdvisorEngine extends Engine{
              * Default URL
              */
             'https://tripadvisor.fr/',
+
+            null,
+
             /**
              * Queries -> none
              */
@@ -121,7 +124,7 @@ class TripAdvisorEngine extends Engine{
         let name = offer.attribs['data-vendorname'];
         let price = offer.attribs['data-pernight'];
 
-        if ((name != null || price != null)
+        if ((name != null && price != null)
             && this._engines.filter(e => e.name === name)[0] == null)
             this._engines.push({
                 name: name,
@@ -145,7 +148,7 @@ class TripAdvisorEngine extends Engine{
                 .children[1]
                 .children[0]
                 .children[0]
-                .children[0];
+                .children[0]
         } catch (e) { return [] }
 
         let bestOffer = prices.children[1].children[0];

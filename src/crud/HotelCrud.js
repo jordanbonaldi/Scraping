@@ -6,8 +6,6 @@ class HotelCrud extends Crud {
 
     constructor() {
         super('hotel', Hotel);
-
-        this.count = 0;
     }
 
     /**
@@ -91,16 +89,12 @@ class HotelCrud extends Crud {
      */
     create(data) {
         return this.getByName(data.name).then((_data) => {
-            console.log(data.name + " -> " + _data.name);
-            ++this.count;
-
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 
             return { error: 'Already existing hotel' }
         }).catch(() => {
             let obj = [];
-            console.log(++this.count);
 
             if (Array.isArray(data.engine))
                 obj = data.engine;

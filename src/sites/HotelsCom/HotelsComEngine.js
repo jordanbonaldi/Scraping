@@ -15,6 +15,12 @@ class HotelsComEngine extends Engine {
             'https://fr.hotels.com/',
 
             /**
+             * Any cookie ?
+             */
+
+            './cookie',
+
+            /**
              * QUERIES
              */
 
@@ -43,7 +49,7 @@ class HotelsComEngine extends Engine {
      * @returns {string}
      */
     getBasicInformation(data) {
-        return super.getData('', 'p.total-count', data, true)
+        return data.data.body.searchResults.totalCount;
     }
 
     /**
@@ -57,111 +63,40 @@ class HotelsComEngine extends Engine {
     }
 
     /**
-     *
-     * @param classes
-     * @param digit
-     * @returns {*}
-     */
-    _getData(classes, digit = 0) {
-        return super.getData('[data-hotel-id='+'"'+this._id+'"'+']', classes, this._data, digit)
-    }
-
-    /**
-     *
-     * @returns {*}
-     * @private
-     */
-    _getAddress() {
-        return this._getData('.hotel-wrap .contact span', false)
-    }
-
-    /**
-     *
-     * @returns {number}
-     * @private
-     */
-    _getPrice() {
-        let f = $('[data-hotel-id='+'"'+this._id+'"'+'] .pricing .price a', this._data)[0];
-
-        let price = 0;
-
-        if (f != null && f.hasOwnProperty('children')) {
-            f = f.children[0];
-
-            price = f.next === null ? f.children[0].data.match(/\d/g).join('') : f.next.children[0].data.match(/\d/g).join('')
-        }
-
-        return price
-    }
-
-    /**
-     *
-     * @returns {string}
-     * @private
-     */
-    _getRate() {
-        let rate = this._getData('.reviews-box .guest-reviews-badge', true);
-
-        if (rate != null && rate.length > 1)
-            rate = (rate/10).toFixed(1);
-
-        return rate;
-    }
-
-    /**
-     *
-     * @returns {string}
-     * @private
-     */
-    _getReviews() {
-        return this._getData('.trip-advisor .ta-total-reviews', true)
-    }
-
-    /**
      * @param data
      *
      * @returns {Array}
      */
     parseSite(data) {
-        this._data = data;
-        let search = $('li.hotel', data);
-
         let hotel = [];
+        this._data = data.data.body.searchResults.results;
 
-        for (let i = 0; i < search.length; i++) {
-            let name = search[i].attribs['data-title'];
-            this._id = search[i].attribs['data-hotel-id'];
+        for (let i = 0; i < this._data.length; i++) {
+            let e = this._data[i];
 
-            let rate;
-
-            if ((rate = this._getRate()) == null) {
-                this.incrRead();
+            if (e.ratePlan == null) {
+                console.log('No price data for ' + e.name);
+                super.incrRead();
 
                 continue
             }
 
-            console.log(name + " done!");
-
-            let price = this._getPrice();
-            let address = this._getAddress();
-
-            let reviews = this._getReviews();
-
             hotel.push({
-                name: name,
-                address: address,
+                name: e.name,
+                address: [e.address.streetAddress, e.address.locality, e.address.postalCode, e.address.region, e.address.countryName].join(' '),
                 city: super.city,
-                rate: 0,
+                rate: e.starRating,
                 engine: {
                     name: 'Hotels.com',
-                    id: this._id,
-                    price: price,
-                    rate: rate/10,
-                    reviews: reviews
+                    id: e.id,
+                    price: e.ratePlan.price.current,
+                    rate: e.guestReviews == null ? 0 : e.guestReviews.rating,
+                    reviews: e.guestReviews == null ? 0 : e.guestReviews.total
                 }
-            });
-
+            })
         }
+
+        console.log('Load ' + hotel.length + ' on ' + this._data.length);
 
         return hotel;
     }
