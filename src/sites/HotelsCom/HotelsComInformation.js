@@ -4,6 +4,9 @@ const Hotel = require('../../crud/HotelCrud');
 const Information = require('../../handlers/Information');
 const HotelsComSearchData = require('./HotelsComSearchData');
 const HotelsComQueries = require('./HotelsComQueries');
+const {normalize} = require('../../utils/utils');
+
+const Similarity = require('string-similarity');
 
 class HotelsComInformation extends Information
 {
@@ -54,6 +57,54 @@ class HotelsComInformation extends Information
         return new Promise(() => this._getStringified(id));
     }
 
+    _normalizeStr() {
+
+    }
+
+    /**
+     *
+     * @param hotels
+     * @param selected
+     * @param name
+     * @returns {Promise<any[] | never>}
+     * @private
+     */
+    _setAllpromise(hotels, selected, name) {
+        return Promise.all(
+            hotels.map(ho =>
+                Hotel.getByName((selected != null ? name : ho.name))
+                    .catch(() => console.log("Unexisting hotel " + ho.name))
+                    .then((hotel) => {
+                        return { doc: hotel, id: ho.destinationId }
+                    })
+            ))
+            .then(values => values.filter(e => e.doc != null))
+            .then( values => super.getUnique(values, '_id'))
+            .then(values => values.filter(e => {
+                console.log(String(e.doc._id).localeCompare(String(this.currentHotelIndex._id)) === 0)
+                console.log(e.doc.name)
+                console.log(this.currentHotelIndex.name)
+                console.log(Similarity.compareTwoStrings(normalize(e.doc.name), normalize(this.currentHotelIndex.name)))
+                    console.log(
+                        String(e.doc._id).localeCompare(String(this.currentHotelIndex._id)) === 0 ||
+                        Similarity.compareTwoStrings(normalize(e.doc.name), normalize(this.currentHotelIndex.name)) > 0.61)
+                }
+            )[0])
+            .then(value => {
+                if (value == null)
+                    return value;
+
+                if (String(value.doc._id).localeCompare(String(this.currentHotelIndex._id)) !== 0)
+                    return Hotel.mergeData(value, this.currentHotelIndex).then(() => {
+                        console.log('Merge ' + value.name + ' with ' + this.currentHotelIndex.name);
+
+                        return value
+                    });
+                else return value
+            })
+            .then(value => value != null ? this._getStringified(value.id) : null)
+    }
+
     /**
      *
      * @param name
@@ -83,18 +134,7 @@ class HotelsComInformation extends Information
                 if (selected != null)
                     hotels = [ selected ];
 
-                return Promise.all(
-                    hotels.map(ho =>
-                        Hotel.getByName((selected != null ? name : ho.name))
-                            .catch(() => console.log("Unexisting hotel " + ho.name))
-                            .then((hotel) => {
-                                return { doc: hotel, id: ho.destinationId }
-                            })
-                    ))
-                    .then(values => values.filter(e => e.doc != null))
-                    .then(values => values.filter(e =>
-                        String(e.doc._id).localeCompare(String(this.currentHotelIndex._id)) === 0)[0])
-                    .then(value => value != null ? this._getStringified(value.id) : null)
+                return this._setAllpromise(hotels, selected, name)
             })
     }
 

@@ -19,7 +19,11 @@ router.get('/hotels/:city', (req, res) => {
                 status: 0
             }))
         )
-    )
+    ).catch(() => {
+        res.send({
+            status: -1
+        })
+    })
 });
 
 const getEta = (processes) => {

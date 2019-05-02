@@ -1,6 +1,8 @@
 const Crud = require('./Crud');
+const CityCrud = require('./CityCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
+const {normalize} = require('../utils/utils');
 
 class HotelCrud extends Crud {
 
@@ -104,8 +106,6 @@ class HotelCrud extends Crud {
 
             data.engines = obj;
 
-
-
             return super.create(data)
         })
     }
@@ -122,29 +122,45 @@ class HotelCrud extends Crud {
     /**
      *
      * @param name
+     * @param cities
+     * @returns {*}
+     * @private
+     */
+    _removeAllCity(name, cities) {
+        cities.forEach(e => name = name.replace(e.name.toLowerCase(), ''));
+
+        return name;
+    }
+
+    /**
+     *
+     * @param name
      * @returns {Promise<any>}
      */
     getByName(name) {
-        name = name.normalize('NFD').toLowerCase()
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace('hotel', '');
+        return CityCrud.getAll().then((cities) => {
 
-        return this.getAll().then(e => {
-            let names = e.map(i => i.name.toLowerCase().normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace('hotel', '')
-            );
-            let agv = Similarity.findBestMatch(
-                name
-                , names);
-            let res = e.filter(i =>
-                i.name.toLowerCase().normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace('hotel', '') === agv.bestMatch.target)[0];
+            name = this._removeAllCity(normalize(name), cities);
 
-            return new Promise((resolve, reject) =>
-                agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
+            return this.getAll().then(e => {
+                let names = e.map(i => this._removeAllCity(normalize(i.name), cities));
+                let agv = Similarity.findBestMatch(name, names);
+                let res = e.filter(i => this._removeAllCity(normalize(i.name), cities) === agv.bestMatch.target)[0];
+
+                return new Promise((resolve, reject) =>
+                    agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
+            })
         })
+    }
+
+    /**
+     *
+     * @param data
+     * @param _data
+     * @returns {Promise<any>}
+     */
+    mergeData(data, _data) {
+        return super.deleteById(_data).then(() => super.updateById(this._getHotel(data, _data)))
     }
 
     /**

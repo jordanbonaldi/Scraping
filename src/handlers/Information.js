@@ -110,6 +110,41 @@ class Information
         return temp
     }
 
+    getUnique(arr, comp) {
+        return arr.map(e => e[comp]).map((e, i, final) => final.indexOf(e) === i && i).filter(e => arr[e]).map(e => arr[e])
+    }
+
+    /**
+     *
+     * @param promise
+     * @param hotel
+     * @param callback
+     * @returns {Promise<T | never>}
+     * @private
+     */
+    _loadUrl(promise, hotel, callback) {
+        return promise.then((url) => {
+            if (url == null) {
+                console.log("No address found for " + hotel.name);
+                return callback();
+            }
+
+            return request(url).then(this.getInformations).then((data) => {
+                hotel.address = data.address != null ? data.address : hotel.address;
+                hotel.rate = data.rate != null ? data.rate : hotel.rate;
+
+                console.log(hotel.name + " updated -> address:" + hotel.address + " rate: " + hotel.rate);
+
+                return Hotel.updateById(hotel).then(() => {
+                    return callback();
+                })
+            })
+        }).catch((e) => {
+            console.log('Error while loading ' + hotel.name + ' ' + e);
+            return callback()
+        })
+    }
+
     /**
      *
      * Recursive system
@@ -146,26 +181,7 @@ class Information
                 promiseUrl = this.getUrl(e.name.toLowerCase());
             }
 
-            return promiseUrl.then((url) => {
-                if (url == null) {
-                    console.log("No address found for " + e.name);
-                    return next();
-                }
-
-                return request(url).then(this.getInformations).then((data) => {
-                    e.address = data.address != null ? data.address : e.address;
-                    e.rate = data.rate != null ? data.rate : e.rate;
-
-                    console.log(e.name + " updated -> address:" + e.address + " rate: " + e.rate);
-
-                    return Hotel.updateById(e).then(() => {
-                        return next();
-                    })
-                })
-            }).catch(() => {
-                console.log('Error while loading ' + e.name);
-                return next()
-            })
+            return this._loadUrl(promiseUrl, e, next);
         })
     }
 
