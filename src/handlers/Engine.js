@@ -154,28 +154,24 @@ class Engine {
          */
 
         return request(opt)
-            .then(response => {
-                return this._cookieData ? this._cookieData : response.caseless.dict['set-cookie']
-            }).then((array) => {
-                return array.map((e) =>
-                    e.split(';')[0]
-                )
-            }).then((a) => {
-                return a.join(';')
-            }).then((a) => {
-                if (this._cookieFile)
-                    return (this._cookieData = fs.readFileSync(this._cookieFile, 'utf8').replace(/(\r\n|\n|\r)/gm, ""));
-                else
-                    return a
-            })
+            .then(response => this._cookieData ? this._cookieData : response.caseless.dict['set-cookie']
+            ).then((array) => array.map((e) => e.split(';')[0])
+            ).then((a) => a.join(';')
+            ).then((a) =>
+                this._cookieFile ?
+                    (this._cookieData = fs.readFileSync(this._cookieFile, 'utf8').replace(/(\r\n|\n|\r)/gm, ""))
+                    : a
+            )
     }
 
     /**
      * Increment read
      */
     incrRead() {
-        this._falseRead++;
-        this._totalFalse++;
+        {
+            this._falseRead++;
+            this._totalFalse++;
+        }
     }
 
     getFrequences() {
@@ -297,9 +293,9 @@ class Engine {
      * @private
      */
     _request(url) {
-        return this._getCookie().then((cookies) => {
-            return request(Engine._opt(url, cookies)).then((data) => {
-                return this._getRunningProcess().then(res => {
+        return this._getCookie().then((cookies) =>
+            request(Engine._opt(url, cookies)).then((data) =>
+                this._getRunningProcess().then(res => {
                     if (!res) {
                         this._max = this.getBasicInformation(data);
                         this._index = -1
@@ -307,8 +303,8 @@ class Engine {
 
                     return this._launchRequest()
                 })
-            })
-        })
+            )
+        )
     }
 
     /**
@@ -367,12 +363,10 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).catch((e) => {
-            console.log(e);
-            City.create({
+        }).catch(() => City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
-        })
+        )
     }
 
 }

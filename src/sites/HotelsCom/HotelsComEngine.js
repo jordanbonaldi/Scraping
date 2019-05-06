@@ -81,6 +81,8 @@ class HotelsComEngine extends Engine {
                 continue
             }
 
+            console.log(e.name + ' done !');
+
             hotel.push({
                 name: e.name,
                 address: [e.address.streetAddress, e.address.locality, e.address.postalCode, e.address.region, e.address.countryName].join(' '),
