@@ -1,6 +1,7 @@
 const Engine = require('../../handlers/Engine');
 const $ = require('cheerio');
 const request = require('request-promise');
+const fs = require('fs');
 
 class HotelsComEngine extends Engine {
 
@@ -46,12 +47,37 @@ class HotelsComEngine extends Engine {
 
     /**
      *
+     * @param url
+     * @returns {Promise|*|PromiseLike<number | never>|Promise<number | never>}
+     * @private
+     */
+    _loop(url) {
+        let cookie = fs.readFileSync('./cookie', 'utf8').replace(/(\r\n|\n|\r)/gm, "");
+        return request({
+            uri: url,
+            headers: {
+                'cookie': `${cookie}`,
+                'cache-control': 'no-cache',
+                'User-Agent': 'PostmanRuntime/7.6.0', /** Magic Key **/
+                'Accept': '*/*',
+                'Connection': 'close',
+            },
+            json: true,
+        }).then(e => {
+            let ix = this.setOffset(e);
+
+            return ix == null ? e.data.body.searchResults.totalCount - e.data.body.searchResults.unavailableCount : this._loop(this.url + ix);
+        })
+    }
+
+    /**
+     *
      * @param data
-     * @returns {number}
+     * @returns {Promise<any>}
      */
     getBasicInformation(data) {
-        /** Loop load nextUrl till 0 hotel **/
-        return data.data.body.searchResults.unavailableCount ? data.data.body.searchResults.totalCount - data.data.body.searchResults.unavailableCount : data.data.body.searchResults.totalCount;
+        console.log("Calculating max hotels to load !");
+        return this._loop(this.url + this.setOffset(data))
     }
 
     /**

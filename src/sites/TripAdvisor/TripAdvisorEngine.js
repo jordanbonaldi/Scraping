@@ -99,10 +99,10 @@ class TripAdvisorEngine extends Engine{
     /**
      *
      * @param data
-     * @returns {Number}
+     * @returns {Promise<any>}
      */
     getBasicInformation(data) {
-        return super.getData('', '.descriptive_header_text span.highlight', data).match(/\d/g).join('')
+        return new Promise((resolve) => resolve(super.getData('', '.descriptive_header_text span.highlight', data).match(/\d/g).join('')))
     }
 
     /**

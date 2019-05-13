@@ -106,7 +106,7 @@ class Engine {
      * @returns {*}
      */
     setOffset(data = null) {
-        return data
+        return null
     }
 
     /**
@@ -138,10 +138,10 @@ class Engine {
     /**
      *
      * @param data
-     * @returns {number}
+     * @returns {Promise<any>}
      */
     getBasicInformation(data = null) {
-        return 0
+        return new Promise((resolve, reject) => reject(true));
     }
 
     /**
@@ -231,11 +231,9 @@ class Engine {
         this._setOffsetCount++;
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
-        console.log(url)
+        console.log("uurl " + url)
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
-
-            this._max = this.getBasicInformation(data);
 
             let e = this.parseSite(data);
 
@@ -319,10 +317,11 @@ class Engine {
         return this._getCookie().then((cookies) =>
             request(Engine._opt(url, cookies)).then((data) =>
                 this._getRunningProcess().then(res => {
-                    if (!res) {
-                        this._max = this.getBasicInformation(data);
-                        this._index = -1
-                    }
+                    if (!res)
+                        return this.getBasicInformation(data)
+                            .then(e => this._max = e)
+                            .then(() => this._index = -1)
+                            .then(() => this._launchRequest());
 
                     return this._launchRequest()
                 })

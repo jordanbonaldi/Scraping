@@ -99,8 +99,6 @@ class HotelCrud extends Crud {
         }).catch(() => {
             let obj = [];
 
-            console.log(' new ' + ++this.i);
-
             if (Array.isArray(data.engine))
                 obj = data.engine;
             else obj = [ data.engine ];

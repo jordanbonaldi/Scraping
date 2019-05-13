@@ -85,8 +85,10 @@ class HotelsComInformation extends Information
             .then(values => values.filter(e => e.doc != null))
             .then( values => super.getUnique(values, '_id'))
             .then(values => values.filter(e => {
+                console.log(e.doc._id)
                 console.log(String(e.doc._id).localeCompare(String(this.currentHotelIndex._id)) === 0)
                 console.log(e.doc.name)
+
                 console.log(this.currentHotelIndex.name)
                 console.log(Similarity.compareTwoStrings(normalize(e.doc.name), normalize(this.currentHotelIndex.name)))
                     console.log(
