@@ -22,6 +22,10 @@ class HotelsComInformation extends Information
              */
             'https://lookup.hotels.com/suggest/champion/json?',
 
+            'HOTEL_GROUP',
+
+            'CITY_GROUP',
+
             /**
              * Search Data Class
              */
@@ -69,7 +73,7 @@ class HotelsComInformation extends Information
      * @returns {Promise<any[] | never>}
      * @private
      */
-    _setAllpromise(hotels, selected, name) {
+    setAllpromise(hotels, selected, name) {
         return Promise.all(
             hotels.map(ho =>
                 Hotel.getByName((selected != null ? name : ho.name))
@@ -108,33 +112,36 @@ class HotelsComInformation extends Information
     /**
      *
      * @param name
+     * @param type
      * @returns {PromiseLike<any[] | never>}
      */
-    getUrl(name) {
+    getUrl(name, type) {
         let url = this.generator.generateUrl((url) =>
             url.split(' ').join('%20').split("'").join('%20').split('`').join('%20')
         );
 
-        console.log(url);
-
         return request(url).then((res) => JSON.parse(res.substring(4, res.length - 2)))
             .then((res) => {
-                let hotels;
+                let types;
                 let selected = null;
 
-                hotels = res.suggestions.filter(suggestion => suggestion.group == "HOTEL_GROUP")[0].entities;
+                types = res.suggestions.filter(suggestion => suggestion.group == type)[0].entities;
 
-                for (let i = 0; i < hotels.length; i++) {
-                    if (hotels[i].name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(name.toLowerCase())) {
-                        selected = hotels[i];
+                for (let i = 0; i < types.length; i++) {
+                    if (types[i].name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(name.toLowerCase())) {
+                        selected = types[i];
                         break;
                     }
                 }
 
                 if (selected != null)
-                    hotels = [ selected ];
+                    types = [ selected ];
 
-                return this._setAllpromise(hotels, selected, name)
+                return {
+                    array: types,
+                    selected: selected,
+                    name: name
+                }
             })
     }
 

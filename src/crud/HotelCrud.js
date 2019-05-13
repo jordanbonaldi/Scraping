@@ -8,6 +8,7 @@ class HotelCrud extends Crud {
 
     constructor() {
         super('hotel', Hotel);
+        this.i = 0;
     }
 
     /**
@@ -97,6 +98,8 @@ class HotelCrud extends Crud {
             return { error: 'Already existing hotel' }
         }).catch(() => {
             let obj = [];
+
+            console.log(' new ' + ++this.i);
 
             if (Array.isArray(data.engine))
                 obj = data.engine;

@@ -1,5 +1,6 @@
 const Engine = require('../../handlers/Engine');
 const $ = require('cheerio');
+const request = require('request-promise');
 
 class HotelsComEngine extends Engine {
 
@@ -46,10 +47,11 @@ class HotelsComEngine extends Engine {
     /**
      *
      * @param data
-     * @returns {string}
+     * @returns {number}
      */
     getBasicInformation(data) {
-        return data.data.body.searchResults.totalCount;
+        /** Loop load nextUrl till 0 hotel **/
+        return data.data.body.searchResults.unavailableCount ? data.data.body.searchResults.totalCount - data.data.body.searchResults.unavailableCount : data.data.body.searchResults.totalCount;
     }
 
     /**
@@ -60,6 +62,19 @@ class HotelsComEngine extends Engine {
      */
     handleOffset(index, read = 0) {
         return index + 1
+    }
+
+    /**
+     *
+     * @param data
+     * @returns {*}
+     */
+    setOffset(data) {
+        try {
+            return data.data.body.searchResults.pagination.nextPageUrl
+        } catch (e) {
+            return null
+        }
     }
 
     /**
@@ -100,7 +115,7 @@ class HotelsComEngine extends Engine {
 
         console.log('Load ' + hotel.length + ' on ' + this._data.length);
 
-        return hotel;
+        return this._data.length === 0 ? null : hotel;
     }
 
 }

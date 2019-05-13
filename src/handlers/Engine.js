@@ -7,6 +7,7 @@ const Hotel = require('../crud/HotelCrud');
 const request = require('request-promise');
 const ProcessCrud = require('../crud/ProcessCrud');
 const fs = require('fs');
+const InformationsManager = require('../handlers/InformationsManager');
 
 class Engine {
     /**
@@ -32,6 +33,8 @@ class Engine {
         this._totalFalse = 0;
         this._cookieFile = cookieFile;
         this._cookieData = null;
+        this._setOffset = null;
+        this._setOffsetCount = 0;
     }
 
     /**
@@ -95,6 +98,15 @@ class Engine {
      */
     handleOffset(index = 0, read = 0) {
       return index * read;
+    }
+
+    /**
+     *
+     * @param data
+     * @returns {*}
+     */
+    setOffset(data = null) {
+        return data
     }
 
     /**
@@ -203,6 +215,7 @@ class Engine {
             offsets: this._offset,
             city: this._city,
             cityName: this._cityName,
+            setOffset: this._setOffset,
             eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
         });
     }
@@ -212,13 +225,22 @@ class Engine {
      * @returns {Promise|*|PromiseLike<T | never>|Promise<T | never>}
      * @private
      */
-    _launchRequest() {
-        let url = this._generator.addOffSet(this.handleOffset(++this._index, this._read));
-        return request(Engine._opt(url, this._cookieData)).then((data) => {
+    _launchRequest(oldData) {
+        if (this._setOffsetCount !== 0)
+            this._setOffset = this.setOffset(oldData);
+        this._setOffsetCount++;
+        let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
+        console.log(url)
+        return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
+            this._max = this.getBasicInformation(data);
+
             let e = this.parseSite(data);
+
+            if (e == null)
+                return;
 
             let hotels = e.map(a => Hotel.create(a));
 
@@ -242,7 +264,7 @@ class Engine {
 
                 return this.updateSchema().then(() => {
                     if (this._max - this._read > 0)
-                        return this._launchRequest()
+                        return this._launchRequest(data)
                 })
             })
         })
@@ -281,6 +303,7 @@ class Engine {
             this._read = doc.current;
             this._frequence = doc.freq;
             this._offset = doc.offsets;
+            this._setOffset = doc.setOffset;
 
             return true
         }).catch(() => false)
@@ -338,8 +361,8 @@ class Engine {
         callback = null
     ) {
         return City.getByName(city).then((e) => {
-          this._cityName = e.name;
-          this._city = e._id
+            this._cityName = e.name;
+            this._city = e._id
         }).then(() => {
             if (checkin === null)
                 checkin = new Date();
@@ -363,9 +386,12 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).catch(() => City.create({
-                name: city
-            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+        }).catch(() => InformationsManager.getByName('hotels.com').loadCity(city)
+            .then(() =>
+                City.create({
+                    name: city
+                }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+            )
         )
     }
 

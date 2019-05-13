@@ -11,16 +11,30 @@ class Information
      *
      * @param name
      * @param url
+     * @param hotel_type
+     * @param city_type
+     * @param hotel_type
+     * @param city_type
      * @param searchClass
      * @param queryClass
      * @param queries
      */
-    constructor(name, url, searchClass, queryClass, ...queries) {
+    constructor(name, url, hotel_type, city_type, searchClass, queryClass, ...queries) {
         this._name = name;
         this._url = url;
         this._query = new queryClass(...queries);
         this._search = new searchClass();
         this._currentHotelIndex = null;
+        this._hotel_type = hotel_type;
+        this._city_type = city_type;
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    get name() {
+        return this._name;
     }
 
     /**
@@ -87,9 +101,20 @@ class Information
     /**
      *
      * @param name
+     * @param type
      * @returns {PromiseLike<any[] | never>}
      */
-    getUrl(name) {
+    getUrl(name, type) {
+        return new Promise((resolve, reject) => reject(true))
+    }
+
+    /**
+     *
+     * @param hotels
+     * @param selected
+     * @param name
+     */
+    setAllpromise(hotels, selected, name) {
         return new Promise((resolve, reject) => reject(true))
     }
 
@@ -147,6 +172,32 @@ class Information
 
     /**
      *
+     * @param name
+     * @returns {PromiseLike<any[]|never>}
+     */
+    loadCity(name) {
+        this._search.search(name.toLowerCase() + ' France');
+
+        this._generator = new Generator(
+            this._url,
+            this._search,
+            this._clone(this._query)
+        );
+
+        return this.getUrl(name, this._city_type).then((e) => e.array)
+            .then((array) => {
+                if (array.length === 0)
+                    throw 'City "' + name + '" doesn\'t exists';
+
+                let data = array.filter(e => e.caption.toLowerCase().includes(name.toLowerCase()))[0]
+
+                if (data == null)
+                    throw 'City "' + name + '" doesn\'t exists';
+            })
+    }
+
+    /**
+     *
      * Recursive system
      *
      * @param hotels
@@ -178,7 +229,10 @@ class Information
                     this._clone(this._query)
                 );
 
-                promiseUrl = this.getUrl(e.name.toLowerCase());
+
+                promiseUrl = this.getUrl(e.name.toLowerCase(), this._hotel_type).then((obj) => {
+                    return this.setAllpromise(obj.array, obj.selected, obj.name)
+                })
             }
 
             return this._loadUrl(promiseUrl, e, next);

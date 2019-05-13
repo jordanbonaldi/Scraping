@@ -95,7 +95,7 @@ class EnginesManager {
                 );
 
                 return CityCrud.setLastScan(city.toLowerCase(), engine.name).then(() => resolve(true)).catch()
-            });
+            }).catch(e => reject('Error : ' + e));
         }))
     }
 

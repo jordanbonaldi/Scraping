@@ -42,6 +42,10 @@ const preLaunch = () => {
         let engine = args[2];
         let city = args[3];
 
+        if (args.length > 4)
+            for (let i = 4; i < args.length; i++)
+                city += ' ' + args[i];
+
         if (city != null && engine != null) {
             if (!isEngineExists(engine)) {
                 console.log(engine + " unknown!");
@@ -67,4 +71,9 @@ const preLaunch = () => {
 MongoConnect().then(preLaunch);
 
 
-const launch = (city, engine) => EngineManager.loadSearch(city, engine).then(() => process.exit(0));
+const stop = (err) => process.exit(err);
+
+const launch = (city, engine) => EngineManager.loadSearch(city, engine).then(() => stop(false)).catch(e => {
+    console.log('Error: ' + e);
+    stop(true)
+});

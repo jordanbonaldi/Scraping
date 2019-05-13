@@ -1,3 +1,5 @@
+const Information = require('../handlers/Information');
+
 class InformationsManager {
 
     /**
@@ -11,6 +13,15 @@ class InformationsManager {
     launch() {
         return Promise
             .all(this._engines.map((e) => e.loadProcedure()))
+    }
+
+    /**
+     *
+     * @param name
+     * @returns {Information}
+     */
+    getByName(name) {
+        return this._engines.filter(e => e.name == name)[0]
     }
 
     get engines() {
