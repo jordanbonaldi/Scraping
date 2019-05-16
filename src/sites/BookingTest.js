@@ -1,7 +1,7 @@
 const Engine = require('../handlers/Engine');
 const $ = require('cheerio');
 
-class BookingEngine extends Engine {
+class BookingTest extends Engine {
 
     constructor() {
         super(
@@ -148,6 +148,6 @@ class BookingEngine extends Engine {
 
 /**
  *
- * @type {BookingEngine}
+ * @type {BookingTest}
  */
-module.exports = new BookingEngine();
+module.exports = new BookingTest();

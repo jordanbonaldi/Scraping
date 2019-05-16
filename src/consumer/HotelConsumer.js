@@ -21,6 +21,7 @@ class HotelConsumer extends RabbitMQConsumer {
      * @param msg
      */
     consume(msg) {
+        console.log('toto');
         return new Promise(() => {
             let hotel = JSON.parse(msg);
             CityCrud.getByName(hotel.city.toLowerCase()).then((doc) => {

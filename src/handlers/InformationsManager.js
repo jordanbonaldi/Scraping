@@ -17,6 +17,16 @@ class InformationsManager {
 
     /**
      *
+     * @param engine
+     * @param name
+     * @returns {PromiseLike<any[]|never>}
+     */
+    searchHotelName(engine, name) {
+        return this.getByName(engine).loadHotel(name)
+    }
+
+    /**
+     *
      * @param name
      * @returns {Information}
      */

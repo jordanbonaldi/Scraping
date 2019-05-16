@@ -106,7 +106,7 @@ class HotelsComEngine extends Engine {
     /**
      * @param data
      *
-     * @returns {Array}
+     * @returns {Promise<any>}
      */
     parseSite(data) {
         let hotel = [];
@@ -141,7 +141,7 @@ class HotelsComEngine extends Engine {
 
         console.log('Load ' + hotel.length + ' on ' + this._data.length);
 
-        return this._data.length === 0 ? null : hotel;
+        return new Promise((resolve, reject) => resolve(this._data.length === 0 ? null : hotel));
     }
 
 }

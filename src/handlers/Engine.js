@@ -84,10 +84,10 @@ class Engine {
     /**
      *
      * @param data
-     * @returns {Array}
+     * @returns {Promise<any>}
      */
     parseSite(data = null) {
-        return []
+        return new Promise((resolve, reject) => reject(true))
     }
 
     /**
@@ -235,34 +235,34 @@ class Engine {
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
-            let e = this.parseSite(data);
+            return this.parseSite(data).then(e => {
+                if (e == null)
+                    return;
 
-            if (e == null)
-                return;
+                let hotels = e.map(a => Hotel.create(a));
 
-            let hotels = e.map(a => Hotel.create(a));
+                return Promise.all(hotels).then(() => {
+                    this._offset.push(e.length);
+                    this._read += e.length;
+                    this._read += this._falseRead;
+                    this._falseRead = 0;
 
-            return Promise.all(hotels).then(() => {
-                this._offset.push(e.length);
-                this._read += e.length;
-                this._read += this._falseRead;
-                this._falseRead = 0;
+                    this._now = Math.abs(this._now -= Date.now())/1000;
 
-                this._now = Math.abs(this._now -= Date.now())/1000;
+                    this._frequence.push(this._now);
 
-                this._frequence.push(this._now);
+                    console.log(
+                        this._name + " loading : " +
+                        this._read + "/" + this._max + " " +
+                        (((this._read * 100) / this._max) | 0) + "%" +
+                        " in " +
+                        this._now + " seconds -> with " + this._totalFalse + " not pushed"
+                    );
 
-                console.log(
-                    this._name + " loading : " +
-                    this._read + "/" + this._max + " " +
-                    (((this._read*100)/this._max) | 0) + "%" +
-                    " in " +
-                    this._now + " seconds -> with " + this._totalFalse + " not pushed"
-                );
-
-                return this.updateSchema().then(() => {
-                    if (this._max - this._read > 0)
-                        return this._launchRequest(data)
+                    return this.updateSchema().then(() => {
+                        if (this._max - this._read > 0)
+                            return this._launchRequest(data)
+                    })
                 })
             })
         })

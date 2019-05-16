@@ -118,6 +118,12 @@ class Information
         return new Promise((resolve, reject) => reject(true))
     }
 
+    /**
+     *
+     * @param obj
+     * @returns {{isActiveClone}|*}
+     * @private
+     */
     _clone(obj) {
         if (obj === null || typeof (obj) !== 'object' || 'isActiveClone' in obj)
             return obj;
@@ -135,6 +141,12 @@ class Information
         return temp
     }
 
+    /**
+     *
+     * @param arr
+     * @param comp
+     * @returns {*}
+     */
     getUnique(arr, comp) {
         return arr.map(e => e[comp]).map((e, i, final) => final.indexOf(e) === i && i).filter(e => arr[e]).map(e => arr[e])
     }
@@ -160,9 +172,7 @@ class Information
 
                 console.log(hotel.name + " updated -> address:" + hotel.address + " rate: " + hotel.rate);
 
-                return Hotel.updateById(hotel).then(() => {
-                    return callback();
-                })
+                return Hotel.updateById(hotel).then(() => callback())
             })
         }).catch((e) => {
             console.log('Error while loading ' + hotel.name + ' ' + e);
@@ -189,7 +199,7 @@ class Information
                 if (array.length === 0)
                     throw 'City "' + name + '" doesn\'t exists';
 
-                let data = array.filter(e => e.caption.toLowerCase().includes(name.toLowerCase()))[0]
+                let data = array.filter(e => e.caption.toLowerCase().includes(name.toLowerCase()))[0];
 
                 if (data == null)
                     throw 'City "' + name + '" doesn\'t exists';
@@ -204,12 +214,12 @@ class Information
      * @param index
      * @returns {Promise<any | never>}
      */
-    loadHotel(hotels, index = 0) {
+    loadHotels(hotels, index = 0) {
 
-        let next = () => this.loadHotel(hotels, ++index);
+        let next = () => this.loadHotels(hotels, ++index);
 
         if (index >= hotels.length)
-            return;
+            return null;
 
         let e = hotels[index];
 
@@ -230,9 +240,8 @@ class Information
                 );
 
 
-                promiseUrl = this.getUrl(e.name.toLowerCase(), this._hotel_type).then((obj) => {
-                    return this.setAllpromise(obj.array, obj.selected, obj.name)
-                })
+                promiseUrl = this.getUrl(e.name.toLowerCase(), this._hotel_type)
+                    .then((obj) => this.setAllpromise(obj.array, obj.selected, obj.name))
             }
 
             return this._loadUrl(promiseUrl, e, next);
@@ -241,11 +250,39 @@ class Information
 
     /**
      *
+     * @param name
+     * @returns {PromiseLike<any[] | never | never>}
+     */
+    loadHotel(name) {
+        console.log('Try to load hotel ' + name + ' with ' + this._name)
+        this._search.search(name);
+
+        this._generator = new Generator(
+            this._url,
+            this._search,
+            this._clone(this._query)
+        );
+
+        return this.getUrl(name, this._hotel_type)
+            .then(e => {
+                let hotels = e.array;
+
+                if (hotels.length === 1) {
+                    /** Match name ? **/
+                } else if (hotels.length > 1) {
+                    /** Select best **/
+                } else return null;
+
+                console.log(e)
+                process.exit(1);
+            })
+    }
+
+    /**
+     *
      */
     loadProcedure() {
-        return this._loadHotels().then(hotels => {
-            return this.loadHotel(hotels)
-        })
+        return this._loadHotels().then(hotels => this.loadHotels(hotels))
     }
 
     /**

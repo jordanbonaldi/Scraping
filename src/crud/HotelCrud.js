@@ -8,7 +8,6 @@ class HotelCrud extends Crud {
 
     constructor() {
         super('hotel', Hotel);
-        this.i = 0;
     }
 
     /**
@@ -113,6 +112,26 @@ class HotelCrud extends Crud {
 
     /**
      *
+     * @param from
+     * @param to
+     * @returns {Promise<any>}
+     */
+    mergeHotel(from, to)
+    {
+        /** pas complet **/
+
+        if (String(from._id).localeCompare(String(to._id)) === 0)
+            return null;
+
+        from.engines = from.engines.concat(to.engines);
+        from.address = to.address == 'none' ? from.address :  to.address;
+        from.rate = to.rate > 0 ? to.rate : from.rate;
+
+        return this.update(from)
+    }
+
+    /**
+     *
      * @param hotel
      * @returns {Promise<any | never>}
      */
@@ -170,7 +189,7 @@ class HotelCrud extends Crud {
      * @returns {Promise<any>}
      */
     getData(id) {
-        return super.getById(id);
+        return super.getById(id)
     }
 
 }

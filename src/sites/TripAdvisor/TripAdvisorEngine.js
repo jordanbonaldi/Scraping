@@ -5,6 +5,7 @@ const request = require('request-promise');
 const TripAdvisorQueries = require('./TripAdvisorQueries');
 const TripAdvisorSearchData = require('./TripAdvisorSearchData');
 const TripAdvisorGenerator = require('./TripAdvisorGenerator');
+const InformationManager = require('../../handlers/InformationsManager');
 
 class TripAdvisorEngine extends Engine{
 
@@ -289,7 +290,12 @@ class TripAdvisorEngine extends Engine{
             })
         }
 
-        return hotels;
+        console.log('Post inf');
+
+        return City.getById(super.city).then(city => {
+            console.log('Got city ' + city.name);
+            return Promise.all(hotels.map(e => InformationManager.searchHotelName('hotels.com', e.name + ' ' + city.name + ' France')))
+        })
     }
 
     /**
