@@ -2,6 +2,7 @@ const Engine = require('../../handlers/Engine');
 const $ = require('cheerio');
 const request = require('request-promise');
 const fs = require('fs');
+const {log} = require('../../utils/utils');
 
 class HotelsComEngine extends Engine {
 
@@ -43,6 +44,8 @@ class HotelsComEngine extends Engine {
 
             'pn'
         );
+
+        this._tempCount = 0;
     }
 
     /**
@@ -66,6 +69,10 @@ class HotelsComEngine extends Engine {
         }).then(e => {
             let ix = this.setOffset(e);
 
+            this._tempCount += e.data.body.searchResults.results.length;
+
+            log('Hotels count : ' + this._tempCount);
+
             return ix == null ? e.data.body.searchResults.totalCount - e.data.body.searchResults.unavailableCount : this._loop(this.url + ix);
         })
     }
@@ -76,7 +83,7 @@ class HotelsComEngine extends Engine {
      * @returns {Promise<any>}
      */
     getBasicInformation(data) {
-        console.log("Calculating max hotels to load !");
+        log("Calculating max hotels to load !");
         return this._loop(this.url + this.setOffset(data))
     }
 
@@ -116,13 +123,10 @@ class HotelsComEngine extends Engine {
             let e = this._data[i];
 
             if (e.ratePlan == null) {
-                console.log('No price data for ' + e.name);
                 super.incrRead();
 
                 continue
             }
-
-            console.log(e.name + ' done !');
 
             hotel.push({
                 name: e.name,
@@ -138,8 +142,6 @@ class HotelsComEngine extends Engine {
                 }
             })
         }
-
-        console.log('Load ' + hotel.length + ' on ' + this._data.length);
 
         return new Promise((resolve, reject) => resolve(this._data.length === 0 ? null : hotel));
     }

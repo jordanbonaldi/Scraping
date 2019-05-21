@@ -144,6 +144,12 @@ class HotelsComInformation extends Information
                     selected: selected,
                     name: name
                 }
+            }).catch(() => {
+                return {
+                    array: [],
+                    selected: 'no positif',
+                    name: name
+                }
             })
     }
 

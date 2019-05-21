@@ -1,5 +1,6 @@
 const CityCrud = require('../crud/CityCrud');
 const ProcessCrud = require('../crud/ProcessCrud');
+const {log} = require('../utils/utils');
 
 class EnginesManager {
 
@@ -40,7 +41,7 @@ class EnginesManager {
                 rooms,
                 callback
             ).then(() => {
-                console.log("Finished for " + city);
+                log("Finished for " + city);
             })
         }))
     }
@@ -84,14 +85,14 @@ class EnginesManager {
                     .then((d) => ProcessCrud.deleteById(d._id))
                     .catch(() => console.log('No process to delete'));
 
-                console.log(
+                log(
                     "Finished for " +
                     city +
                     " with " +
                     engine.name +
                     " in " +
                     Math.round(engine.getFrequences()) +
-                    " seconds"
+                    " seconds\n"
                 );
 
                 return CityCrud.setLastScan(city.toLowerCase(), engine.name).then(() => resolve(true)).catch()

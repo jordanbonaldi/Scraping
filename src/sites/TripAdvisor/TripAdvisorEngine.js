@@ -33,7 +33,9 @@ class TripAdvisorEngine extends Engine{
             'query',
             'types',
             'max'
-        )
+        );
+
+        this._hotels = []
     }
 
     /**
@@ -274,11 +276,10 @@ class TripAdvisorEngine extends Engine{
             this._rate = this._getRate(i);
 
             if (engines.length === 0) {
-                console.log("No price data for " + name);
                 this.incrRead();
 
                 continue
-            } else console.log(name + " done!");
+            }
 
 
             hotels.push({
@@ -290,12 +291,31 @@ class TripAdvisorEngine extends Engine{
             })
         }
 
-        console.log('Post inf');
+        return City.getById(super.city).then(city => this._oneByOne(0, hotels, city).then(() => this._hotels)).catch(e => console.log(e))
+    }
 
-        return City.getById(super.city).then(city => {
-            console.log('Got city ' + city.name);
-            return Promise.all(hotels.map(e => InformationManager.searchHotelName('hotels.com', e.name + ' ' + city.name + ' France')))
-        })
+    /**
+     *
+     * @param i
+     * @param hotels
+     * @param city
+     * @returns {PromiseLike<any[] | never | never>}
+     * @private
+     */
+    _oneByOne(i, hotels, city) {
+        if (i >= hotels.length)
+            return new Promise((resolve) => resolve(true));
+
+        return InformationManager.searchHotelName('hotels.com', hotels[i].name + ' ' + city.name + ' France')
+            .then((result) => {
+
+                if (result != null)
+                    hotels[i].name = result;
+
+                this._hotels.push(hotels[i]);
+
+                return this._oneByOne(++i, hotels, city)
+            });
     }
 
     /**

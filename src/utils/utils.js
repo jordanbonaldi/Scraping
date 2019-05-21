@@ -16,6 +16,16 @@ const normalize = (name) => name.normalize('NFD').toLowerCase()
 
 /**
  *
+ * @param message
+ */
+const log = (message) => {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(message);
+};
+
+/**
+ *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize};
+module.exports = {checkDate, normalize, log};

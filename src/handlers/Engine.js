@@ -8,6 +8,7 @@ const request = require('request-promise');
 const ProcessCrud = require('../crud/ProcessCrud');
 const fs = require('fs');
 const InformationsManager = require('../handlers/InformationsManager');
+const {normalize, log} = require('../utils/utils');
 
 class Engine {
     /**
@@ -194,6 +195,14 @@ class Engine {
         return this._offset.reduce((a, b) => a + b, 0)
     }
 
+    getEta() {
+        let offsetAver = Math.round( this.getOffset() / this._offset.length);
+        let freqAver = Math.round( this.getFrequences() / this._frequence.length);
+        let op = (this._max - this._read) / (offsetAver);
+
+        return this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8);
+    }
+
     /**
      *
      * @returns {Promise<any>}
@@ -231,7 +240,6 @@ class Engine {
         this._setOffsetCount++;
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
-        console.log("uurl " + url)
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
@@ -251,12 +259,12 @@ class Engine {
 
                     this._frequence.push(this._now);
 
-                    console.log(
+                    log(
                         this._name + " loading : " +
                         this._read + "/" + this._max + " " +
                         (((this._read * 100) / this._max) | 0) + "%" +
                         " in " +
-                        this._now + " seconds -> with " + this._totalFalse + " not pushed"
+                        this._now + " seconds -> with " + this._totalFalse + " not pushed. | " + this.getEta() + " seconds remaining.."
                     );
 
                     return this.updateSchema().then(() => {

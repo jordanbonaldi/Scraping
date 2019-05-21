@@ -4,6 +4,8 @@ const Hotel = require('../crud/HotelCrud');
 const request = require('request-promise');
 const Generator = require('../handlers/Generator');
 const ProcessCrud = require('../crud/ProcessCrud');
+const StringComparator = require('string-similarity');
+const {normalize, log} = require('../utils/utils');
 
 class Information
 {
@@ -162,7 +164,7 @@ class Information
     _loadUrl(promise, hotel, callback) {
         return promise.then((url) => {
             if (url == null) {
-                console.log("No address found for " + hotel.name);
+                log("No address found for " + hotel.name);
                 return callback();
             }
 
@@ -170,12 +172,12 @@ class Information
                 hotel.address = data.address != null ? data.address : hotel.address;
                 hotel.rate = data.rate != null ? data.rate : hotel.rate;
 
-                console.log(hotel.name + " updated -> address:" + hotel.address + " rate: " + hotel.rate);
+                log(hotel.name + " updated -> address:" + hotel.address + " rate: " + hotel.rate);
 
                 return Hotel.updateById(hotel).then(() => callback())
             })
         }).catch((e) => {
-            console.log('Error while loading ' + hotel.name + ' ' + e);
+            log('Error while loading ' + hotel.name + ' ' + e);
             return callback()
         })
     }
@@ -251,10 +253,28 @@ class Information
     /**
      *
      * @param name
+     * @returns {string}
+     * @private
+     */
+    _decompName(name) {
+        {
+            name = name.split(' ');
+
+            delete name[name.length - 1];
+            delete name[name.length - 2];
+
+            name = name.join(' ');
+        }
+
+        return name;
+    }
+
+    /**
+     *
+     * @param name
      * @returns {PromiseLike<any[] | never | never>}
      */
     loadHotel(name) {
-        console.log('Try to load hotel ' + name + ' with ' + this._name)
         this._search.search(name);
 
         this._generator = new Generator(
@@ -267,14 +287,20 @@ class Information
             .then(e => {
                 let hotels = e.array;
 
-                if (hotels.length === 1) {
-                    /** Match name ? **/
-                } else if (hotels.length > 1) {
-                    /** Select best **/
-                } else return null;
+                name = this._decompName(name);
 
-                console.log(e)
-                process.exit(1);
+                if (e.selected != null)
+                    return null;
+
+                if (hotels.length === 1 &&
+                    StringComparator.compareTwoStrings(normalize(name), normalize(hotels[0].name)) > 0.85)
+                    return hotels[0].name;
+                else if (hotels.length > 1) {
+                    hotels.forEach(e => {
+                        if (StringComparator.compareTwoStrings(normalize(name), normalize(e.name)) > 0.85)
+                            return e
+                    })
+                } else return null;
             })
     }
 
