@@ -6,6 +6,9 @@ const TripAdvisorQueries = require('./TripAdvisorQueries');
 const TripAdvisorSearchData = require('./TripAdvisorSearchData');
 const TripAdvisorGenerator = require('./TripAdvisorGenerator');
 const InformationManager = require('../../handlers/InformationsManager');
+const Hotel = require('../../crud/HotelCrud');
+const StringComparator = require('string-similarity');
+const {normalize} = require('../../utils/utils');
 
 class TripAdvisorEngine extends Engine{
 
@@ -92,7 +95,29 @@ class TripAdvisorEngine extends Engine{
                 this._generator.baseUrl = url;
                 return super.newGeneratorRequester(this._generator, url)
             })
-        }).catch(() =>
+        }).then(() => {
+                console.log('try + ' + this._city);
+                return Hotel.getAll({city: this._city}).then((e) => {
+                    let promises = [];
+                    console.log('Trying to merge ' + e.length);
+                    for (let i = 0; i < e.length; i++) {
+                        console.log((i+1 > e.length) + ' ' + i);
+                        if (i + 1 >= e.length)
+                            break;
+
+                        console.log(e[i].name + ' ' + e [i + 1].name + ' : ' + StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)))
+
+                        if (StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)) > 0.85) {
+                            console.log(e[i].name + " match with " + e[i + 1].name);
+                            promises.push(Hotel.mergeData(e[i], e[i + 1]))
+                        }
+                    }
+
+                    return Promise.all(promises);
+                }).catch(e => console.log(e))
+            }
+        )
+            .catch(() =>
             City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))

@@ -9,6 +9,7 @@ const ProcessCrud = require('../crud/ProcessCrud');
 const fs = require('fs');
 const InformationsManager = require('../handlers/InformationsManager');
 const {normalize, log} = require('../utils/utils');
+const StringComparator = require('string-similarity');
 
 class Engine {
     /**
@@ -393,7 +394,26 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).catch(() => InformationsManager.getByName('hotels.com').loadCity(city)
+        }).then(() => {
+            console.log('try + ' + this._city);
+            return Hotel.getAll({city: this._city}).then((e) => {
+                let promises = [];
+                console.log('Trying to merge ' + e.length);
+                for (let i = 0; i < e.length; i++) {
+                    console.log((i+1 > e.length) + ' ' + i);
+                    if (i + 1 >= e.length)
+                        break;
+
+                    if (StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)) > 0.85) {
+                        console.log(e[i].name + " match with " + e[i + 1].name);
+                        promises.push(Hotel.mergeData(e[i], e[i + 1]))
+                    }
+                }
+
+                return Promise.all(promises);
+            }).catch(e => console.log(e))
+            }
+            ).catch(() => InformationsManager.getByName('hotels.com').loadCity(city)
             .then(() =>
                 City.create({
                     name: city

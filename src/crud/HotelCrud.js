@@ -36,13 +36,13 @@ class HotelCrud extends Crud {
      * @private
      */
     _getData(data, _data){
-        let obj = _data.engines.filter(e => e.name == data.engine.name)[0];
+        let obj = _data.engines.filter(e => e != null && e.name == data.engine.name)[0];
 
         if (_data.address == 'none' && data.address != 'none')
             _data.address = data.address;
 
         if (obj != null)
-            _data.engines.filter(e => e.name == data.engine.name)[0] = data.engine;
+            _data.engines.filter(e => e != null && e.name == data.engine.name)[0] = data.engine;
         else
             _data.engines.push(data.engine);
 
