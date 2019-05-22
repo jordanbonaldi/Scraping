@@ -57,7 +57,7 @@ class Crud {
             data.updatedAt = new Date();
             this.model.updateOne(identifier, data, (err, res) => {
                     (err)
-                        ? reject(true)
+                        ? reject(err)
                         : resolve(res);
                 }
             )

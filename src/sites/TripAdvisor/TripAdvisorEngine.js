@@ -99,25 +99,30 @@ class TripAdvisorEngine extends Engine{
                 console.log('try + ' + this._city);
                 return Hotel.getAll({city: this._city}).then((e) => {
                     let promises = [];
-                    console.log('Trying to merge ' + e.length);
-                    for (let i = 0; i < e.length; i++) {
-                        console.log((i+1 > e.length) + ' ' + i);
-                        if (i + 1 >= e.length)
-                            break;
+                    let ids = [];
 
-                        console.log(e[i].name + ' ' + e [i + 1].name + ' : ' + StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)))
+                    e.forEach(a => {
 
-                        if (StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)) > 0.85) {
-                            console.log(e[i].name + " match with " + e[i + 1].name);
-                            promises.push(Hotel.mergeData(e[i], e[i + 1]))
+                        if (!ids.includes(a._id)) {
+
+                            let match = e.filter(f =>
+                                String(f._id).localeCompare(String(a._id)) !== 0 &&
+                                StringComparator.compareTwoStrings(normalize(f.name), normalize(a.name)) > 0.85
+                            )[0];
+
+                            if (match != null) {
+                                ids.push(match._id);
+                                promises.push(Hotel.mergeHotel(a, match).then(() => console.log('Updated ' + match.name)).catch(err => console.log('m' + err)))
+                            }
                         }
-                    }
 
-                    return Promise.all(promises);
+                    });
+
+                    console.log(promises)
+
+                    return Promise.all(promises).then(() => console.log('finished'));
                 }).catch(e => console.log(e))
-            }
-        )
-            .catch(() =>
+        }).catch(() =>
             City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))

@@ -1,5 +1,6 @@
 const Information = require('../handlers/Information');
 
+
 class InformationsManager {
 
     /**

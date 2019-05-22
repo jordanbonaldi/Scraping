@@ -21,7 +21,7 @@ class HotelCrud extends Crud {
         if (Array.isArray(newData.engine))
             return false;
 
-        let oldEngine = oldData.engines.filter(e => e.name == newData.engine.name)[0];
+        let oldEngine = oldData.engines.filter(e => e != null && e.name == newData.engine.name)[0];
 
         if (oldEngine == null)
             return false;
@@ -36,7 +36,7 @@ class HotelCrud extends Crud {
      * @private
      */
     _getData(data, _data){
-        let obj = _data.engines.filter(e => e != null && e.name == data.engine.name)[0];
+        let obj = _data.engines.filter(e => e != null && data.engine != null && e.name == data.engine.name)[0];
 
         if (_data.address == 'none' && data.address != 'none')
             _data.address = data.address;
@@ -120,14 +120,17 @@ class HotelCrud extends Crud {
     {
         /** pas complet **/
 
+        console.log(from._id + ' ' + from.name);
+        console.log(to._id + ' ' + to.name);
+
         if (String(from._id).localeCompare(String(to._id)) === 0)
             return null;
 
         from.engines = from.engines.concat(to.engines);
-        from.address = to.address == 'none' ? from.address :  to.address;
+        from.address = to.address == 'none' ? from.address : to.address;
         from.rate = to.rate > 0 ? to.rate : from.rate;
 
-        return this.update(from)
+        return this.deleteById(to).then(() => this.updateById(from))
     }
 
     /**
