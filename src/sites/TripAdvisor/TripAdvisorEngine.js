@@ -6,9 +6,6 @@ const TripAdvisorQueries = require('./TripAdvisorQueries');
 const TripAdvisorSearchData = require('./TripAdvisorSearchData');
 const TripAdvisorGenerator = require('./TripAdvisorGenerator');
 const InformationManager = require('../../handlers/InformationsManager');
-const Hotel = require('../../crud/HotelCrud');
-const StringComparator = require('string-similarity');
-const {normalize} = require('../../utils/utils');
 
 class TripAdvisorEngine extends Engine{
 
@@ -57,6 +54,7 @@ class TripAdvisorEngine extends Engine{
         })
     }
 
+
     /**
      *
      * @param city
@@ -95,34 +93,7 @@ class TripAdvisorEngine extends Engine{
                 this._generator.baseUrl = url;
                 return super.newGeneratorRequester(this._generator, url)
             })
-        }).then(() => {
-                console.log('try + ' + this._city);
-                return Hotel.getAll({city: this._city}).then((e) => {
-                    let promises = [];
-                    let ids = [];
-
-                    e.forEach(a => {
-
-                        if (!ids.includes(a._id)) {
-
-                            let match = e.filter(f =>
-                                String(f._id).localeCompare(String(a._id)) !== 0 &&
-                                StringComparator.compareTwoStrings(normalize(f.name), normalize(a.name)) > 0.85
-                            )[0];
-
-                            if (match != null) {
-                                ids.push(match._id);
-                                promises.push(Hotel.mergeHotel(a, match).then(() => console.log('Updated ' + match.name)).catch(err => console.log('m' + err)))
-                            }
-                        }
-
-                    });
-
-                    console.log(promises)
-
-                    return Promise.all(promises).then(() => console.log('finished'));
-                }).catch(e => console.log(e))
-        }).catch(() =>
+        }).then(() => super.mergeAndUpdate()).catch(() =>
             City.create({
                 name: city
             }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
@@ -339,8 +310,12 @@ class TripAdvisorEngine extends Engine{
         return InformationManager.searchHotelName('hotels.com', hotels[i].name + ' ' + city.name + ' France')
             .then((result) => {
 
-                if (result != null)
+                hotels[i].validated = false;
+
+                if (result != null) {
                     hotels[i].name = result;
+                    hotels[i].validated = true
+                }
 
                 this._hotels.push(hotels[i]);
 

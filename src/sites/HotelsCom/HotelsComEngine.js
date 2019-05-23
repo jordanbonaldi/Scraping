@@ -133,6 +133,7 @@ class HotelsComEngine extends Engine {
                 address: [e.address.streetAddress, e.address.locality, e.address.postalCode, e.address.region, e.address.countryName].join(' '),
                 city: super.city,
                 rate: e.starRating,
+                validated: true,
                 engine: {
                     name: 'Hotels.com',
                     id: e.id,
@@ -143,7 +144,7 @@ class HotelsComEngine extends Engine {
             })
         }
 
-        return new Promise((resolve, reject) => resolve(this._data.length === 0 ? null : hotel));
+        return new Promise((resolve) => resolve(this._data.length === 0 ? null : hotel));
     }
 
 }

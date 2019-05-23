@@ -18,6 +18,15 @@ class InformationsManager {
 
     /**
      *
+     * @param hotels
+     * @returns {Promise<any[]>}
+     */
+    updateAddress(hotels) {
+        return Promise.all(this._engines.map(e => e.loadAddress(hotels)))
+    }
+
+    /**
+     *
      * @param engine
      * @param name
      * @returns {PromiseLike<any[]|never>}

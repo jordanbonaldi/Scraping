@@ -3,7 +3,6 @@ const City = require('../crud/CityCrud');
 const Hotel = require('../crud/HotelCrud');
 const request = require('request-promise');
 const Generator = require('../handlers/Generator');
-const ProcessCrud = require('../crud/ProcessCrud');
 const StringComparator = require('string-similarity');
 const {normalize, log} = require('../utils/utils');
 
@@ -220,7 +219,7 @@ class Information
 
         let next = () => this.loadHotels(hotels, ++index);
 
-        if (index >= hotels.length)
+        if (index >= hotels.length || hotels.length === 0)
             return null;
 
         let e = hotels[index];
@@ -302,6 +301,15 @@ class Information
                     })
                 } else return null;
             })
+    }
+
+    /**
+     *
+     * @param hotels
+     * @returns {Promise<any|never>}
+     */
+    loadAddress(hotels) {
+        return this.loadHotels(hotels)
     }
 
     /**

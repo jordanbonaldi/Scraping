@@ -72,7 +72,7 @@ class Crud {
     delete(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.deleteMany(identifier, (err, result) => {
-                if (err) reject(true);
+                if (err) reject(err);
                 else if (!result.n) reject(true);
                 else resolve("Success");
             })

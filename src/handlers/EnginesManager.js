@@ -86,7 +86,7 @@ class EnginesManager {
                     .catch(() => console.log('No process to delete'));
 
                 log(
-                    "Finished for " +
+                    "Finished city " +
                     city +
                     " with " +
                     engine.name +

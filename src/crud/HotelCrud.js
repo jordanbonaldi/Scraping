@@ -118,16 +118,11 @@ class HotelCrud extends Crud {
      */
     mergeHotel(from, to)
     {
-        /** pas complet **/
-
-        console.log(from._id + ' ' + from.name);
-        console.log(to._id + ' ' + to.name);
-
         if (String(from._id).localeCompare(String(to._id)) === 0)
             return null;
 
-        from.engines = from.engines.concat(to.engines);
-        from.address = to.address == 'none' ? from.address : to.address;
+        from.engines = from.engines.concat(to.engines).filter(e => e != null);
+        from.address = to.address;
         from.rate = to.rate > 0 ? to.rate : from.rate;
 
         return this.deleteById(to).then(() => this.updateById(from))

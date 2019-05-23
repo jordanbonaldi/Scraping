@@ -318,6 +318,38 @@ class Engine {
 
     /**
      *
+     * @returns {Promise<any[] | void>}
+     */
+    mergeAndUpdate(){
+        return Hotel.getAll({city: this._city}).then((e) => {
+            let promises = [];
+            let ids = [];
+
+            e.forEach(a => {
+
+                if (!ids.includes(a._id)) {
+
+                    let match = e.filter(f =>
+                        String(f._id).localeCompare(String(a._id)) !== 0 &&
+                        StringComparator.compareTwoStrings(normalize(f.name), normalize(a.name)) > 0.85
+                    )[0];
+
+                    if (match != null) {
+                        ids.push(match._id);
+                        promises.push(Hotel.mergeHotel(a, match).then(() => log('Merging ' + match.name)).catch(err => console.log(err)))
+                    }
+                }
+
+            });
+
+            return Promise.all(promises).then(() => log('Duplicates have been merged'));
+        }).then(() => Hotel.getAll({city: this._city, address: 'none', validated: true}).then((hotels) =>
+            InformationsManager.updateAddress(hotels)
+        )).catch(e => console.log(e))
+    }
+
+    /**
+     *
      * @param url
      * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
      * @private
@@ -394,31 +426,10 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).then(() => {
-            console.log('try + ' + this._city);
-            return Hotel.getAll({city: this._city}).then((e) => {
-                let promises = [];
-                console.log('Trying to merge ' + e.length);
-                for (let i = 0; i < e.length; i++) {
-                    console.log((i+1 > e.length) + ' ' + i);
-                    if (i + 1 >= e.length)
-                        break;
-
-                    if (StringComparator.compareTwoStrings(normalize(e[i].name), normalize(e[i + 1].name)) > 0.85) {
-                        console.log(e[i].name + " match with " + e[i + 1].name);
-                        promises.push(Hotel.mergeData(e[i], e[i + 1]))
-                    }
-                }
-
-                return Promise.all(promises);
-            }).catch(e => console.log(e))
-            }
-            ).catch(() => InformationsManager.getByName('hotels.com').loadCity(city)
-            .then(() =>
-                City.create({
-                    name: city
-                }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
-            )
+        }).then(() => this.mergeAndUpdate()).then(() =>
+            City.create({
+                name: city
+            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
         )
     }
 

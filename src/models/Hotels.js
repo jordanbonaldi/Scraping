@@ -9,6 +9,7 @@ let hotel = new Schema(
         address: String,
         engines: [{ type: Object }],
         rate: Number,
+        validated: Boolean,
         createdAt: Date,
         updatedAt: Date
     }
