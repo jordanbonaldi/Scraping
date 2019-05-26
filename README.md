@@ -11,7 +11,7 @@
 				name: 'Negresco',
 				city: 'Nice',
 				rate: 5,
-			}
+			 }
 	2. With a command :
 				
 		- `npm run hotelscom <city>`
