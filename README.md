@@ -1,5 +1,22 @@
 ## **ScrapingEngine**
 
+ - **Scraping System**
+	- 
+
+	You can enable the scraping with the following options:
+
+	 1. With RabbitMQ message on the Scraping Exchange and Scraping Queue :
+		 
+			 {
+				name: 'Negresco',
+				city: 'Nice',
+				rate: 5,
+			}
+	2. With a command :
+				
+		- `npm run hotelscom <city>`
+		- `npm run trip <city>`
+
  - **Express API**
 	 - 
 
@@ -95,20 +112,3 @@
 			       },
 				]
 			}
- - **Scraping System**
-	- 
-
-	You can enable the scraping with the following options:
-
-	 1. With RabbitMQ message on the Scraping Exchange and Scraping Queue :
-		 
-			 {
-				name: 'Negresco',
-				city: 'Nice',
-				rate: 5,
-			}
-	2. With a command :
-				
-		- `npm run hotelscom <city>`
-		- `npm run trip <city>`
-
