@@ -23,7 +23,7 @@
 	
 	Access Hotels datas with the following route:
 	
-		/hotels/:city
+		http://localhost:8181/hotels/:city
 	
 	Three possible responses:
 	
