@@ -426,10 +426,11 @@ class Engine {
             this._generator.generateUrl(callback);
 
             return this._request(this._generator.baseUrl);
-        }).then(() => this.mergeAndUpdate()).then(() =>
-            City.create({
-                name: city
-            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+        }).then(() => this.mergeAndUpdate())
+            .catch(() =>
+                City.create({
+                    name: city
+                }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
         )
     }
 

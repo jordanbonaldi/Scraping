@@ -24,7 +24,7 @@ class Crud {
             };
 
             this.model.create(dot, (err, doc) => {
-                    if (err) reject(true);
+                    if (err) reject(err);
                     else resolve(doc);
                 }
             )
@@ -39,7 +39,7 @@ class Crud {
     get(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
-                if (err) reject(true);
+                if (err) reject(err);
                 else resolve(docs);
 
             })
@@ -73,7 +73,7 @@ class Crud {
         return new Promise((resolve, reject) => {
             this.model.deleteMany(identifier, (err, result) => {
                 if (err) reject(err);
-                else if (!result.n) reject(true);
+                else if (!result.n) reject('No result while deleting');
                 else resolve("Success");
             })
         });
@@ -87,8 +87,8 @@ class Crud {
     getAll(identifier = {}) {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
-                if (err) reject(true);
-                else if (!docs.length) reject(true);
+                if (err) reject(err);
+                else if (!docs.length) reject('No documents in DataBase');
                 else resolve(docs);
             })
         });
