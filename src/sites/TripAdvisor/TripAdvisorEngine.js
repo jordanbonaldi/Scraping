@@ -292,7 +292,7 @@ class TripAdvisorEngine extends Engine{
             })
         }
 
-        return City.getById(super.city).then(city => this._oneByOne(0, hotels, city).then(() => this._hotels)).catch(e => console.log(e))
+        return City.getById(super.city).then(city => this._oneByOne(0, hotels, city).then(() => this._hotels)).catch((e) => e);
     }
 
     /**

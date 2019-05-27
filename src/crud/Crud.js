@@ -73,7 +73,7 @@ class Crud {
         return new Promise((resolve, reject) => {
             this.model.deleteMany(identifier, (err, result) => {
                 if (err) reject(err);
-                else if (!result.n) reject('No result while deleting');
+                else if (!result.n) reject(true);
                 else resolve("Success");
             })
         });
@@ -88,7 +88,7 @@ class Crud {
         return new Promise((resolve, reject) => {
             this.model.find(identifier, (err, docs) => {
                 if (err) reject(err);
-                else if (!docs.length) reject('No documents in DataBase');
+                else if (!docs.length) reject(true);
                 else resolve(docs);
             })
         });

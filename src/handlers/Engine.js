@@ -345,7 +345,7 @@ class Engine {
             return Promise.all(promises).then(() => log('Duplicates have been merged'));
         }).then(() => Hotel.getAll({city: this._city, address: 'none', validated: true}).then((hotels) =>
             InformationsManager.updateAddress(hotels)
-        )).catch(e => console.log(e))
+        )).catch(() => log('No hotels without address'))
     }
 
     /**
