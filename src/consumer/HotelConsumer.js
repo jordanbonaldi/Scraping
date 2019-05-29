@@ -12,6 +12,7 @@ class HotelConsumer extends RabbitMQConsumer {
     execCommand(name) {
         EngineManager.engines.forEach(e => {
             console.log("Launch of " + e.name + " for " + name);
+            console.log('node ./bin/preLaunch ' + e.name.toLowerCase() + ' ' + name.toLowerCase())
             exec('node ./bin/preLaunch ' + e.name.toLowerCase() + ' ' + name.toLowerCase())
         })
     }

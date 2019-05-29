@@ -304,23 +304,22 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _oneByOne(i, hotels, city) {
-        if (i >= hotels.length)
-            return new Promise((resolve) => resolve(true));
+        return i >= hotels.length ?
+            new Promise((resolve) => resolve(true)) :
+            InformationManager.searchHotelName('hotels.com', hotels[i].name + ' ' + city.name + ' France')
+                .then((result) => {
 
-        return InformationManager.searchHotelName('hotels.com', hotels[i].name + ' ' + city.name + ' France')
-            .then((result) => {
+                    hotels[i].validated = false;
 
-                hotels[i].validated = false;
+                    if (result != null) {
+                        hotels[i].name = result;
+                        hotels[i].validated = true
+                    }
 
-                if (result != null) {
-                    hotels[i].name = result;
-                    hotels[i].validated = true
-                }
+                    this._hotels.push(hotels[i]);
 
-                this._hotels.push(hotels[i]);
-
-                return this._oneByOne(++i, hotels, city)
-            });
+                    return this._oneByOne(++i, hotels, city)
+                });
     }
 
     /**

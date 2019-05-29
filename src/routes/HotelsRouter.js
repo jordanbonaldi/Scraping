@@ -19,7 +19,8 @@ router.get('/hotels/:city', (req, res) => {
                 status: 0
             }))
         )
-    ).catch(() => {
+    ).catch((e) => {
+        console.log(e)
         res.send({
             status: -1
         })
