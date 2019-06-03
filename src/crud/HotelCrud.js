@@ -90,7 +90,7 @@ class HotelCrud extends Crud {
      * @returns {Promise<{error: string} | never | any>}
      */
     create(data) {
-        return this.getByName(data.name).then((_data) => {
+        return this.getByName(data.name.toLowerCase()).then((_data) => {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 

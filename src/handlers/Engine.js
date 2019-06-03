@@ -65,6 +65,14 @@ class Engine {
 
     /**
      *
+     * @returns {any.name|*}
+     */
+    get cityName() {
+        return this._cityName
+    }
+
+    /**
+     *
      * @returns {*}
      */
     get url() {
@@ -197,8 +205,8 @@ class Engine {
     }
 
     getEta() {
-        let offsetAver = Math.round( this.getOffset() / this._offset.length);
-        let freqAver = Math.round( this.getFrequences() / this._frequence.length);
+        let offsetAver = this.getOffset() / this._offset.length;
+        let freqAver =  this.getFrequences() / this._frequence.length;
         let op = (this._max - this._read) / (offsetAver);
 
         return this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8);
@@ -223,7 +231,10 @@ class Engine {
             index: this._index,
             freq: this._frequence,
             offsets: this._offset,
+            status: 1,
+            data: 'none',
             city: this._city,
+            notPushed: this._totalFalse,
             cityName: this._cityName,
             setOffset: this._setOffset,
             eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
@@ -239,6 +250,7 @@ class Engine {
         if (this._setOffsetCount !== 0)
             this._setOffset = this.setOffset(oldData);
         this._setOffsetCount++;
+
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
         return request(Engine._opt(url, this._cookieData)).then((data) => {
@@ -311,6 +323,7 @@ class Engine {
             this._frequence = doc.freq;
             this._offset = doc.offsets;
             this._setOffset = doc.setOffset;
+            this._totalFalse = doc.notPushed;
 
             return true
         }).catch(() => false)
@@ -321,31 +334,38 @@ class Engine {
      * @returns {Promise<any[] | void>}
      */
     mergeAndUpdate(){
-        return Hotel.getAll({city: this._city}).then((e) => {
-            let promises = [];
-            let ids = [];
+        return Hotel.getAll({city: this._city})
+            .then(e =>
+                City.updateById({
+                    ...this._cityData._doc,
+                    hotels: e.length
+                }).then(() => e)
+            )
+            .then((e) => {
+                let promises = [];
+                let ids = [];
 
-            e.forEach(a => {
+                e.forEach(a => {
 
-                if (!ids.includes(a._id)) {
+                    if (!ids.includes(a._id)) {
 
-                    let match = e.filter(f =>
-                        String(f._id).localeCompare(String(a._id)) !== 0 &&
-                        StringComparator.compareTwoStrings(normalize(f.name), normalize(a.name)) > 0.85
-                    )[0];
+                        let match = e.filter(f =>
+                            String(f._id).localeCompare(String(a._id)) !== 0 &&
+                            StringComparator.compareTwoStrings(normalize(f.name), normalize(a.name)) > 0.85
+                        )[0];
 
-                    if (match != null) {
-                        ids.push(match._id);
-                        promises.push(Hotel.mergeHotel(a, match).then(() => log('Merging ' + match.name)).catch(err => console.log(err)))
+                        if (match != null) {
+                            ids.push(match._id);
+                            promises.push(Hotel.mergeHotel(a, match).then(() => log('Merging ' + match.name)).catch())
+                        }
                     }
-                }
 
-            });
+                });
 
-            return Promise.all(promises).then(() => log('Duplicates have been merged'));
-        }).then(() => Hotel.getAll({city: this._city, address: 'none', validated: true}).then((hotels) =>
-            InformationsManager.updateAddress(hotels)
-        )).catch(() => log('No hotels without address'))
+                return Promise.all(promises).then(() => log('Duplicates have been merged')).catch();
+            }).then(() => Hotel.getAll({city: this._city, address: 'none', validated: true}).then((hotels) =>
+                InformationsManager.updateAddress(hotels)
+            )).catch(() => log('No hotels without address'))
     }
 
     /**
@@ -358,13 +378,13 @@ class Engine {
         return this._getCookie().then((cookies) =>
             request(Engine._opt(url, cookies)).then((data) =>
                 this._getRunningProcess().then(res => {
-                    if (!res)
+                    if (!res || res.status !== -1)
                         return this.getBasicInformation(data)
                             .then(e => this._max = e)
                             .then(() => this._index = -1)
                             .then(() => this._launchRequest());
 
-                    return this._launchRequest()
+                    return this._launchRequest(data)
                 })
             )
         )
@@ -402,7 +422,8 @@ class Engine {
     ) {
         return City.getByName(city).then((e) => {
             this._cityName = e.name;
-            this._city = e._id
+            this._city = e._id;
+            this._cityData = e
         }).then(() => {
             if (checkin === null)
                 checkin = new Date();

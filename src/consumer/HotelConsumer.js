@@ -1,10 +1,11 @@
 const RabbitMQConsumer = require('./RabbitMQConsumer');
 const CityCrud = require('../crud/CityCrud');
-const {exec} = require('child_process');
+const {spawn} = require('child_process');
 const EngineManager = require('../handlers/EnginesManager');
 const {checkDate} = require('../utils/utils');
 
 class HotelConsumer extends RabbitMQConsumer {
+
     constructor() {
         super('scraping')
     }
@@ -13,7 +14,16 @@ class HotelConsumer extends RabbitMQConsumer {
         EngineManager.engines.forEach(e => {
             console.log("Launch of " + e.name + " for " + name);
             console.log('node ./bin/preLaunch ' + e.name.toLowerCase() + ' ' + name.toLowerCase())
-            exec('node ./bin/preLaunch ' + e.name.toLowerCase() + ' ' + name.toLowerCase())
+
+            let i = spawn('node', ['./bin/preLaunch', e.name.toLowerCase(), name.toLowerCase()]);
+
+            i.stdout.on('data', data =>
+                console.log(`${name} with ${e.name}: ${data}`)
+            );
+
+            i.on('close', code =>
+                console.log(`${name} with ${e.name} finished`)
+            );
         })
     }
 
@@ -22,7 +32,6 @@ class HotelConsumer extends RabbitMQConsumer {
      * @param msg
      */
     consume(msg) {
-        console.log('toto');
         return new Promise(() => {
             let hotel = JSON.parse(msg);
             CityCrud.getByName(hotel.city.toLowerCase()).then((doc) => {

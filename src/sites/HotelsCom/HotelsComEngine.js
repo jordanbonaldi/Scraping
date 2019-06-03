@@ -3,6 +3,7 @@ const $ = require('cheerio');
 const request = require('request-promise');
 const fs = require('fs');
 const {log} = require('../../utils/utils');
+const ProcessCrud = require('../../crud/ProcessCrud');
 
 class HotelsComEngine extends Engine {
 
@@ -69,11 +70,36 @@ class HotelsComEngine extends Engine {
         }).then(e => {
             let ix = this.setOffset(e);
 
-            this._tempCount += e.data.body.searchResults.results.length;
+            console.log(url)
+
+            if (e.data.body.searchResults.totalCount != null)
+                return e.data.body.searchResults.totalCount -
+                    (e.data.body.searchResults.unavailableCount ? e.data.body.searchResults.unavailableCount : 0);
+
+            console.log(e.data.body);
+
+            this._tempCount += ix == null ? 0 : e.data.body.searchResults.results.length;
 
             log('Hotels count : ' + this._tempCount);
 
-            return ix == null ? e.data.body.searchResults.totalCount - e.data.body.searchResults.unavailableCount : this._loop(this.url + ix);
+            return ProcessCrud.create({
+                name: 'hotels.com',
+                max: 0,
+                current: 0,
+                chunk: 0,
+                perChunk: 0,
+                index: 0,
+                freq: 0,
+                offsets: 0,
+                status: -1,
+                data: `Counting hotels: ${this._tempCount}`,
+                city: this.city,
+                cityName: this.cityName,
+                setOffset: 0,
+                eta: 0
+            }).then(() =>
+                ix == null ? e.data.body.searchResults.totalCount - e.data.body.searchResults.unavailableCount : this._loop(this.url + ix)
+            )
         })
     }
 
@@ -84,7 +110,11 @@ class HotelsComEngine extends Engine {
      */
     getBasicInformation(data) {
         log("Calculating max hotels to load !");
-        return this._loop(this.url + this.setOffset(data))
+        return this._loop(this.url + this.setOffset(data)).then(e => {
+            log(`Found ${e} hotels, starting...`);
+
+            return e
+        })
     }
 
     /**
@@ -102,7 +132,7 @@ class HotelsComEngine extends Engine {
      * @param data
      * @returns {*}
      */
-    setOffset(data) {
+    setOffset(data = null)  {
         try {
             return data.data.body.searchResults.pagination.nextPageUrl
         } catch (e) {

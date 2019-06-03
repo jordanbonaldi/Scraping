@@ -74,6 +74,6 @@ MongoConnect().then(preLaunch);
 const stop = (err) => process.exit(err);
 
 const launch = (city, engine) => EngineManager.loadSearch(city, engine).then(() => stop(false)).catch(e => {
-    console.log('Error: ' + e);
+    console.log(e);
     stop(true)
 });

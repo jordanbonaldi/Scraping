@@ -7,7 +7,8 @@ let City = new Schema(
         name: String,
         lastScan: String,
         createdAt: Date,
-        updatedAt: Date
+        updatedAt: Date,
+        hotels: Number
     }
 );
 
