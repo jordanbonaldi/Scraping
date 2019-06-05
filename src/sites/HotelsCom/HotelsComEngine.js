@@ -70,14 +70,10 @@ class HotelsComEngine extends Engine {
         }).then(e => {
             let ix = this.setOffset(e);
 
-            console.log(url)
-
             if (e.data.body.searchResults.totalCount != null)
                 return e.data.body.searchResults.totalCount -
                     (e.data.body.searchResults.unavailableCount ? e.data.body.searchResults.unavailableCount : 0);
-
-            console.log(e.data.body);
-
+            
             this._tempCount += ix == null ? 0 : e.data.body.searchResults.results.length;
 
             log('Hotels count : ' + this._tempCount);

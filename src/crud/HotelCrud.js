@@ -21,7 +21,7 @@ class HotelCrud extends Crud {
         if (Array.isArray(newData.engine))
             return false;
 
-        let oldEngine = oldData.engines.filter(e => e != null && e.name == newData.engine.name)[0];
+        let oldEngine = oldData.engines.filter(e => e != null && newData.engine != null && e.name == newData.engine.name)[0];
 
         if (oldEngine == null)
             return false;

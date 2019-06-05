@@ -106,7 +106,7 @@ class TripAdvisorEngine extends Engine{
      * @returns {Promise<any>}
      */
     getBasicInformation(data) {
-        return new Promise((resolve) => resolve(super.getData('', '.descriptive_header_text span.highlight', data).match(/\d/g).join('')))
+        return new Promise((resolve) => resolve(super.getData('', '.hotels-sort-filter-header-sort-filter-header__highlight--14Kyo', data).match(/\d/g).join('')))
     }
 
     /**
