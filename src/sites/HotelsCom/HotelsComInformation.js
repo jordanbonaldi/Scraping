@@ -58,7 +58,7 @@ class HotelsComInformation extends Information
      * @returns {Promise<any>}
      */
     getUrlFromId(id) {
-        return new Promise(() => this._getStringified(id));
+        return new Promise((resolve) => resolve(this._getStringified(id)))
     }
 
     /**

@@ -19,9 +19,10 @@ const normalize = (name) => name.normalize('NFD').toLowerCase()
  * @param message
  */
 const log = (message) => {
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(message);
+    // process.stdout.clearLine();
+    // process.stdout.cursorTo(0);
+    // process.stdout.write(message);
+    console.log(message)
 };
 
 /**

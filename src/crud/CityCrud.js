@@ -16,14 +16,13 @@ class CityCrud extends Crud {
      */
     create(data) {
         let name = data.name;
-        data.hotels = [];
+        data.hotels = 0;
+
         return this.getByName(name).then(() => {
-            return {
-                error: "Already existing city"
-            }
-        }).catch(() => {
-            return super.create(data);
-        })
+            return { error: "Already existing city" }
+        }).catch(() =>
+            super.create(data)
+        )
     }
 
     /**
@@ -51,8 +50,6 @@ class CityCrud extends Crud {
             let names = e.map(i => normalize(i.name));
             let agv = Similarity.findBestMatch(normalize(name), names);
             let res = e.filter(i => normalize(i.name) === agv.bestMatch.target)[0];
-
-            console.log(agv.bestMatch);
 
             return new Promise((resolve, reject) =>
                 agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
