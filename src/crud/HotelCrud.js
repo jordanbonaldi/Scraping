@@ -78,10 +78,9 @@ class HotelCrud extends Crud {
      * @private
      */
     _getHotel(data, _data) {
-        if (Array.isArray(data.engine))
-            return this._getHotelArray(data, _data);
+        let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
-        return this._getData(data, _data);
+        return __data.engines.filter(e => e != null)
     }
 
     /**
@@ -124,6 +123,8 @@ class HotelCrud extends Crud {
         from.engines = from.engines.concat(to.engines).filter(e => e != null);
         from.address = to.address;
         from.rate = to.rate > 0 ? to.rate : from.rate;
+
+        from.engines = from.engines.filter(e => e != null);
 
         return this.deleteById(to).then(() => this.updateById(from))
     }

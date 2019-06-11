@@ -253,8 +253,6 @@ class Engine {
 
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
-        console.log(url)
-
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
