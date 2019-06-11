@@ -18,6 +18,7 @@ let Process = new Schema(
         status: Number,
         data: String,
         notPushed: Number,
+        country: {type: Schema.Types.ObjectId, ref: 'Country'},
         freq: Array,
         city: { type: Schema.Types.ObjectId, ref: 'City'},
         createdAt: Date,

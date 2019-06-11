@@ -1,43 +1,51 @@
 const Crud = require('./Crud');
-const City = require('../models/Cities');
+const CityCrud = require('./CityCrud');
+const Country = require('../models/Countries');
 const {normalize} = require('../utils/utils');
 const Similarity = require('string-similarity');
 
-class CityCrud extends Crud {
+class CountryCrud extends Crud {
 
     constructor() {
-        super('city', City);
+        super('country', Country);
     }
 
     /**
      *
-     * @param data
      * @returns {Promise<{error: string} | any>}
+     * @param name
      */
-    create(data) {
-        let name = data.name;
-        data.hotels = 0;
-
+    create(name) {
         return this.getByName(name).then(() => {
             return { error: "Already existing city" }
         }).catch(() =>
-            super.create(data)
+            super.create({
+                name: name,
+                cities: []
+            })
         )
     }
 
     /**
      *
+     * @param name
      * @param city
-     * @param scan
-     * @returns {Promise|*|PromiseLike<any | never>|Promise<any | never>}
+     * @returns {Promise<any | {error: string} | never>}
      */
-    setLastScan(city, scan) {
-        return this.getByName(city.toLowerCase()).then((d) => {
-            return super.updateById({
-                ...d._doc,
-                lastScan: scan
-            });
-        })
+    addCity(name, city) {
+        return this.getByName(name).then((doc) =>
+            CityCrud.getByName(city).then((e) => {
+                e.country = doc._id;
+                let city = doc.cities.filter(a => String(a).localeCompare(String(e._id)) === 0)[0];
+
+                if (city != null)
+                    return;
+
+                doc.cities.push(e._id);
+
+                return CityCrud.updateById(e).then(() => this.updateById(doc))
+            }).catch(() => CityCrud.create({name: city}).then(() => this.addCity(name, city)))
+        )
     }
 
     /**
@@ -56,10 +64,48 @@ class CityCrud extends Crud {
         })
     }
 
+    /**
+     *
+     * @param country
+     * @param city
+     * @param engine
+     * @returns {Promise<any | never>}
+     */
+    setLastScan(country, city, engine) {
+        return this.getByName(country.name).then(doc => {
+            console.log({
+                ...doc._doc,
+                lastScan: {
+                    city: city,
+                    engine: engine
+                }
+            })
+            return this.updateById({
+                ...doc._doc,
+                lastScan: {
+                    city: city,
+                    engine: engine
+                }
+            })
+        })
+    }
+
+    /**
+     *
+     * @param country
+     * @param city
+     * @returns {Promise<boolean | never>}
+     */
+    hasCity(country, city) {
+        return CityCrud.getByName(city).then((doc) =>
+            this.getByName(country).then((country) => country.cities.filter(e => String(e).localeCompare(doc._id) === 0) != null)
+        )
+    }
+
 }
 
 /**
  *
- * @type {CityCrud}
+ * @type {CountryCrud}
  */
-module.exports = new CityCrud();
+module.exports = new CountryCrud();

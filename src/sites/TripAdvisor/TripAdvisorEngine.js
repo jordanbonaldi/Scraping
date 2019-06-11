@@ -54,7 +54,6 @@ class TripAdvisorEngine extends Engine{
         })
     }
 
-
     /**
      *
      * @param city
@@ -64,16 +63,9 @@ class TripAdvisorEngine extends Engine{
      * @param children
      * @param rooms
      * @param callback
-     * @returns {PromiseLike<T | never>}
+     * @returns {Promise<any[] | void | T | never>}
      */
-    search(city,
-           checkin = null,
-           checkout = null,
-           adults = 1,
-           children = 0,
-           rooms = 1,
-           callback = null
-    ) {
+    initCity(city, checkin, checkout, adults, children, rooms, callback) {
         return City.getByName(city).then((e) => {
             this.city = e._id;
             super._cityName = e.name;
@@ -81,7 +73,7 @@ class TripAdvisorEngine extends Engine{
             return e.name
         }).then((name) => {
             let searchData = new TripAdvisorSearchData(
-               'API',
+                'API',
                 name
             );
 

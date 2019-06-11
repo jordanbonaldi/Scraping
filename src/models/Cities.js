@@ -8,7 +8,8 @@ let City = new Schema(
         lastScan: String,
         createdAt: Date,
         updatedAt: Date,
-        hotels: Number
+        hotels: Number,
+        country: {type: Schema.Types.ObjectId, ref: 'Country'}
     }
 );
 

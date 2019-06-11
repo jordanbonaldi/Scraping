@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-let City = new Schema(
+let Country = new Schema(
     {
         __id: Schema.Types.ObjectId,
         name: String,
-        lastScan: String,
         createdAt: Date,
         updatedAt: Date,
-        hotels: Number
+        cities: [{type: Schema.Types.ObjectId, ref: 'City'}],
+        lastScan: {
+                city: {type: Schema.Types.ObjectId, ref: 'City'},
+                engine: String
+        }
     }
 );
 
@@ -16,4 +19,4 @@ let City = new Schema(
  *
  * @type {Model}
  */
-module.exports = mongoose.model('City', City);
+module.exports = mongoose.model('Country', Country);
