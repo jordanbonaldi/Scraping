@@ -48,6 +48,7 @@ class EnginesManager {
 
     /**
      *
+     * @param country
      * @param city
      * @param engine
      * @param checkin
@@ -58,7 +59,8 @@ class EnginesManager {
      * @param callback
      * @returns {Promise<any>}
      */
-    loadSearch(city,
+    loadSearch(country,
+               city,
                engine,
                checkin = null,
                checkout = null,
@@ -73,6 +75,7 @@ class EnginesManager {
                 reject(true);
 
             return engine.search(
+                country,
                 city,
                 checkin,
                 checkout,

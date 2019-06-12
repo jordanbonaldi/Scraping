@@ -6,8 +6,8 @@ const MongoConnect = require('../src/mongodb/MongoConnect');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
 
-const action = (engine, city) => {
-    launch(city, engine);
+const action = (engine, country, city) => {
+    launch(country, city, engine);
 
     return process.on('SIGINT', () => {
         ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase())
@@ -38,12 +38,13 @@ const preLaunch = () => {
         return;
     }
 
-    if (args.length > 3) {
+    if (args.length > 4) {
         let engine = args[2];
-        let city = args[3];
+        let country = args[3];
+        let city = args[4];
 
-        if (args.length > 4)
-            for (let i = 4; i < args.length; i++)
+        if (args.length > 5)
+            for (let i = 5; i < args.length; i++)
                 city += ' ' + args[i];
 
         if (city != null && engine != null) {
@@ -55,15 +56,15 @@ const preLaunch = () => {
             ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase()).then((e) => {
 
                 if (checkDate(e.updatedAt) >= 10)
-                    ProcessCrud.deleteById(e).then(() => action(engine, city));
+                    ProcessCrud.deleteById(e).then(() => action(engine, country, city));
                 else if (e.running === false) {
                     e.running = true;
-                    ProcessCrud.updateById(e).then(() => action(engine, city))
+                    ProcessCrud.updateById(e).then(() => action(engine, country, city))
                 } else {
                     console.log('Process already running');
                     process.exit();
                 }
-            }).catch(() => action(engine, city));
+            }).catch(() => action(engine, country, city));
         }
     } else require('./server')()
 };
@@ -73,7 +74,7 @@ MongoConnect().then(preLaunch);
 
 const stop = (err) => process.exit(err);
 
-const launch = (city, engine) => EngineManager.loadSearch(city, engine).then(() => stop(false)).catch(e => {
+const launch = (country, city, engine) => EngineManager.loadSearch(country, city, engine).then(() => stop(false)).catch(e => {
     console.log(e);
     stop(true)
 });

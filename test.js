@@ -8,8 +8,13 @@ fs.readFile(filePath, {encoding: 'utf-8'}, (err, data) => {
 
 		data = data.replace(/(\r\n|\n|\r)/gm, "");
 
+		let url1 = 'https://fr.hotels.com/search/listings.json?sort-order=BEST_SELLER&q-check-in=2019-06-12&q-check-out=2019-06-13&q-room-0-adults=1&q-room-0-children=1&q-rooms=null&q-destination=lille&';
+
+		let url2 =  'https://fr.hotels.com/search/listings.json?sort-order=BEST_SELLER&f-price-currency-code=EUR&q-check-in=2019-06-03&q-check-out=2019-06-04&q-room-0-adults=1&q-room-0-children=0&q-rooms=1&q-destination=nice&pn=250&start-index=100';
+
 		let opt = {
-			uri: 'https://fr.hotels.com/search/listings.json?sort-order=BEST_SELLER&f-price-currency-code=EUR&q-check-in=2019-06-03&q-check-out=2019-06-04&q-room-0-adults=1&q-room-0-children=0&q-rooms=1&q-destination=nice&pn=250&start-index=100',
+			uri:
+				'https://fr.hotels.com/search/listings.json?sort-order=BEST_SELLER&q-check-in=2019-06-12&q-check-out=2019-06-13&q-room-0-adults=1&q-room-0-children=0&q-rooms=1&q-destination=lille&',
 			headers: {
 				'cookie': `${data}`,
 				'cache-control': 'no-cache',
@@ -24,7 +29,6 @@ fs.readFile(filePath, {encoding: 'utf-8'}, (err, data) => {
 
 		request(opt)
 			.then((data) => {
-				console.log(data.data.body.searchResults.tripPlannerSaveUrl);
 				console.log(data.data.body.searchResults.results[0].id);
 			});
 	}
