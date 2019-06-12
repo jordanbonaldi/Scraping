@@ -320,7 +320,7 @@ class Engine {
      */
     _getRunningProcess() {
         return ProcessCrud.getByNameAndCity(this.name.trim().toLowerCase(), this._cityName.toLowerCase()).then(doc =>
-            Country.getById(doc.country).then(country => {
+            Country.getById(doc.country).then(() => {
                 this._max = doc.max;
                 this._index = doc.index;
                 this._read = doc.current;
@@ -487,6 +487,7 @@ class Engine {
         /** Check if city is in country else -> add to country and search again **/
 
         /** Check country exists else -> create country add city and search again **/
+        console.log(country)
         return Country.getByName(country).then(e => {
             this._country = e;
 

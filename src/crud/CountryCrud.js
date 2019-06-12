@@ -33,6 +33,7 @@ class CountryCrud extends Crud {
      * @returns {Promise<any | {error: string} | never>}
      */
     addCity(name, city) {
+        console.log(name)
         return this.getByName(name).then((doc) =>
             CityCrud.getByName(city).then((e) => {
                 e.country = doc._id;
