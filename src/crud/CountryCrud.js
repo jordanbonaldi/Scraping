@@ -33,7 +33,6 @@ class CountryCrud extends Crud {
      * @returns {Promise<any | {error: string} | never>}
      */
     addCity(name, city) {
-        console.log(name)
         return this.getByName(name).then((doc) =>
             CityCrud.getByName(city).then((e) => {
                 e.country = doc._id;
@@ -45,7 +44,9 @@ class CountryCrud extends Crud {
                 doc.cities.push(e._id);
 
                 return CityCrud.updateById(e).then(() => this.updateById(doc))
-            }).catch(() => CityCrud.create({name: city}).then(() => this.addCity(name, city)))
+            }).catch(() =>
+                CityCrud.create({name: city}).then(() => this.addCity(name, city))
+            )
         )
     }
 
@@ -73,22 +74,15 @@ class CountryCrud extends Crud {
      * @returns {Promise<any | never>}
      */
     setLastScan(country, city, engine) {
-        return this.getByName(country.name).then(doc => {
-            console.log({
+        return this.getByName(country.name).then(doc =>
+            this.updateById({
                 ...doc._doc,
                 lastScan: {
                     city: city,
                     engine: engine
                 }
             })
-            return this.updateById({
-                ...doc._doc,
-                lastScan: {
-                    city: city,
-                    engine: engine
-                }
-            })
-        })
+        )
     }
 
     /**
@@ -100,7 +94,7 @@ class CountryCrud extends Crud {
     hasCity(country, city) {
         return CityCrud.getByName(city).then((doc) =>
             this.getByName(country).then((country) => country.cities.filter(e => String(e).localeCompare(doc._id) === 0) != null)
-        )
+        ).catch(() => false)
     }
 
 }

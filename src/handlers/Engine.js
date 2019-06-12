@@ -256,6 +256,8 @@ class Engine {
 
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
+        console.log(url)
+
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
@@ -289,7 +291,7 @@ class Engine {
                     })
                 })
             })
-        })
+        }).catch(e => console.log(e))
     }
 
     /**
@@ -401,7 +403,7 @@ class Engine {
 
                     return this._launchRequest(data)
                 })
-            ).catch(e => console.log(e))
+            ).catch(e => console.log())
         )
     }
 
@@ -484,15 +486,11 @@ class Engine {
         rooms = 1,
         callback = null
     ) {
-        /** Check if city is in country else -> add to country and search again **/
-
-        /** Check country exists else -> create country add city and search again **/
-        console.log(country)
         return Country.getByName(country).then(e => {
             this._country = e;
 
             return Country.hasCity(country, city).then((e) =>
-                e ? this.initCity(city, checkin, checkout, adults, rooms, callback) :
+                e ? this.initCity(city, checkin, checkout, adults, children, rooms, callback) :
                     Country.addCity(country, city).then(() =>
                         this.search(country, city, checkin, checkout, adults, children, rooms, callback)
                     )
