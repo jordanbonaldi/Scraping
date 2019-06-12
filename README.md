@@ -14,8 +14,8 @@
 			 }
 	2. With a command :
 				
-		- `npm run hotelscom <city>`
-		- `npm run trip <city>`
+		- `npm run hotelscom <country> <city>`
+		- `npm run trip <country> <city>`
 
  - **Express API**
 	 - 
