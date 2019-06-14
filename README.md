@@ -14,8 +14,10 @@
 			 }
 	2. With a command :
 				
-		- `npm run hotelscom <country> <city>`
-		- `npm run trip <country> <city>`
+		- `npm run hotelscom <checkin> <checkout> <adults> <children> <country> <city>`
+		- `npm run trip <checkin> <checkout> <adults> <children> <country> <city>`
+		
+	Date Format: YYYY-MM-DD
 
  - **Express API**
 	 - 

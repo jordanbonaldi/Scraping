@@ -6,11 +6,11 @@ const MongoConnect = require('../src/mongodb/MongoConnect');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
 
-const action = (engine, country, city) => {
-    launch(country, city, engine);
+const action = (...datas) => {
+    launch(...datas);
 
     return process.on('SIGINT', () => {
-        ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase())
+        ProcessCrud.getByNameAndCity(datas[0].toLowerCase(), datas[6].toLowerCase())
             .then((data) => {
                 data.running = false;
 
@@ -20,6 +20,17 @@ const action = (engine, country, city) => {
                 process.exit();
             });
     })
+};
+
+const checkArgsNull = (from, to) => {
+    if (process.argv.length < to + 1)
+        return false;
+
+    for (let i = from; i < to + 1; i++)
+        if (process.argv[i] == null)
+            return false;
+
+    return true;
 };
 
 const preLaunch = () => {
@@ -38,14 +49,20 @@ const preLaunch = () => {
         return;
     }
 
-    if (args.length > 4) {
-        let engine = args[2];
-        let country = args[3];
-        let city = args[4];
+    if (args.length > 8 && checkArgsNull(2, 8)) {
+        let engine = args[2],
+            checkin = new Date(Date.parse(args[3])),
+            checkout = new Date(Date.parse(args[4])),
+            adults = args[5],
+            children = args[6],
+            country = args[7],
+            city = args[8];
 
-        if (args.length > 5)
-            for (let i = 5; i < args.length; i++)
+        if (args.length > 9)
+            for (let i = 9; i < args.length; i++)
                 city += ' ' + args[i];
+
+        let _action = () => action(country, city, engine, checkin, checkout, adults, children);
 
         if (city != null && engine != null) {
             if (!isEngineExists(engine)) {
@@ -56,17 +73,17 @@ const preLaunch = () => {
             ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase()).then((e) => {
 
                 if (checkDate(e.updatedAt) >= 10)
-                    ProcessCrud.deleteById(e).then(() => action(engine, country, city));
+                    ProcessCrud.deleteById(e).then(_action);
                 else if (e.running === false) {
                     e.running = true;
-                    ProcessCrud.updateById(e).then(() => action(engine, country, city))
+                    ProcessCrud.updateById(e).then(_action)
                 } else {
                     console.log('Process already running');
                     process.exit();
                 }
-            }).catch(() => action(engine, country, city));
+            }).catch(_action);
         }
-    } else require('./server')()
+    } else if (args.length <= 2) require('./server')(); else console.log("Please use: npm run <engine> <checkin> <checkout> <adults> <children> <country> <city>")
 };
 
 MongoConnect().then(preLaunch);
@@ -74,7 +91,7 @@ MongoConnect().then(preLaunch);
 
 const stop = (err) => process.exit(err);
 
-const launch = (country, city, engine) => EngineManager.loadSearch(country, city, engine).then(() => stop(false)).catch(e => {
+const launch = (...datas) => EngineManager.loadSearch(...datas).then(() => stop(false)).catch(e => {
     console.log(e);
     stop(true)
 });

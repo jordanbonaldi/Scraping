@@ -7,7 +7,19 @@ let hotel = new Schema(
         name: String,
         city: { type: Schema.Types.ObjectId, ref: 'City'},
         address: String,
-        engines: [{ type: Object }],
+        engines: [{
+                name: String,
+                rate: String,
+                reviews: String,
+                datas: [{
+                        from: String,
+                        to: String,
+                        rooms: Number,
+                        adults: Number,
+                        children: Number,
+                        price: String
+                }]
+        }],
         rate: Number,
         validated: Boolean,
         createdAt: Date,

@@ -256,14 +256,27 @@ class Engine {
 
         let url = this._setOffset ? this._url + this._setOffset : this._generator.addOffSet(this.handleOffset(++this._index, this._read));
 
-        console.log(url)
-
         return request(Engine._opt(url, this._cookieData)).then((data) => {
             this._now = Date.now();
 
             return this.parseSite(data).then(e => {
                 if (e == null)
                     return;
+
+                e.forEach(a => {
+                    a.engine = {
+                        ...a.engine,
+                        datas: [{
+                            from: this._query.checkin_month.value,
+                            to: this._query.checkout_month.value,
+                            adults: this._query.adults.value,
+                            children: this._query.children.value,
+                            price: a.engine.price,
+                        }]
+                    };
+
+                    delete a.engine.price
+                });
 
                 let hotels = e.map(a => Hotel.create(a));
 
@@ -403,7 +416,7 @@ class Engine {
 
                     return this._launchRequest(data)
                 })
-            ).catch(e => console.log())
+            ).catch()
         )
     }
 
@@ -452,9 +465,16 @@ class Engine {
                 city
             );
 
-            this._generator = new Generator(this._url, this._searchData, this._query);
+            try {
 
-            this._generator.generateUrl(callback);
+                this._generator = new Generator(this._url, this._searchData, this._query);
+
+                this._generator.generateUrl(callback);
+            } catch (e) {
+                console.log(e)
+            }
+
+            console.log(this._generator.baseUrl)
 
             return this._request(this._generator.baseUrl);
         }).then(() => this.mergeAndUpdate())

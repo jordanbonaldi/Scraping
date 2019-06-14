@@ -26,7 +26,12 @@ class HotelCrud extends Crud {
         if (oldEngine == null)
             return false;
 
-        return oldEngine.price === newData.engine.price
+        return oldEngine.datas.filter(e =>
+            e.from == newData.engine.datas[0].from &&
+            e.to == newData.engine.datas[0].to &&
+            e.adults == newData.engine.datas[0].adults &&
+            e.children == newData.engine.datas[0].children
+        )[0] != null
     }
 
     /**
@@ -41,9 +46,13 @@ class HotelCrud extends Crud {
         if (_data.address == 'none' && data.address != 'none')
             _data.address = data.address;
 
-        if (obj != null)
-            _data.engines.filter(e => e != null && e.name == data.engine.name)[0] = data.engine;
-        else
+        if (obj != null) {
+            let _engine = _data.engines.filter(e => e != null && e.name == data.engine.name)[0];
+
+            _engine.rate = data.engine.rate;
+            _engine.reviews = data.engine.reviews;
+            _engine.datas = _engine.datas.concat(data.engine.datas);
+        } else
             _data.engines.push(data.engine);
 
         return _data;
@@ -56,7 +65,7 @@ class HotelCrud extends Crud {
      * @private
      */
     _getHotelArray(data, _data) {
-        data.engine.forEach(e => {
+        data.engines.forEach(e => {
             let hotel = {
                 name: data.name,
                 address: data.address,
@@ -80,7 +89,9 @@ class HotelCrud extends Crud {
     _getHotel(data, _data) {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
-        return __data.engines.filter(e => e != null)
+        __data.engines = __data.engines.filter(e => e != null);
+
+        return __data
     }
 
     /**
@@ -92,6 +103,7 @@ class HotelCrud extends Crud {
         return this.getByName(data.name.toLowerCase()).then((_data) => {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
+
 
             return { error: 'Already existing hotel' }
         }).catch(() => {

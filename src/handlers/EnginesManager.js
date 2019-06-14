@@ -68,6 +68,7 @@ class EnginesManager {
                children = 0,
                rooms = 1,
                callback = null) {
+
         engine = this._engines.filter(e => e.name.toLowerCase() == engine)[0];
 
         return new Promise(((resolve, reject) => {
