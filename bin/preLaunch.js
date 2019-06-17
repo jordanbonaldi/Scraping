@@ -1,7 +1,7 @@
 const EngineManager = require('../src/handlers/EnginesManager');
 const InformationManager = require('../src/handlers/InformationsManager');
 const ProcessCrud = require('../src/crud/ProcessCrud');
-const {checkDate} = require('../src/utils/utils');
+const {checkDate, getDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
@@ -10,7 +10,7 @@ const action = (...datas) => {
     launch(...datas);
 
     return process.on('SIGINT', () => {
-        ProcessCrud.getByNameAndCity(datas[0].toLowerCase(), datas[6].toLowerCase())
+        ProcessCrud.getByNameAndCity(datas[0].toLowerCase(), datas[6].toLowerCase(), getDate(datas[3]), getDate(datas[4]))
             .then((data) => {
                 data.running = false;
 
@@ -70,7 +70,7 @@ const preLaunch = () => {
                 process.exit();
             }
 
-            ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase()).then((e) => {
+            ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase(), getDate(checkin), getDate(checkout)).then((e) => {
 
                 if (checkDate(e.updatedAt) >= 10)
                     ProcessCrud.deleteById(e).then(_action);

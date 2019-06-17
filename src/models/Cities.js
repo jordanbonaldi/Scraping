@@ -9,6 +9,7 @@ let City = new Schema(
         createdAt: Date,
         updatedAt: Date,
         hotels: Number,
+        where: String,
         country: {type: Schema.Types.ObjectId, ref: 'Country'}
     }
 );

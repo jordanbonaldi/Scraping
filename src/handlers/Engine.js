@@ -237,6 +237,8 @@ class Engine {
             country: this._country,
             data: 'none',
             city: this._city,
+            from: this._query.checkin_month.value,
+            to: this._query.checkout_month.value,
             notPushed: this._totalFalse,
             cityName: this._cityName,
             setOffset: this._setOffset,
@@ -334,7 +336,11 @@ class Engine {
      * @private
      */
     _getRunningProcess() {
-        return ProcessCrud.getByNameAndCity(this.name.trim().toLowerCase(), this._cityName.toLowerCase()).then(doc =>
+        return ProcessCrud.getByNameAndCity(
+            this.name.trim().toLowerCase(),
+            this._cityName.toLowerCase(),
+            this._searchData.checkin_date, this._searchData.checkout_date
+        ).then(doc =>
             Country.getById(doc.country).then(() => {
                 this._max = doc.max;
                 this._index = doc.index;
@@ -474,14 +480,12 @@ class Engine {
                 console.log(e)
             }
 
-            console.log(this._generator.baseUrl)
-
             return this._request(this._generator.baseUrl);
         }).then(() => this.mergeAndUpdate())
             .catch(() =>
                 City.create({
                     name: city
-                }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+                }, "engine.js:488").then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
             )
     }
 

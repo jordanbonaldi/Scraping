@@ -27,6 +27,16 @@ const log = (message) => {
 
 /**
  *
+ * @param date
+ */
+const getDate = (date) => {
+    let month = date.getMonth()+1;
+    month = month < 10 ? '0' + month : month;
+    return date.getFullYear()+'-'+ month + '-' + date.getDate();
+};
+
+/**
+ *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize, log};
+module.exports = {checkDate, normalize, log, getDate};

@@ -1,4 +1,5 @@
 const Query = require('./Query');
+const {getDate} = require('../utils/utils');
 
 class SearchData {
 
@@ -26,21 +27,17 @@ class SearchData {
      */
     linkQuery(query) {
         {
-            if (query.checkin_day === null) {
-                let month = this.checkin_date.getMonth()+1;
-                month = month < 10 ? '0' + month : month;
-                query.checkin_month = this.checkin_date.getFullYear()+'-'+ month + '-' + this.checkin_date.getDate();
-            } else {
+            if (query.checkin_day === null)
+                query.checkin_month = getDate(this.checkin_date);
+            else {
                 query.checkin_month = this.checkin_date.getMonth() + 1;
                 query.checkin_day = this.checkin_date.getDate();
-                query.checkin_year = this.checkin_date.getFullYear();
+                query.checkin_year = this.checkin_date.getFullYear()
             }
 
-            if (query.checkout_day === null) {
-                let month = this.checkin_date.getMonth()+1;
-                month = month < 10 ? '0' + month : month;
-                query.checkout_month = this.checkout_date.getFullYear()+'-'+ month + '-' + this.checkout_date.getDate();
-            } else {
+            if (query.checkout_day === null)
+                query.checkout_month = getDate(this.checkout_date);
+            else {
                 query.checkout_month = this.checkout_date.getMonth() + 1;
                 query.checkout_day = this.checkout_date.getDate();
                 query.checkout_year = this.checkout_date.getFullYear()

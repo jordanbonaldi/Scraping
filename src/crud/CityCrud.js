@@ -14,9 +14,10 @@ class CityCrud extends Crud {
      * @param data
      * @returns {Promise<{error: string} | any>}
      */
-    create(data) {
+    create(data, where) {
         let name = data.name;
         data.hotels = 0;
+        data.where = where;
 
         return this.getByName(name).then(() => {
             return { error: "Already existing city" }

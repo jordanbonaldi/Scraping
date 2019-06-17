@@ -45,7 +45,7 @@ class CountryCrud extends Crud {
 
                 return CityCrud.updateById(e).then(() => this.updateById(doc))
             }).catch(() =>
-                CityCrud.create({name: city}).then(() => this.addCity(name, city))
+                CityCrud.create({name: city}, "countrycrud:48").then(() => this.addCity(name, city))
             )
         )
     }

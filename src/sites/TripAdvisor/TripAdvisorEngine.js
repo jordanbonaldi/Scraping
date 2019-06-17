@@ -88,7 +88,7 @@ class TripAdvisorEngine extends Engine{
         }).then(() => super.mergeAndUpdate()).catch(() =>
             City.create({
                 name: city
-            }).then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+            }, "tripadvisorengine:91").then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
         )
     }
 
