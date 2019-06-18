@@ -55,12 +55,7 @@ class Crud {
     update(data, identifier = {}) {
         return new Promise((resolve, reject) => {
             data.updatedAt = new Date();
-            this.model.updateOne(identifier, data, (err, res) => {
-                    (err)
-                        ? reject(err)
-                        : resolve(res);
-                }
-            )
+            this.model.updateOne(identifier, data, (err, res) => err ? reject(err) : resolve(res))
         });
     };
 
@@ -78,6 +73,21 @@ class Crud {
             })
         });
     };
+
+    /**
+     * 
+     * @param identifier
+     * @returns {Promise<any>}
+     */
+    find(identifier = {}) {
+        return new Promise((resolve, reject) => {
+            this.model.find(identifier, (err, docs) => {
+                if (err) reject(err);
+                else if (!docs.length) reject(true);
+                else resolve(docs);
+            })
+        })
+    }
 
     /**
      *

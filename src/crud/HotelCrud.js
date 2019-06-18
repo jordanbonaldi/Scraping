@@ -186,6 +186,28 @@ class HotelCrud extends Crud {
 
     /**
      *
+     * @param city
+     * @param checkin
+     * @param checkout
+     * @returns {Promise<any | never>}
+     */
+    getByDateAndCity(city, checkin, checkout){
+       return CityCrud.getByName(city).then((city) =>
+           this.getAll({city: city._id, engines: {$elemMatch: {from: checkin, to: checkout}}}).catch(e => console.log(e))
+       )
+    }
+
+    /**
+     *
+     * @param hotelsName {Array}
+     * @returns {Promise<any>}
+     */
+    findCompetitor(hotelsName) {
+        return this.find({name: {$in: hotelsName}})
+    }
+
+    /**
+     *
      * @param data
      * @param _data
      * @returns {Promise<any>}

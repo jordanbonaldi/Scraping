@@ -56,7 +56,6 @@ class CityCrud extends Crud {
                 agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
         })
     }
-
 }
 
 /**

@@ -9,7 +9,7 @@ const {checkDate} = require('../utils/utils');
  * Get hotels
  */
 router.get('/hotels/:city', (req, res) => {
-    CityCrud.getByName(req.params.city).then(doc =>
+    HotelCrud.getByCity(req.params.city).then(doc => {
         isProcessRunning(doc._id).then((a) => {
             return res.send(getEta(a))
         }).catch(() =>
@@ -19,12 +19,23 @@ router.get('/hotels/:city', (req, res) => {
                 status: 0
             }))
         )
-    ).catch((e) => {
+    }).catch((e) => {
         console.log(e)
         res.send({
             status: -1
         })
     })
+});
+
+/**
+ * Competitor
+ */
+router.get('/competitor/:from/:to/:city', (req, res) => {
+
+    HotelCrud.getByDateAndCity(req.params.city, req.params.from, req.params.to).then((e) => {
+        console.log(e)
+    })
+
 });
 
 const getEta = (processes) => {
