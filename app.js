@@ -12,6 +12,7 @@ const HotelConsumer = require('./src/consumer/HotelConsumer');
 HotelConsumer.connect();
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
+const competitorRouter = require('./src/routes/CompetitorRouter');
 
 const app = express();
 
@@ -30,6 +31,7 @@ const initApp = () => {
     });
 
     app.use('/', hotelsRouter);
+    app.use('/', competitorRouter);
 // catch 404 and forward to error handler
     app.use(function(req, res, next) {
         next(createError(404))

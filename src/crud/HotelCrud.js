@@ -191,9 +191,15 @@ class HotelCrud extends Crud {
      * @param checkout
      * @returns {Promise<any | never>}
      */
-    getByDateAndCity(city, checkin, checkout){
-       return CityCrud.getByName(city).then((city) =>
-           this.getAll({city: city._id, engines: {$elemMatch: {from: checkin, to: checkout}}}).catch(e => console.log(e))
+    getByDateAndCity(city, checkin, checkout) {
+       return CityCrud.getByName(city).then((doc) =>
+           this.getAll({city: doc._id}).then(a => {
+               a.forEach(b => b.engines.forEach(obj =>
+                   obj.datas = obj.datas.filter(data => data.from == checkin && data.to == checkout)
+               ));
+
+               return a
+           }).catch(e => console.log(e))
        )
     }
 
