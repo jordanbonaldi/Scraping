@@ -3,6 +3,7 @@ const InformationManager = require('../src/handlers/InformationsManager');
 const ProcessCrud = require('../src/crud/ProcessCrud');
 const {checkDate, getDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');
+const {log} = require('../src/utils/utils');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
 
@@ -16,7 +17,7 @@ const action = (...datas) => {
 
                 return ProcessCrud.updateById(data).then(() => process.exit())
             }).catch(() => {
-                console.log("Non-existing process");
+                log("Non-existing process");
                 process.exit();
             });
     })
@@ -42,7 +43,7 @@ const preLaunch = () => {
                 process.exit(0)
             );
         else {
-            console.log("Please enter city name !");
+            log("Please enter city name !");
             process.exit(1)
         }
 
@@ -66,7 +67,7 @@ const preLaunch = () => {
 
         if (city != null && engine != null) {
             if (!isEngineExists(engine)) {
-                console.log(engine + " unknown!");
+                log(engine + " unknown!");
                 process.exit();
             }
 
@@ -78,12 +79,12 @@ const preLaunch = () => {
                     e.running = true;
                     ProcessCrud.updateById(e).then(_action)
                 } else {
-                    console.log('Process already running');
+                    log('Process already running');
                     process.exit();
                 }
             }).catch(_action);
         }
-    } else if (args.length <= 2) require('./server')(); else console.log("Please use: npm run <engine> <checkin> <checkout> <adults> <children> <country> <city>")
+    } else if (args.length <= 2) require('./server')(); else log("Please use: npm run <engine> <checkin> <checkout> <adults> <children> <country> <city>")
 };
 
 MongoConnect().then(preLaunch);
@@ -92,6 +93,6 @@ MongoConnect().then(preLaunch);
 const stop = (err) => process.exit(err);
 
 const launch = (...datas) => EngineManager.loadSearch(...datas).then(() => stop(false)).catch(e => {
-    console.log(e);
+    log(e);
     stop(true)
 });

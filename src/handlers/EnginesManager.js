@@ -87,7 +87,7 @@ class EnginesManager {
             ).then(() => {
                 ProcessCrud.getByName(engine.name.trim().toLowerCase())
                     .then((d) => ProcessCrud.deleteById(d._id))
-                    .catch(() => console.log('No process to delete'));
+                    .catch(() => log('No process to delete'));
 
                 log(
                     "Finished city " +

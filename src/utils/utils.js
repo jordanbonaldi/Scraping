@@ -24,7 +24,8 @@ const log = (message) => {
     // process.stdout.clearLine();
     // process.stdout.cursorTo(0);
     // process.stdout.write(message);
-    console.log(message)
+    let now = new Date().toTimeString().split(' ')[0];
+    console.log(`[${now}] ${message}`)
 };
 
 /**

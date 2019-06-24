@@ -8,6 +8,11 @@ const {ERROR, sendHotels, getEta, isProcessRunning} = require('../utils/utils');
  * Competitor
  */
 router.get('/competitor/:from/:to/:city', (req, res) => {
+
+    {
+        name: String,
+    }
+
     CityCrud.getByName(req.params.city).then(doc => {
         isProcessRunning(doc._id).then(a => res.send(getEta(a)))
             .catch(() => HotelCrud.getByDateAndCity(req.params.city, req.params.from, req.params.to).then(e =>
