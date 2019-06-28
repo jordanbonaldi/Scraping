@@ -56,6 +56,7 @@ class TripAdvisorEngine extends Engine{
 
     /**
      *
+     * @param country
      * @param city
      * @param checkin
      * @param checkout
@@ -65,7 +66,7 @@ class TripAdvisorEngine extends Engine{
      * @param callback
      * @returns {Promise<any[] | void | T | never>}
      */
-    initCity(city, checkin, checkout, adults, children, rooms, callback) {
+    initCity(country, city, checkin, checkout, adults, children, rooms, callback) {
         return City.getByName(city).then((e) => {
             this.city = e._id;
             super._cityName = e.name;
@@ -88,7 +89,7 @@ class TripAdvisorEngine extends Engine{
         }).then(() => super.mergeAndUpdate()).catch(() =>
             City.create({
                 name: city
-            }, "tripadvisorengine:91").then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+            }, "tripadvisorengine:91").then(() => this.search(country, city, checkin, checkout, adults, children, rooms, callback))
         )
     }
 

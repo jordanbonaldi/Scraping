@@ -1,5 +1,6 @@
 const EngineManager = require('../src/handlers/EnginesManager');
 const InformationManager = require('../src/handlers/InformationsManager');
+const CityCrud = require('../src/crud/CityCrud');
 const ProcessCrud = require('../src/crud/ProcessCrud');
 const {checkDate, getDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');

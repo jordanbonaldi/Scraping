@@ -9,7 +9,7 @@ const request = require('request-promise');
 const ProcessCrud = require('../crud/ProcessCrud');
 const fs = require('fs');
 const InformationsManager = require('../handlers/InformationsManager');
-const {normalize, log} = require('../utils/utils');
+const {normalize, log, getDate} = require('../utils/utils');
 const StringComparator = require('string-similarity');
 
 class Engine {
@@ -39,6 +39,10 @@ class Engine {
         this._cookieData = null;
         this._setOffset = null;
         this._setOffsetCount = 0;
+        this._check_in = null;
+        this._check_out = null;
+        this._adults = 0;
+        this._children = 0;
     }
 
     /**
@@ -237,13 +241,37 @@ class Engine {
             country: this._country,
             data: 'none',
             city: this._city,
-            from: this._query.checkin_month.value,
-            to: this._query.checkout_month.value,
+            from: getDate(this._check_in),
+            to: getDate(this._check_out),
             notPushed: this._totalFalse,
             cityName: this._cityName,
             setOffset: this._setOffset,
             eta: (this._frequence.length < 4 ? -1 : Math.round(op * freqAver * 1.8))
         });
+    }
+
+    /**
+     *
+     * @param engine
+     * @returns {{datas: {children: number, price: (*|String|StringConstructor|string), adults: number, from: null, to: null}[]}}
+     * @private
+     */
+    _addDateInformation(engine) {
+        engine = {
+            ...engine,
+            datas: [{
+                from: getDate(this._check_in),
+                to: getDate(this._check_out),
+                adults: this._adults,
+                children: this._children,
+                price: engine.price,
+            }]
+        };
+        delete engine.price;
+
+        console.log(engine);
+
+        return engine;
     }
 
     /**
@@ -266,18 +294,17 @@ class Engine {
                     return;
 
                 e.forEach(a => {
-                    a.engine = {
-                        ...a.engine,
-                        datas: [{
-                            from: this._query.checkin_month.value,
-                            to: this._query.checkout_month.value,
-                            adults: this._query.adults.value,
-                            children: this._query.children.value,
-                            price: a.engine.price,
-                        }]
-                    };
+                    if (Array.isArray(a.engine) || Array.isArray(a.engines)) {
+                            let engines = [];
+                            for(let i = 0; i < a.length; i++)
+                                engines.push(this._addDateInformation(a[i]));
 
-                    delete a.engine.price
+                        Array.isArray(a.engine) ? a.engine = engines : a.engines = engines;
+                        console.log(a.engine)
+                        console.log(a.engines)
+                    } else
+                        a.engine = this._addDateInformation(a.engine);
+
                 });
 
                 let hotels = e.map(a => Hotel.create(a));
@@ -339,7 +366,7 @@ class Engine {
         return ProcessCrud.getByNameAndCity(
             this.name.trim().toLowerCase(),
             this._cityName.toLowerCase(),
-            this._searchData.checkin_date, this._searchData.checkout_date
+            this._check_in, this._check_out
         ).then(doc =>
             Country.getById(doc.country).then(() => {
                 this._max = doc.max;
@@ -422,7 +449,7 @@ class Engine {
 
                     return this._launchRequest(data)
                 })
-            ).catch()
+            ).catch(e => console.log(e))
         )
     }
 
@@ -439,6 +466,7 @@ class Engine {
 
     /**
      *
+     * @param country
      * @param city
      * @param checkin
      * @param checkout
@@ -448,7 +476,7 @@ class Engine {
      * @param callback
      * @returns {Promise<any[] | void>}
      */
-    initCity(city, checkin, checkout, adults, children, rooms, callback) {
+    initCity(country, city, checkin, checkout, adults, children, rooms, callback) {
         return City.getByName(city).then((e) => {
             this._cityName = e.name;
             this._city = e._id;
@@ -485,7 +513,7 @@ class Engine {
             .catch(() =>
                 City.create({
                     name: city
-                }, "engine.js:488").then(() => this.search(city, checkin, checkout, adults, children, rooms, callback))
+                }, "engine.js:488").then(() => this.search(country, city, checkin, checkout, adults, children, rooms, callback))
             )
     }
 
@@ -510,11 +538,16 @@ class Engine {
         rooms = 1,
         callback = null
     ) {
+        this._check_in = checkin;
+        this._check_out = checkout;
+        this._adults = adults;
+        this._children = children;
+
         return Country.getByName(country).then(e => {
             this._country = e;
 
             return Country.hasCity(country, city).then((e) =>
-                e ? this.initCity(city, checkin, checkout, adults, children, rooms, callback) :
+                e ? this.initCity(country, city, checkin, checkout, adults, children, rooms, callback) :
                     Country.addCity(country, city).then(() =>
                         this.search(country, city, checkin, checkout, adults, children, rooms, callback)
                     )

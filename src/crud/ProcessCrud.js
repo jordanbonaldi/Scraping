@@ -1,6 +1,6 @@
 const Crud = require('./Crud');
 const Process = require('../models/Process');
-const CityCrud = require('./CityCrud');
+const City = require('./CityCrud');
 
 class ProcessCrud extends Crud {
 
@@ -43,7 +43,8 @@ class ProcessCrud extends Crud {
      * @returns {Promise<any | never>}
      */
     getByNameAndCity(name, city, checkin, checkout) {
-        return CityCrud.getByName(city).then((cityData) =>
+        let _city = require('./CityCrud');
+        return _city.getByName(city).then((cityData) =>
             this.getOne({name: name, city: cityData._id, from: checkin, to: checkout})
         ).catch(() =>
             Promise.reject(true)

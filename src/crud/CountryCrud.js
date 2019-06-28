@@ -41,12 +41,21 @@ class CountryCrud extends Crud {
                 if (city != null)
                     return;
 
-                doc.cities.push(e._id);
+                doc.cities.push({
+                    name: e.name,
+                    city: e._id
+                });
 
                 return CityCrud.updateById(e).then(() => this.updateById(doc))
             }).catch(() =>
                 CityCrud.create({name: city}, "countrycrud:48").then(() => this.addCity(name, city))
             )
+        )
+    }
+
+    getByNameAndCity(name, city) {
+        return this.getByName(name).then(country =>
+            country.cities.filter(e => Similarity.compareTwoStrings(e.name, city) > 0.7)[0]
         )
     }
 
@@ -93,7 +102,7 @@ class CountryCrud extends Crud {
      */
     hasCity(country, city) {
         return CityCrud.getByName(city).then((doc) =>
-            this.getByName(country).then((country) => country.cities.filter(e => String(e).localeCompare(doc._id) === 0) != null)
+            this.getByName(country).then((country) => country.cities.filter(e => String(e.city).localeCompare(doc._id) === 0) != null)
         ).catch(() => false)
     }
 

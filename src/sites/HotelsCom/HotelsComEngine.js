@@ -73,7 +73,7 @@ class HotelsComEngine extends Engine {
             if (e.data.body.searchResults.totalCount != null)
                 return e.data.body.searchResults.totalCount -
                     (e.data.body.searchResults.unavailableCount ? e.data.body.searchResults.unavailableCount : 0);
-            
+
             this._tempCount += ix == null ? 0 : e.data.body.searchResults.results.length;
 
             log('Hotels count : ' + this._tempCount);
@@ -106,11 +106,12 @@ class HotelsComEngine extends Engine {
      */
     getBasicInformation(data) {
         log("Calculating max hotels to load !");
-        return this._loop(this.url + this.setOffset(data)).then(e => {
-            log(`Found ${e} hotels, starting...`);
-
-            return e
-        })
+        return new Promise(resolve => resolve(data.data.body.searchResults.totalCount));
+        // return this._loop(this.url + this.setOffset(data)).then(e => {
+        //     log(`Found ${e} hotels, starting...`);
+        //
+        //     return e
+        // })
     }
 
     /**
