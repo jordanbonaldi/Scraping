@@ -65,7 +65,7 @@ class HotelCrud extends Crud {
      * @private
      */
     _getHotelArray(data, _data) {
-        data.engines.forEach(e => {
+        data.engine.forEach(e => {
             let hotel = {
                 name: data.name,
                 address: data.address,

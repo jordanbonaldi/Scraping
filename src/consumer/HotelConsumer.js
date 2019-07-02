@@ -13,6 +13,9 @@ class HotelConsumer extends RabbitMQConsumer {
 
     execCommand(hotel) {
         EngineManager.engines.forEach(e => {
+            /**
+             * Add date format
+             */
             log("Launch of " + e.name + " for " + hotel.country + ' - ' + hotel.city);
             log('node ./bin/preLaunch ' + e.name.toLowerCase() + ' ' + hotel.country.toLowerCase() + ' ' + hotel.city.toLowerCase())
 

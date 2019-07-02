@@ -269,8 +269,6 @@ class Engine {
         };
         delete engine.price;
 
-        console.log(engine);
-
         return engine;
     }
 
@@ -295,13 +293,13 @@ class Engine {
 
                 e.forEach(a => {
                     if (Array.isArray(a.engine) || Array.isArray(a.engines)) {
-                            let engines = [];
-                            for(let i = 0; i < a.length; i++)
-                                engines.push(this._addDateInformation(a[i]));
+                        if (Array.isArray(a.engines)) {
+                            a.engine = a.engines;
+                            delete a.engines;
+                        }
 
-                        Array.isArray(a.engine) ? a.engine = engines : a.engines = engines;
-                        console.log(a.engine)
-                        console.log(a.engines)
+                        for(let i = 0; i < a.engine.length; i++)
+                            a.engine[i] = this._addDateInformation(a.engine[i]);
                     } else
                         a.engine = this._addDateInformation(a.engine);
 
