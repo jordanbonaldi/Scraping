@@ -8,8 +8,8 @@ rabbit.connect('amqp://localhost', (err, conn) => {
 		let obj = {
 			city: 'lille',
 			country: 'France',
-			from: '2019-09-05',
-			to: '2019-09-06',
+			from: '2019-07-03',
+			to: '2019-07-04',
 			adults: '1',
 			children: '0',
 		}

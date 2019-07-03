@@ -18,7 +18,7 @@ class CityConsumer extends RabbitMQConsumer {
      */
     handleEvents(execution, engine) {
         execution.stdout.on('data', data =>
-            console.log(data)
+            console.log(`${data}`)
         );
 
         execution.on('close', () =>
@@ -59,7 +59,7 @@ class CityConsumer extends RabbitMQConsumer {
               CityCrud.getByName(this._msg.city.toLowerCase()).then((doc) => {
                   if (country.cities.filter(e => String(e.city).localeCompare(String(doc._id)) === 0)[0]) {
                       log(checkDate(doc.updatedAt));
-                      if (checkDate(doc.updatedAt) > 1/*440*/)
+                      if (checkDate(doc.updatedAt) > 1/*440*/) /** check date **/
                           this.execCommand()
                   } else log("Already checked city")
               }).catch((e) => {
