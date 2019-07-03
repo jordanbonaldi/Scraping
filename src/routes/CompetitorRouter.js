@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const HotelCrud = require('../crud/HotelCrud');
-const CityCrud = require('../crud/CityCrud');
 const CountryCrud = require('../crud/CountryCrud');
-const {ERROR, sendHotels, getEta, isProcessRunning} = require('../utils/utils');
+const {ERROR, sendHotels} = require('../utils/utils');
 
 /**
  * Competitor
@@ -12,19 +11,48 @@ const {ERROR, sendHotels, getEta, isProcessRunning} = require('../utils/utils');
  *     name: String,
  *     rate: Number,
  *     competitors: [String]
+ *     }
+ *
+ */
+router.get('/competitor/:country/:city', (req, res) => {
+    let data = req.body;
+
+    CountryCrud.getByNameAndCity(req.params.country, req.params.city)
+        .then(e => HotelCrud.getByCity(e.city, data.competitors).then(e => res.send(sendHotels(e))))
+        .catch(e => res.send({
+            ...ERROR,
+            error: e
+        }));
+});
+
+/**
+ * Competitor
+ *
+ * Params: {
+ *     name: String,
+ *     rate: Number,
+ *     competitors: [String]
+ *     }
  *
  */
 router.get('/competitor/:from/:to/:country/:city', (req, res) => {
     let data = req.body;
 
-    CountryCrud.getByNameAndCity(req.params.country, req.params.city);
-
-    CityCrud.getByName(req.params.city).then(doc => {
-        isProcessRunning(doc._id).then(a => res.send(getEta(a)))
-            .catch(() => HotelCrud.getByDateAndCity(req.params.city, req.params.from, req.params.to).then(e =>
-                res.send(sendHotels(e))
-            ))
-    }).catch(() => res.send(ERROR))
+    CountryCrud.getByNameAndCity(req.params.country, req.params.city)
+        .then(e => HotelCrud.getByCity(e.city, data.competitors).then(e => {
+            e.forEach(a => {
+                a.engines.forEach(eg => {
+                    eg.datas = eg.datas.filter(data =>
+                        data.from == req.params.from && data.to == req.params.to
+                    )
+                })
+            });
+            res.send(sendHotels(e))
+        }))
+        .catch(e => res.send({
+            ...ERROR,
+            error: e
+        }));
 });
 
 /**

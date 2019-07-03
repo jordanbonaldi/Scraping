@@ -4,12 +4,12 @@ const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
 
-const HotelConsumer = require('./src/consumer/HotelConsumer');
+const CityConsumer = require('./src/consumer/CityConsumer');
 
 /**
  * Launch du RabbitMQ Consumer
  */
-HotelConsumer.connect();
+CityConsumer.connect();
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
 const competitorRouter = require('./src/routes/CompetitorRouter');
