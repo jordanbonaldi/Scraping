@@ -253,10 +253,13 @@ class Engine {
     /**
      *
      * @param engine
-     * @returns {{datas: {children: number, price: (*|String|StringConstructor|string), adults: number, from: null, to: null}[]}}
+     * @returns {{datas: {children: number, price: (*|String|StringConstructor|string), adults: number, from: *, to: *}[]}|null}
      * @private
      */
     _addDateInformation(engine) {
+        if (engine == null || engine.price == null)
+            return null;
+
         engine = {
             ...engine,
             datas: [{
@@ -298,7 +301,7 @@ class Engine {
                             delete a.engines;
                         }
 
-                        for(let i = 0; i < a.engine.length; i++)
+                        for (let i = 0; i < a.engine.length; i++)
                             a.engine[i] = this._addDateInformation(a.engine[i]);
                     } else
                         a.engine = this._addDateInformation(a.engine);

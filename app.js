@@ -13,6 +13,7 @@ CityConsumer.connect();
 
 const hotelsRouter = require('./src/routes/HotelsRouter');
 const competitorRouter = require('./src/routes/CompetitorRouter');
+const cityRouter = require('./src/routes/CityRouter');
 
 const app = express();
 
@@ -32,6 +33,7 @@ const initApp = () => {
 
     app.use('/', hotelsRouter);
     app.use('/', competitorRouter);
+    app.use('/', cityRouter);
 // catch 404 and forward to error handler
     app.use(function(req, res, next) {
         next(createError(404))

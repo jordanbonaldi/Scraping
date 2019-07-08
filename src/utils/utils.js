@@ -1,4 +1,5 @@
 const ProcessCrud = require('../crud/ProcessCrud');
+const { Parser } = require('json2csv');
 
 /**
  *
@@ -30,6 +31,19 @@ const log = (message) => {
 
 /**
  *
+ * @param a
+ * @returns {*}
+ */
+const getUnique = (a) => {
+    let seen = new Set();
+    return a.filter(item => {
+        let k = key(item);
+        return seen.has(k) ? false : seen.add(k);
+    });
+};
+
+/**
+ *
  * @param date
  */
 const getDate = (date) => {
@@ -52,7 +66,7 @@ const ERROR = {
  * @param e
  * @returns {{data: *, length: *, status: number}}
  */
-const sendHotels = (e) => { return {data: e, length: e.length, status: 0} };
+const sendHotels = (e) => { return obj2csv({data: e, length: e.length, status: 0}) };
 
 /**
  *
@@ -85,8 +99,12 @@ const getEta = (processes) => {
  */
 const isProcessRunning = (id) => ProcessCrud.getAll({city: id});
 
-/**
+const json2csvParser = new Parser({ ["engines.datas"] });
+
+const obj2csv = json2csvParser.parse(myCars);
+
+    /**
  *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning};
+module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, obj2csv};

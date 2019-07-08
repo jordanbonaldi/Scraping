@@ -2,7 +2,7 @@ const Crud = require('./Crud');
 const CityCrud = require('./CityCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
-const {normalize} = require('../utils/utils');
+const {normalize, getUnique} = require('../utils/utils');
 
 class HotelCrud extends Crud {
 
@@ -90,6 +90,7 @@ class HotelCrud extends Crud {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
         __data.engines = __data.engines.filter(e => e != null);
+        __data.engines.forEach(x => x.datas = getUnique(x.datas));
 
         return __data
     }
@@ -213,11 +214,12 @@ class HotelCrud extends Crud {
     getByDateAndCityId(city, checkin, checkout) {
        return CityCrud.getById(city).then((doc) =>
            this.getAll({city: doc._id}).then(a => {
-               a.forEach(b => b.engines.forEach(obj =>
-                   obj.datas = obj.datas.filter(data =>
-                       data.from == checkin && data.to == checkout
-                   )
-               ));
+               a.forEach(b => b.engines.forEach(obj => {
+                   if (obj != null)
+                    obj.datas = obj.datas.filter(data =>
+                           data.from == checkin && data.to == checkout
+                    )
+               }));
 
                return a
            }).catch(e => console.log(e))
