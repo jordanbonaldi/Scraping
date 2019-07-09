@@ -11,8 +11,7 @@ router.get('/hotels/:city', (req, res) => {
     CityCrud.getByName(req.params.city).then(doc => {
         isProcessRunning(doc._id).then((a) => res.send(getEta(a)))
             .catch(() =>
-                HotelCrud.getAll({city: doc._id}).then(e => res.send(sendHotels(e)))
-            )
+                HotelCrud.getAll({city: doc._id}).then(e => res.send(sendHotels(e))))
     }).catch(() =>
         res.send(ERROR)
     )

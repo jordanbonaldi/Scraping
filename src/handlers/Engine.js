@@ -397,6 +397,7 @@ class Engine {
      * @returns {Promise<any[] | void>}
      */
     mergeAndUpdate(){
+        console.log("IN")
         return Hotel.getAll({city: this._city})
             .then(e =>
                 City.updateById({
