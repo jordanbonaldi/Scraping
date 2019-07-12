@@ -90,7 +90,16 @@ class HotelCrud extends Crud {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
         __data.engines = __data.engines.filter(e => e != null);
-        __data.engines.forEach(x => x.datas = getUnique(x.datas));
+        __data.engines.forEach(x => {
+            let datas = [];
+
+            getUnique(x.datas).forEach(a => {
+                if (datas.filter(e => e.name == a.name)[0] == null)
+                    datas.push(a);
+            });
+
+            x.datas = datas;
+        });
 
         return __data
     }
