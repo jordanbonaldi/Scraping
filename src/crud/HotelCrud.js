@@ -200,7 +200,9 @@ class HotelCrud extends Crud {
      * @param array
      */
     getByCity(city, array) {
-       return Promise.all(array.map(e => this.getByName(e).catch(x => console.log(x)))).then(e => e.filter(x => x != null))
+       return Promise.all(array.map(e => this.getByName(e).catch(x => console.log(x)))).then(e =>
+           e.filter(x => x != null)
+       )
     }
 
     /**

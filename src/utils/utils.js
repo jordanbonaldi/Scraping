@@ -90,6 +90,35 @@ const getEta = (processes) => {
     }
 };
 
+const hotelsJsonToCsv = (json) => {
+    let header = "name, address, rate, ";
+    let dates = [];
+
+    json.data.forEach(e => {
+       e.engines[0].datas.filter(a => a.price != null).forEach(a => {
+           if (!dates.includes(a.from))
+               dates.push(a.from)
+       })
+    });
+
+    header += dates.join(", ");
+
+    let content = [];
+
+    json.data.forEach(e => {
+        let string = e.name + ", " + e.address + ", " + e.rate + ", ";
+        let tmp_date = [];
+        e.engines[0].datas.filter(a => a.price != null).forEach(a => {
+            if (!tmp_date.includes(a.from)) {
+                string += e.engines[0].name + ": " + a.price + ", ";
+                tmp_date.push(a.from);
+            }
+        });
+        content.push(string);
+    });
+    console.log(header + '\n' + content.join('\n'))
+};
+
 /**
  *
  * @param id
@@ -103,4 +132,4 @@ const isProcessRunning = (id) => ProcessCrud.getAll({city: id});
  *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique};
+module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, hotelsJsonToCsv};
