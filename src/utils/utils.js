@@ -35,7 +35,7 @@ const log = (message) => {
 const getUnique = (a) => {
     let seen = new Set();
     return a.filter(item => {
-        let k = key(item);
+        let k = Object.keys(item);
         return seen.has(k) ? false : seen.add(k);
     });
 };
@@ -64,7 +64,13 @@ const ERROR = {
  * @param e
  * @returns {{data: *, length: *, status: number}}
  */
-const sendHotels = (e) => { return { data: e, length: e.length, status: 0} };
+const sendHotels = (e, format) => {
+    let obj = { data: e, length: e.length, status: 0};
+
+    return format == 'csv' ? hotelsJsonToCsv(obj) : obj
+};
+
+
 
 /**
  *
@@ -91,7 +97,7 @@ const getEta = (processes) => {
 };
 
 const hotelsJsonToCsv = (json) => {
-    let header = "name, address, rate, ";
+    let header = "name|address|rate|";
     let dates = [];
 
     json.data.forEach(e => {
@@ -101,22 +107,31 @@ const hotelsJsonToCsv = (json) => {
        })
     });
 
-    header += dates.join(", ");
+    header += dates.join("|");
 
     let content = [];
 
     json.data.forEach(e => {
-        let string = e.name + ", " + e.address + ", " + e.rate + ", ";
+        let hotels = [e.name, e.address, e.rate];
         let tmp_date = [];
-        e.engines[0].datas.filter(a => a.price != null).forEach(a => {
-            if (!tmp_date.includes(a.from)) {
-                string += e.engines[0].name + ": " + a.price + ", ";
-                tmp_date.push(a.from);
-            }
-        });
-        content.push(string);
+        e.engines.forEach(eng =>
+            eng.datas.filter(a => a.price != null).forEach(a => {
+                if (!tmp_date.includes(a.from)) {
+                    hotels.push(e.engines[0].name + ": " + a.price);
+                    tmp_date.push(a.from);
+                }
+            })
+        );
+        content.push(hotels);
     });
-    console.log(header + '\n' + content.join('\n'))
+
+    for (let i = 0; i < content.length; i++)
+        if (content[i+1] != null && content[i].length < content[i+1].length)
+            content[i].push("n/a");
+
+    content = content.map(e => e.join('|'));
+
+    return header + '\n' + content.join('\n')
 };
 
 /**

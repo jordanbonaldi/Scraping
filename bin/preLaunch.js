@@ -1,6 +1,5 @@
 const EngineManager = require('../src/handlers/EnginesManager');
 const InformationManager = require('../src/handlers/InformationsManager');
-const CityCrud = require('../src/crud/CityCrud');
 const ProcessCrud = require('../src/crud/ProcessCrud');
 const {checkDate, getDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');
@@ -9,6 +8,7 @@ const {log} = require('../src/utils/utils');
 const isEngineExists = (engine) => EngineManager.exists(engine);
 
 const action = (...datas) => {
+    console.log("Launching city action");
     launch(...datas);
 
     return process.on('SIGINT', () => {
@@ -94,6 +94,6 @@ MongoConnect().then(preLaunch);
 const stop = (err) => process.exit(err);
 
 const launch = (...datas) => EngineManager.loadSearch(...datas).then(() => stop(false)).catch(e => {
-    log(e);
+    console.log(e);
     stop(true)
 });

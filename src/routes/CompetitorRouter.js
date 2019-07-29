@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const HotelCrud = require('../crud/HotelCrud');
 const CountryCrud = require('../crud/CountryCrud');
-const {ERROR, sendHotels, hotelsJsonToCsv} = require('../utils/utils');
+const {ERROR, sendHotels} = require('../utils/utils');
 
 /**
  * Competitor
@@ -20,8 +20,7 @@ router.get('/competitor/:country/:city', (req, res) => {
     CountryCrud.getByNameAndCity(req.params.country, req.params.city)
         .then(e =>
             HotelCrud.getByCity(e.city, data).then(e => {
-                hotelsJsonToCsv(sendHotels(e));
-                res.send(sendHotels(e))
+                res.send(sendHotels(e, req.query.format))
             }).catch(e => console.log(e))
         )
         .catch(e => res.send({
@@ -52,8 +51,7 @@ router.get('/competitor/:from/:to/:country/:city', (req, res) => {
                     )
                 })
             });
-            hotelsJsonToCsv(sendHotels(e));
-            res.send(sendHotels(e))
+            res.send(sendHotels(e, req.query.format))
         }).catch(e => console.log(e)))
         .catch(e => res.send({
             ...ERROR,

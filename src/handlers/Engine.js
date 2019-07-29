@@ -452,7 +452,7 @@ class Engine {
                     return this._launchRequest(data)
                 })
             ).catch(e => console.log(e))
-        )
+        ).catch(e => console.log(e))
     }
 
     /**
@@ -554,11 +554,12 @@ class Engine {
                         this.search(country, city, checkin, checkout, adults, children, rooms, callback)
                     )
             )
-        }).catch(() => Country.create(country)
-            .then((ctr) =>
-                Country.addCity(ctr.name, city).then(() =>
-                    this.search(country, city, checkin, checkout, adults, children, rooms, callback))
-            )
+        }).catch(() =>
+            Country.create(country)
+                    .then((ctr) =>
+                        Country.addCity(ctr.name, city).then(() =>
+                            this.search(country, city, checkin, checkout, adults, children, rooms, callback))
+                    )
         )
     }
 

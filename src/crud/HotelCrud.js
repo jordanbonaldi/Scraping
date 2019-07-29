@@ -115,8 +115,10 @@ class HotelCrud extends Crud {
                 return super.updateById(this._getHotel(data, _data));
 
 
+
             return { error: 'Already existing hotel' }
-        }).catch(() => {
+        }).catch((e) => {
+            console.log(e)
             let obj = [];
 
             if (Array.isArray(data.engine))

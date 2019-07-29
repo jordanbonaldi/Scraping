@@ -46,7 +46,12 @@ class TripAdvisorEngine extends Engine{
     _getHotelsUrl() {
         return request(this._generator.baseUrl).then((data) => {
             data = JSON.parse(data);
-            let url = data.results[0].urls[0].url;
+            let url = null;
+            try {
+                url = data.results[0].urls[0].url;
+            } catch (e) {
+                console.log("Bad city for tripadvisor but exists on hotels.com");
+            }
 
             return request(this.defaultUrl + url).then((data) => {
                 return this.defaultUrl + $('.brand-quick-links-QuickLinkTileItem__link--1k5lE', data)[0].attribs.href;
@@ -67,6 +72,7 @@ class TripAdvisorEngine extends Engine{
      * @returns {Promise<any[] | void | T | never>}
      */
     initCity(country, city, checkin, checkout, adults, children, rooms, callback) {
+        console.log("ttotot")
         return City.getByName(city).then((e) => {
             this.city = e._id;
             super._cityName = e.name;
@@ -85,7 +91,7 @@ class TripAdvisorEngine extends Engine{
             return this._getHotelsUrl().then((url) => {
                 this._generator.baseUrl = url;
                 return super.newGeneratorRequester(this._generator, url)
-            })
+            }).catch(e => console.log(e))
         }).then(() => super.mergeAndUpdate()).catch(() =>
             City.create({
                 name: city
