@@ -45,6 +45,10 @@ class Engine {
         this._children = 0;
     }
 
+    get country() {
+        return this._country;
+    }
+
     /**
      *
      * @returns {null|*}

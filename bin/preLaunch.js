@@ -62,7 +62,7 @@ const preLaunch = () => {
 
         if (args.length > 9)
             for (let i = 9; i < args.length; i++)
-                city += ' ' + args[i];
+                city += " " + args[i];
 
         let _action = () => action(country, city, engine, checkin, checkout, adults, children);
 

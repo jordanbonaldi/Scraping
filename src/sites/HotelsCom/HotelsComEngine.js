@@ -159,6 +159,7 @@ class HotelsComEngine extends Engine {
                 name: e.name,
                 address: [e.address.streetAddress, e.address.locality, e.address.postalCode, e.address.region, e.address.countryName].join(' '),
                 city: super.city,
+                country: super.country,
                 rate: e.starRating,
                 validated: true,
                 engine: {

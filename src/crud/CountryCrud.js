@@ -1,7 +1,7 @@
 const Crud = require('./Crud');
 const CityCrud = require('./CityCrud');
 const Country = require('../models/Countries');
-const {normalize} = require('../utils/utils');
+const {nameComparator} = require('../utils/utils');
 const Similarity = require('string-similarity');
 
 class CountryCrud extends Crud {
@@ -65,14 +65,7 @@ class CountryCrud extends Crud {
      * @returns {Promise<any>}
      */
     getByName(name) {
-        return this.getAll().then(e => {
-            let names = e.map(i => normalize(i.name));
-            let agv = Similarity.findBestMatch(normalize(name), names);
-            let res = e.filter(i => normalize(i.name) === agv.bestMatch.target)[0];
-
-            return new Promise((resolve, reject) =>
-                agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
-        })
+        return nameComparator(name, this)
     }
 
     /**

@@ -1,5 +1,6 @@
 const Crud = require('./Crud');
 const CityCrud = require('./CityCrud');
+const CountryCrud = require('./CountryCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
 const {normalize, getUnique} = require('../utils/utils');
@@ -70,6 +71,7 @@ class HotelCrud extends Crud {
                 name: data.name,
                 address: data.address,
                 city: data.city,
+                country: data.country,
                 engine: e
             };
 
@@ -118,7 +120,6 @@ class HotelCrud extends Crud {
 
             return { error: 'Already existing hotel' }
         }).catch((e) => {
-            console.log(e)
             let obj = [];
 
             if (Array.isArray(data.engine))
@@ -198,10 +199,9 @@ class HotelCrud extends Crud {
 
     /**
      *
-     * @param city
      * @param array
      */
-    getByCity(city, array) {
+    getArray(array) {
        return Promise.all(array.map(e => this.getByName(e).catch(x => console.log(x)))).then(e =>
            e.filter(x => x != null)
        )
@@ -265,6 +265,10 @@ class HotelCrud extends Crud {
      */
     getData(id) {
         return super.getById(id)
+    }
+
+    getByCountry(country) {
+        return CountryCrud.getByName(country).then(e => this.getAll({country: e._id}));
     }
 
 }

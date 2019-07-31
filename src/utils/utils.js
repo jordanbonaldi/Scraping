@@ -1,4 +1,6 @@
 const ProcessCrud = require('../crud/ProcessCrud');
+const Similarity = require('string-similarity');
+
 /**
  *
  * @param date
@@ -26,6 +28,21 @@ const log = (message) => {
     let now = new Date().toTimeString().split(' ')[0];
     console.log(`[${now}] ${message}`)
 };
+
+/**
+ *
+ * @param name
+ * @param instance
+ * @returns {Promise<unknown>}
+ */
+const nameComparator = (name, instance) => instance.getAll().then(e => {
+        let names = e.map(i => normalize(i.name));
+        let agv = Similarity.findBestMatch(normalize(name), names);
+        let res = e.filter(i => normalize(i.name) === agv.bestMatch.target)[0];
+
+        return new Promise((resolve, reject) =>
+            agv.bestMatch.rating > 0.81 ? resolve(res) : reject(Error("Not enough percent")));
+    });
 
 /**
  *
@@ -147,4 +164,4 @@ const isProcessRunning = (id) => ProcessCrud.getAll({city: id});
  *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, hotelsJsonToCsv};
+module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, hotelsJsonToCsv, nameComparator};

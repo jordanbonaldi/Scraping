@@ -44,6 +44,7 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getHotelsUrl() {
+        console.log(this._generator.baseUrl)
         return request(this._generator.baseUrl).then((data) => {
             data = JSON.parse(data);
             let url = null;
@@ -72,7 +73,6 @@ class TripAdvisorEngine extends Engine{
      * @returns {Promise<any[] | void | T | never>}
      */
     initCity(country, city, checkin, checkout, adults, children, rooms, callback) {
-        console.log("ttotot")
         return City.getByName(city).then((e) => {
             this.city = e._id;
             super._cityName = e.name;
@@ -91,7 +91,7 @@ class TripAdvisorEngine extends Engine{
             return this._getHotelsUrl().then((url) => {
                 this._generator.baseUrl = url;
                 return super.newGeneratorRequester(this._generator, url)
-            }).catch(e => console.log(e))
+            }).catch(e => console.log("Out"))
         }).then(() => super.mergeAndUpdate()).catch(() =>
             City.create({
                 name: city
@@ -286,6 +286,7 @@ class TripAdvisorEngine extends Engine{
                 name: name,
                 address: 'none',
                 city: super.city,
+                country: super.country,
                 engine: engines,
                 rate: 0
             })
