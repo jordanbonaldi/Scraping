@@ -8,7 +8,7 @@ const {checkDate, log} = require('../utils/utils');
 class CityConsumer extends RabbitMQConsumer {
 
     constructor() {
-        super('scraping')
+        super('scraping');
         this._msg = null;
     }
 

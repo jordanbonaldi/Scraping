@@ -46,6 +46,19 @@ class EnginesManager {
         }))
     }
 
+    /**
+     *
+     * @param engine
+     * @param country
+     * @param city
+     * @param checkin
+     * @param checkout
+     * @param adults
+     * @param children
+     * @param rooms
+     * @param callback
+     * @returns {Promise|*|PromiseLike<any>|Promise<any>}
+     */
     explodeSearch(engine,
                   country,
                   city,
