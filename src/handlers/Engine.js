@@ -25,24 +25,11 @@ class Engine {
         this._name = name;
         this._url = url;
         this._defaultUrl = defaultUrl;
-        this._query = new Query(...queries);
         this._city = null;
         this._country = null;
-        this._frequence = [];
-        this._offset = [];
-        this._max = 0;
-        this._read = 0;
-        this._falseRead = 0;
-        this._now = 0;
-        this._totalFalse = 0;
         this._cookieFile = cookieFile;
-        this._cookieData = null;
-        this._setOffset = null;
-        this._setOffsetCount = 0;
-        this._check_in = null;
-        this._check_out = null;
-        this._adults = 0;
-        this._children = 0;
+        this._stockQueries = queries;
+        this._eraseData();
     }
 
     get country() {
@@ -166,6 +153,28 @@ class Engine {
 
     /**
      *
+     * @private
+     */
+    _eraseData() {
+        this._query = new Query(...this._stockQueries);
+        this._frequence = [];
+        this._offset = [];
+        this._max = 0;
+        this._read = 0;
+        this._falseRead = 0;
+        this._now = 0;
+        this._totalFalse = 0;
+        this._cookieData = null;
+        this._setOffset = null;
+        this._setOffsetCount = 0;
+        this._check_in = null;
+        this._check_out = null;
+        this._adults = 0;
+        this._children = 0;
+    }
+
+    /**
+     *
      * @returns {PromiseLike<string | never>}
      * @private
      */
@@ -184,15 +193,15 @@ class Engine {
         /**
          * Got all cookies
          */
-
         return request(opt)
-            .then(response => this._cookieData ? this._cookieData : response.caseless.dict['set-cookie']
-            ).then((array) => array.map((e) => e.split(';')[0])
-            ).then((a) => a.join(';')
-            ).then((a) =>
-                this._cookieFile ?
-                    (this._cookieData = fs.readFileSync(this._cookieFile, 'utf8').replace(/(\r\n|\n|\r)/gm, ""))
-                    : a
+            .then(response => this._cookieData ? this._cookieData : Promise.resolve(response.caseless.dict['set-cookie'])
+                .then((array) => array.map((e) => e.split(';')[0])
+                ).then((a) => a.join(';')
+                ).then((a) =>
+                    this._cookieFile ?
+                        (this._cookieData = fs.readFileSync(this._cookieFile, 'utf8').replace(/(\r\n|\n|\r)/gm, ""))
+                        : a
+                )
             )
     }
 
@@ -401,7 +410,6 @@ class Engine {
      * @returns {Promise<any[] | void>}
      */
     mergeAndUpdate(){
-        console.log("IN")
         return Hotel.getAll({city: this._city})
             .then(e =>
                 City.updateById({
@@ -544,6 +552,7 @@ class Engine {
         rooms = 1,
         callback = null
     ) {
+        this._eraseData();
         this._check_in = checkin;
         this._check_out = checkout;
         this._adults = adults;

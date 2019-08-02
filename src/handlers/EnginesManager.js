@@ -1,6 +1,6 @@
 const CityCrud = require('../crud/CityCrud');
 const ProcessCrud = require('../crud/ProcessCrud');
-const {log} = require('../utils/utils');
+const {log, getDate} = require('../utils/utils');
 
 class EnginesManager {
 
@@ -46,6 +46,31 @@ class EnginesManager {
         }))
     }
 
+    explodeSearch(engine,
+                  country,
+                  city,
+                  checkin = null,
+                  checkout = null,
+                  adults = 1,
+                  children = 0,
+                  rooms = 1,
+                  callback = null
+    ) {
+
+        if (checkin == null || checkout == null)
+            return engine.search(country, city, checkin, checkout, adults, children, rooms, callback);
+
+        if (checkin < checkout) {
+            console.log("Loading date " + getDate(checkin));
+            let _checkout = new Date();
+            _checkout.setDate(checkin.getDate() + 1);
+            return engine.search(country, city, checkin, _checkout, adults, children, rooms, callback).then(() => {
+                checkin.setDate(checkin.getDate() + 1);
+                return this.explodeSearch(engine, country, city, checkin, checkout, adults, children, rooms, callback)
+            })
+        }
+    }
+
     /**
      *
      * @param country
@@ -75,7 +100,8 @@ class EnginesManager {
             if (engine == null)
                 reject(true);
 
-            return engine.search(
+            return this.explodeSearch(
+                engine,
                 country,
                 city,
                 checkin,

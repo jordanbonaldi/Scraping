@@ -53,6 +53,7 @@ class HotelCrud extends Crud {
             _engine.rate = data.engine.rate;
             _engine.reviews = data.engine.reviews;
             _engine.datas = _engine.datas.concat(data.engine.datas);
+            _data.engines.filter(e => e != null && e.name == data.engine.name)[0] = _engine;
         } else
             _data.engines.push(data.engine);
 
@@ -92,16 +93,16 @@ class HotelCrud extends Crud {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
         __data.engines = __data.engines.filter(e => e != null);
-        __data.engines.forEach(x => {
-            let datas = [];
-
-            getUnique(x.datas).forEach(a => {
-                if (datas.filter(e => e.name == a.name)[0] == null)
-                    datas.push(a);
-            });
-
-            x.datas = datas;
-        });
+        // __data.engines.forEach(x => {
+        //     let datas = [];
+        //
+        //     getUnique(x).forEach(a => {
+        //         if (datas.filter(e => e.name == a.name)[0] == null)
+        //             datas.push(a);
+        //     });
+        //
+        //     x.datas = datas;
+        // });
 
         return __data
     }
@@ -115,8 +116,6 @@ class HotelCrud extends Crud {
         return this.getByName(data.name.toLowerCase()).then((_data) => {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
-
-
 
             return { error: 'Already existing hotel' }
         }).catch((e) => {
