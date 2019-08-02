@@ -1,25 +1,38 @@
 const EngineManager = require('../src/handlers/EnginesManager');
 const InformationManager = require('../src/handlers/InformationsManager');
 const ProcessCrud = require('../src/crud/ProcessCrud');
-const {checkDate} = require('../src/utils/utils');
+const {checkDate, getDate} = require('../src/utils/utils');
 const MongoConnect = require('../src/mongodb/MongoConnect');
+const {log} = require('../src/utils/utils');
 
 const isEngineExists = (engine) => EngineManager.exists(engine);
 
-const action = (engine, country, city) => {
-    launch(country, city, engine);
+const action = (...datas) => {
+    console.log("Launching city action");
+    launch(...datas);
 
     return process.on('SIGINT', () => {
-        ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase())
+        ProcessCrud.getByNameAndCity(datas[0].toLowerCase(), datas[6].toLowerCase(), getDate(datas[3]), getDate(datas[4]))
             .then((data) => {
                 data.running = false;
 
                 return ProcessCrud.updateById(data).then(() => process.exit())
             }).catch(() => {
-                console.log("Non-existing process");
+                log("Non-existing process");
                 process.exit();
             });
     })
+};
+
+const checkArgsNull = (from, to) => {
+    if (process.argv.length < to + 1)
+        return false;
+
+    for (let i = from; i < to + 1; i++)
+        if (process.argv[i] == null)
+            return false;
+
+    return true;
 };
 
 const preLaunch = () => {
@@ -31,42 +44,48 @@ const preLaunch = () => {
                 process.exit(0)
             );
         else {
-            console.log("Please enter city name !");
+            log("Please enter city name !");
             process.exit(1)
         }
 
         return;
     }
 
-    if (args.length > 4) {
-        let engine = args[2];
-        let country = args[3];
-        let city = args[4];
+    if (args.length > 8 && checkArgsNull(2, 8)) {
+        let engine = args[2],
+            checkin = new Date(Date.parse(args[3])),
+            checkout = new Date(Date.parse(args[4])),
+            adults = args[5],
+            children = args[6],
+            country = args[7],
+            city = args[8];
 
-        if (args.length > 5)
-            for (let i = 5; i < args.length; i++)
-                city += ' ' + args[i];
+        if (args.length > 9)
+            for (let i = 9; i < args.length; i++)
+                city += " " + args[i];
+
+        let _action = () => action(country, city, engine, checkin, checkout, adults, children);
 
         if (city != null && engine != null) {
             if (!isEngineExists(engine)) {
-                console.log(engine + " unknown!");
+                log(engine + " unknown!");
                 process.exit();
             }
 
-            ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase()).then((e) => {
+            ProcessCrud.getByNameAndCity(engine.toLowerCase(), city.toLowerCase(), getDate(checkin), getDate(checkout)).then((e) => {
 
                 if (checkDate(e.updatedAt) >= 10)
-                    ProcessCrud.deleteById(e).then(() => action(engine, country, city));
+                    ProcessCrud.deleteById(e).then(_action);
                 else if (e.running === false) {
                     e.running = true;
-                    ProcessCrud.updateById(e).then(() => action(engine, country, city))
+                    ProcessCrud.updateById(e).then(_action)
                 } else {
-                    console.log('Process already running');
+                    log('Process already running');
                     process.exit();
                 }
-            }).catch(() => action(engine, country, city));
+            }).catch(_action);
         }
-    } else require('./server')()
+    } else if (args.length <= 2) require('./server')(); else log("Please use: npm run <engine> <checkin> <checkout> <adults> <children> <country> <city>")
 };
 
 MongoConnect().then(preLaunch);
@@ -74,7 +93,7 @@ MongoConnect().then(preLaunch);
 
 const stop = (err) => process.exit(err);
 
-const launch = (country, city, engine) => EngineManager.loadSearch(country, city, engine).then(() => stop(false)).catch(e => {
+const launch = (...datas) => EngineManager.loadSearch(...datas).then(() => stop(false)).catch(e => {
     console.log(e);
     stop(true)
 });

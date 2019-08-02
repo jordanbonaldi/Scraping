@@ -8,6 +8,7 @@ const app = require('../app');
 const debug = require('debug')('scrapping:server');
 const http = require('http');
 const config = require('../config/config');
+const {log} = require('../src/utils/utils');
 
 /**
  * Get port from environment and store in Express.
@@ -78,7 +79,7 @@ function onListening(server) {
   let bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  console.log('Listening on ' + bind);
+  log('Listening on ' + bind);
 }
 
 /**
@@ -97,7 +98,7 @@ let create = () => {
       resolve(server)
 
     }, 1000)
-  }).then(() => console.log("Server started"));
+  }).then(() => log("Server started"));
 };
 
 /**

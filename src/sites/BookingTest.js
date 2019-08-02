@@ -1,5 +1,6 @@
 const Engine = require('../handlers/Engine');
 const $ = require('cheerio');
+const {log} = require('../utils/utils');
 
 class BookingTest extends Engine {
 
@@ -124,7 +125,7 @@ class BookingTest extends Engine {
 
             let name = this._getName();
 
-            console.log(name + " done!");
+            log(name + " done!");
 
             hotel.push({
                 name: name,

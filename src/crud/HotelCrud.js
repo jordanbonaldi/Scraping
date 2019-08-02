@@ -1,8 +1,9 @@
 const Crud = require('./Crud');
 const CityCrud = require('./CityCrud');
+const CountryCrud = require('./CountryCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
-const {normalize} = require('../utils/utils');
+const {normalize, getUnique} = require('../utils/utils');
 
 class HotelCrud extends Crud {
 
@@ -26,7 +27,12 @@ class HotelCrud extends Crud {
         if (oldEngine == null)
             return false;
 
-        return oldEngine.price === newData.engine.price
+        return oldEngine.datas.filter(e =>
+            e.from == newData.engine.datas[0].from &&
+            e.to == newData.engine.datas[0].to &&
+            e.adults == newData.engine.datas[0].adults &&
+            e.children == newData.engine.datas[0].children
+        )[0] != null
     }
 
     /**
@@ -41,9 +47,13 @@ class HotelCrud extends Crud {
         if (_data.address == 'none' && data.address != 'none')
             _data.address = data.address;
 
-        if (obj != null)
-            _data.engines.filter(e => e != null && e.name == data.engine.name)[0] = data.engine;
-        else
+        if (obj != null) {
+            let _engine = _data.engines.filter(e => e != null && e.name == data.engine.name)[0];
+
+            _engine.rate = data.engine.rate;
+            _engine.reviews = data.engine.reviews;
+            _engine.datas = _engine.datas.concat(data.engine.datas);
+        } else
             _data.engines.push(data.engine);
 
         return _data;
@@ -61,6 +71,7 @@ class HotelCrud extends Crud {
                 name: data.name,
                 address: data.address,
                 city: data.city,
+                country: data.country,
                 engine: e
             };
 
@@ -80,7 +91,19 @@ class HotelCrud extends Crud {
     _getHotel(data, _data) {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
-        return __data.engines.filter(e => e != null)
+        __data.engines = __data.engines.filter(e => e != null);
+        __data.engines.forEach(x => {
+            let datas = [];
+
+            getUnique(x.datas).forEach(a => {
+                if (datas.filter(e => e.name == a.name)[0] == null)
+                    datas.push(a);
+            });
+
+            x.datas = datas;
+        });
+
+        return __data
     }
 
     /**
@@ -93,8 +116,10 @@ class HotelCrud extends Crud {
             if (!this._compare(data, _data))
                 return super.updateById(this._getHotel(data, _data));
 
+
+
             return { error: 'Already existing hotel' }
-        }).catch(() => {
+        }).catch((e) => {
             let obj = [];
 
             if (Array.isArray(data.engine))
@@ -174,6 +199,57 @@ class HotelCrud extends Crud {
 
     /**
      *
+     * @param array
+     */
+    getArray(array) {
+       return Promise.all(array.map(e => this.getByName(e).catch(x => console.log(x)))).then(e =>
+           e.filter(x => x != null)
+       )
+    }
+
+    /**
+     *
+     * @param city
+     * @param checkin
+     * @param checkout
+     */
+    getByDateAndCity(city, checkin, checkout) {
+       return CityCrud.getByName(city).then(e => this.getByDateAndCityId(e._id, checkin, checkout))
+    }
+
+    /**
+     *
+     * @param city
+     * @param checkin
+     * @param checkout
+     * @returns {Promise<any | never>}
+     */
+    getByDateAndCityId(city, checkin, checkout) {
+       return CityCrud.getById(city).then((doc) =>
+           this.getAll({city: doc._id}).then(a => {
+               a.forEach(b => b.engines.forEach(obj => {
+                   if (obj != null)
+                    obj.datas = obj.datas.filter(data =>
+                           data.from == checkin && data.to == checkout
+                    )
+               }));
+
+               return a
+           }).catch(e => console.log(e))
+       )
+    }
+
+    /**
+     *
+     * @param hotelsName {Array}
+     * @returns {Promise<any>}
+     */
+    findCompetitor(hotelsName) {
+        return this.find({name: {$in: hotelsName}})
+    }
+
+    /**
+     *
      * @param data
      * @param _data
      * @returns {Promise<any>}
@@ -189,6 +265,10 @@ class HotelCrud extends Crud {
      */
     getData(id) {
         return super.getById(id)
+    }
+
+    getByCountry(country) {
+        return CountryCrud.getByName(country).then(e => this.getAll({country: e._id}));
     }
 
 }

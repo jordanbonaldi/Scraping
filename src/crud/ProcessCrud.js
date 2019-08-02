@@ -1,6 +1,6 @@
 const Crud = require('./Crud');
 const Process = require('../models/Process');
-const CityCrud = require('./CityCrud');
+const City = require('./CityCrud');
 
 class ProcessCrud extends Crud {
 
@@ -17,7 +17,7 @@ class ProcessCrud extends Crud {
         let name = data.name;
         data.running = true;
 
-        return this.getByNameAndCity(name, data.cityName).then((currentData) => {
+        return this.getByNameAndCity(name, data.cityName, data.from, data.to).then((currentData) => {
             data._id = currentData._id;
 
             return super.updateById(data)
@@ -34,12 +34,21 @@ class ProcessCrud extends Crud {
         return this.getOne({name: name});
     }
 
-    getByNameAndCity(name, city) {
-        return CityCrud.getByName(city).then((cityData) => {
-          return this.getOne({name: name, city: cityData._id})
-        }).catch(() => {
-            return Promise.reject(true);
-        });
+    /**
+     *
+     * @param name
+     * @param city
+     * @param checkin
+     * @param checkout
+     * @returns {Promise<any | never>}
+     */
+    getByNameAndCity(name, city, checkin, checkout) {
+        let _city = require('./CityCrud');
+        return _city.getByName(city).then((cityData) =>
+            this.getOne({name: name, city: cityData._id, from: checkin, to: checkout})
+        ).catch(() =>
+            Promise.reject(true)
+        )
     }
 
 }

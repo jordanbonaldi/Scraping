@@ -68,6 +68,7 @@ class EnginesManager {
                children = 0,
                rooms = 1,
                callback = null) {
+
         engine = this._engines.filter(e => e.name.toLowerCase() == engine)[0];
 
         return new Promise(((resolve, reject) => {
@@ -86,7 +87,7 @@ class EnginesManager {
             ).then(() => {
                 ProcessCrud.getByName(engine.name.trim().toLowerCase())
                     .then((d) => ProcessCrud.deleteById(d._id))
-                    .catch(() => console.log('No process to delete'));
+                    .catch(() => log('No process to delete'));
 
                 log(
                     "Finished city " +

@@ -7,7 +7,7 @@ let Country = new Schema(
         name: String,
         createdAt: Date,
         updatedAt: Date,
-        cities: [{type: Schema.Types.ObjectId, ref: 'City'}],
+        cities: [{ name:String, city: {type: Schema.Types.ObjectId, ref: 'City'}} ],
         lastScan: {
                 city: {type: Schema.Types.ObjectId, ref: 'City'},
                 engine: String
