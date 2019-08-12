@@ -28,7 +28,7 @@ class TripAdvisorEngine extends Engine{
              */
         );
 
-        this._query = new TripAdvisorQueries(
+        this.__query = new TripAdvisorQueries(
             'action',
             'query',
             'types',
@@ -44,7 +44,7 @@ class TripAdvisorEngine extends Engine{
      * @private
      */
     _getHotelsUrl() {
-        console.log(this._generator.baseUrl)
+        console.log(this._generator.baseUrl);
         return request(this._generator.baseUrl).then((data) => {
             data = JSON.parse(data);
             let url = null;
@@ -84,7 +84,7 @@ class TripAdvisorEngine extends Engine{
                 name
             );
 
-            this._generator = new TripAdvisorGenerator(this.url, searchData, this._query);
+            this._generator = new TripAdvisorGenerator(this.url, searchData, this.__query);
 
             this._generator.generateUrl(callback);
 
