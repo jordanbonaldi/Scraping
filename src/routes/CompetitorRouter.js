@@ -10,13 +10,13 @@ const {ERROR, sendHotels} = require('../utils/utils');
  * Params: [String]
  *
  */
-router.get('/competitor/:country/:city', (req, res) => {
+router.get('/competitor/:country/:city/:from/:to', (req, res) => {
     let data = req.body;
 
     CountryCrud.getByNameAndCity(req.params.country, req.params.city)
         .then(e =>
             HotelCrud.getArray(data).then(e => {
-                res.send(sendHotels(e, req.query.format))
+                res.send(sendHotels(e, req.query.format, req.params.from, req.params.to))
             }).catch(e => console.log(e))
         )
         .catch(e => res.send({
@@ -31,13 +31,13 @@ router.get('/competitor/:country/:city', (req, res) => {
  * Params: [String]
  *
  */
-router.get('/competitor/:country/', (req, res) => {
+router.get('/competitor/:country/:from/:to', (req, res) => {
     let data = req.body;
 
     CountryCrud.getByName(req.params.country)
         .then(() =>
             HotelCrud.getArray(data).then(e =>
-                res.send(sendHotels(e, req.query.format))
+                res.send(sendHotels(e, req.query.format, req.params.from, req.params.to))
             ).catch(e => console.log(e))
         )
         .catch(e => res.send({

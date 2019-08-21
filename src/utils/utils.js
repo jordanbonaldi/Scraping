@@ -79,12 +79,15 @@ const ERROR = {
 /**
  *
  * @param e
+ * @param format
+ * @param fromDate
+ * @param toDate
  * @returns {{data: *, length: *, status: number}}
  */
-const sendHotels = (e, format) => {
+const sendHotels = (e, format, fromDate, toDate) => {
     let obj = { data: e, length: e.length, status: 0};
 
-    return format == 'csv' ? hotelsJsonToCsv(obj) : obj
+    return format == 'csv' ? hotelsJsonToCsv(obj, fromDate, toDate) : obj
 };
 
 
@@ -113,9 +116,39 @@ const getEta = (processes) => {
     }
 };
 
-const hotelsJsonToCsv = (json) => {
+/**
+ *
+ * @param date
+ * @param data
+ */
+const getCheaperDateInData = (data, date) => {
+    let prices = [];
+
+    data.forEach(eng => {
+        let engine = eng.datas.filter(a =>
+            a.price != null && a.from == getDate(date)
+        )[0];
+
+        prices.push({
+            engine: eng.name,
+            price: engine != null ? parseFloat(engine.price) : null
+        })
+    });
+
+    prices = prices.filter(x => x != null && x.price != null);
+
+    let reduced = null;
+
+    if (prices.length > 0)
+        reduced = prices.reduce((prev, curr) => prev.price < curr.price ? prev : curr);
+
+    return reduced != null && reduced.price != null ? reduced.engine + ": " + reduced.price : "n/a";
+};
+
+const hotelsJsonToCsv = (json, fromDate, toDate) => {
     let header = "name|address|rate|";
     let dates = [];
+    toDate = new Date(toDate);
 
     json.data.forEach(e => {
        e.engines[0].datas.filter(a => a.price != null).forEach(a => {
@@ -130,18 +163,14 @@ const hotelsJsonToCsv = (json) => {
 
     json.data.forEach(e => {
         let hotels = [e.name, e.address, e.rate];
-        let tmp_date = [];
-        e.engines.forEach(eng =>
-            eng.datas.filter(a => a.price != null).forEach(a => {
-                if (!tmp_date.includes(a.from)) {
-                    hotels.push(e.engines[0].name + ": " + a.price);
-                    tmp_date.push(a.from);
-                }
-            })
-        );
-        content.push(hotels);
-    });
 
+        for (let d = new Date(fromDate); d < toDate; d.setDate(d.getDate() + 1)) {
+            hotels.push(getCheaperDateInData(e.engines, d))
+        }
+
+        content.push(hotels)
+    });
+    
     for (let i = 0; i < content.length; i++)
         if (content[i+1] != null && content[i].length < content[i+1].length)
             content[i].push("n/a");
