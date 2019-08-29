@@ -3,7 +3,7 @@ const CityCrud = require('./CityCrud');
 const CountryCrud = require('./CountryCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
-const {normalize, getUnique} = require('../utils/utils');
+const {normalize, getDate} = require('../utils/utils');
 
 class HotelCrud extends Crud {
 
@@ -218,24 +218,62 @@ class HotelCrud extends Crud {
 
     /**
      *
+     * @param country
+     * @param checkin
+     * @param checkout
+     */
+    getByDateAndCountry(country, checkin, checkout) {
+        return CountryCrud.getByName(country).then(e => this.getByDateAndCityId(e._id, checkin, checkout))
+    }
+
+
+    /**
+     *
      * @param city
      * @param checkin
      * @param checkout
      * @returns {Promise<any | never>}
      */
     getByDateAndCityId(city, checkin, checkout) {
-       return CityCrud.getById(city).then((doc) =>
-           this.getAll({city: doc._id}).then(a => {
-               a.forEach(b => b.engines.forEach(obj => {
-                   if (obj != null)
-                    obj.datas = obj.datas.filter(data =>
-                           data.from == checkin && data.to == checkout
-                    )
-               }));
+        checkout = new Date(checkout);
+        return CityCrud.getById(city).then((doc) =>
+          this.filterMyDate(doc, checkin, checkout)
+        )
+    }
 
-               return a
-           }).catch(e => console.log(e))
-       )
+    /**
+     *
+     * @param country
+     * @param checkin
+     * @param checkout
+     * @returns {Promise<any | never>}
+     */
+    getByDateAndCountryId(country, checkin, checkout) {
+        checkout = new Date(checkout);
+        return CountryCrud.getById(country).then((doc) =>
+            this.filterMyDate(doc, checkin, checkout)
+        )
+    }
+
+    /**
+     *
+     * @param doc
+     * @param checkin
+     * @param checkout
+     * @returns {Promise<any | void>}
+     */
+    filterMyDate(doc, checkin, checkout) {
+        return this.getAll({city: doc._id}).then(a => {
+            a.forEach(b => b.engines.forEach(obj => {
+                let data = [];
+                for (let d = new Date(checkin); d < checkout; d.setDate(d.getDate() + 1))
+                    data.push(obj.datas.filter(data => data.from === getDate(d))[0]);
+                data = data.filter(e => e != null);
+                obj.datas = data;
+            }));
+
+            return a
+        }).catch(e => console.log(e))
     }
 
     /**

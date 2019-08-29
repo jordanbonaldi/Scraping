@@ -147,36 +147,29 @@ const getCheaperDateInData = (data, date) => {
 
 const hotelsJsonToCsv = (json, fromDate, toDate) => {
     let header = "name|address|rate|";
-    let dates = [];
     toDate = new Date(toDate);
 
-    json.data.forEach(e => {
-       e.engines[0].datas.filter(a => a.price != null).forEach(a => {
-           if (!dates.includes(a.from))
-               dates.push(a.from)
-       })
-    });
-
-    header += dates.join("|");
+    for (let d = new Date(fromDate); d < toDate; d.setDate(d.getDate() + 1))
+        header += getDate(d) + '|';
 
     let content = [];
 
     json.data.forEach(e => {
         let hotels = [e.name, e.address, e.rate];
 
-        for (let d = new Date(fromDate); d < toDate; d.setDate(d.getDate() + 1)) {
-            hotels.push(getCheaperDateInData(e.engines, d))
-        }
+        for (let d = new Date(fromDate); d < toDate; d.setDate(d.getDate() + 1))
+            hotels.push(getCheaperDateInData(e.engines, d));
 
         content.push(hotels)
     });
-    
+
     for (let i = 0; i < content.length; i++)
         if (content[i+1] != null && content[i].length < content[i+1].length)
             content[i].push("n/a");
 
     content = content.map(e => e.join('|'));
 
+    header = header.substr(0, header.length - 1);
     return header + '\n' + content.join('\n')
 };
 

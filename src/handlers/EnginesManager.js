@@ -125,7 +125,7 @@ class EnginesManager {
                 callback
             ).then(() => {
                 ProcessCrud.getByName(engine.name.trim().toLowerCase())
-                    .then((d) => ProcessCrud.deleteById(d._id))
+                    .then((d) => ProcessCrud.deleteById(d))
                     .catch(() => log('No process to delete'));
 
                 log(
