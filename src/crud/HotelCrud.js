@@ -3,7 +3,7 @@ const CityCrud = require('./CityCrud');
 const CountryCrud = require('./CountryCrud');
 const Similarity = require('string-similarity');
 const Hotel = require('../models/Hotels');
-const {normalize, getDate} = require('../utils/utils');
+const {normalize, filterMyDate} = require('../utils/utils');
 
 class HotelCrud extends Crud {
 
@@ -93,16 +93,6 @@ class HotelCrud extends Crud {
         let __data = Array.isArray(data.engine) ? this._getHotelArray(data, _data) : this._getData(data, _data);
 
         __data.engines = __data.engines.filter(e => e != null);
-        // __data.engines.forEach(x => {
-        //     let datas = [];
-        //
-        //     getUnique(x).forEach(a => {
-        //         if (datas.filter(e => e.name == a.name)[0] == null)
-        //             datas.push(a);
-        //     });
-        //
-        //     x.datas = datas;
-        // });
 
         return __data
     }
@@ -208,6 +198,16 @@ class HotelCrud extends Crud {
 
     /**
      *
+     * @param array
+     */
+    getArrayID(array) {
+        return Promise.all(array.map(e => this.getById(e).catch(x => console.log(x)))).then(e =>
+            e.filter(x => x != null)
+        )
+    }
+
+    /**
+     *
      * @param city
      * @param checkin
      * @param checkout
@@ -237,7 +237,7 @@ class HotelCrud extends Crud {
     getByDateAndCityId(city, checkin, checkout) {
         checkout = new Date(checkout);
         return CityCrud.getById(city).then((doc) =>
-          this.filterMyDate(doc, checkin, checkout)
+            this.getAll({city: doc._id}).then(a => filterMyDate(a, checkin, checkout))
         )
     }
 
@@ -251,29 +251,8 @@ class HotelCrud extends Crud {
     getByDateAndCountryId(country, checkin, checkout) {
         checkout = new Date(checkout);
         return CountryCrud.getById(country).then((doc) =>
-            this.filterMyDate(doc, checkin, checkout)
+            this.getAll({city: doc._id}).then(a => filterMyDate(a, checkin, checkout))
         )
-    }
-
-    /**
-     *
-     * @param doc
-     * @param checkin
-     * @param checkout
-     * @returns {Promise<any | void>}
-     */
-    filterMyDate(doc, checkin, checkout) {
-        return this.getAll({city: doc._id}).then(a => {
-            a.forEach(b => b.engines.forEach(obj => {
-                let data = [];
-                for (let d = new Date(checkin); d < checkout; d.setDate(d.getDate() + 1))
-                    data.push(obj.datas.filter(data => data.from === getDate(d))[0]);
-                data = data.filter(e => e != null);
-                obj.datas = data;
-            }));
-
-            return a
-        }).catch(e => console.log(e))
     }
 
     /**

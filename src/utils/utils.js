@@ -78,16 +78,43 @@ const ERROR = {
 
 /**
  *
+ * @param a
+ * @param checkin
+ * @param checkout
+ * @returns {Promise<any | void>}
+ */
+const filterMyDate = (a, checkin, checkout) => {
+    checkout = new Date(checkout);
+
+    a.forEach(b => b.engines.forEach(obj => {
+        let data = [];
+        for (let d = new Date(checkin); d < checkout; d.setDate(d.getDate() + 1))
+            data.push(obj.datas.filter(data => data.from === getDate(d))[0]);
+        data = data.filter(e => e != null);
+        obj.datas = data;
+    }));
+
+    return a
+};
+
+const getDatedObject = (obj, fromDate, toDate) => {
+  obj.data = filterMyDate(obj.data, fromDate, toDate);
+
+  return obj;
+};
+
+/**
+ *
  * @param e
  * @param format
  * @param fromDate
  * @param toDate
  * @returns {{data: *, length: *, status: number}}
  */
-const sendHotels = (e, format, fromDate, toDate) => {
+const sendHotels = (e, format, fromDate = null, toDate = null) => {
     let obj = { data: e, length: e.length, status: 0};
 
-    return format == 'csv' ? hotelsJsonToCsv(obj, fromDate, toDate) : obj
+    return format === 'csv' ? hotelsJsonToCsv(obj, fromDate, toDate) : (fromDate != null && toDate != null ? getDatedObject(obj, fromDate, toDate) : obj);
 };
 
 
@@ -186,4 +213,4 @@ const isProcessRunning = (id) => ProcessCrud.getAll({city: id});
  *
  * @type {{checkDate: (function(*): number)}}
  */
-module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, hotelsJsonToCsv, nameComparator};
+module.exports = {checkDate, normalize, log, getDate, ERROR, sendHotels, getEta, isProcessRunning, getUnique, hotelsJsonToCsv, nameComparator, filterMyDate};

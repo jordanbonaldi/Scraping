@@ -77,10 +77,14 @@ class EnginesManager {
             console.log("Loading date " + getDate(checkin));
             let _checkout = new Date();
             _checkout.setDate(checkin.getDate() + 1);
-            return engine.search(country, city, checkin, _checkout, adults, children, rooms, callback).then(() => {
-                checkin.setDate(checkin.getDate() + 1);
-                return this.explodeSearch(engine, country, city, checkin, checkout, adults, children, rooms, callback)
-            })
+            return engine.search(country, city, checkin, _checkout, adults, children, rooms, callback).then(() =>
+                ProcessCrud.getByName(engine.name.trim().toLowerCase())
+                    .then((d) =>ProcessCrud.deleteById(d)).then(() => {
+                        log(getDate(checkin) + " finished in " + Math.round(engine.getFrequences()) + "seconds\n");
+                        checkin.setDate(checkin.getDate() + 1);
+                        return this.explodeSearch(engine, country, city, checkin, checkout, adults, children, rooms, callback)
+                    })
+            )
         }
     }
 
@@ -124,19 +128,7 @@ class EnginesManager {
                 rooms,
                 callback
             ).then(() => {
-                ProcessCrud.getByName(engine.name.trim().toLowerCase())
-                    .then((d) => ProcessCrud.deleteById(d))
-                    .catch(() => log('No process to delete'));
-
-                log(
-                    "Finished city " +
-                    city +
-                    " with " +
-                    engine.name +
-                    " in " +
-                    Math.round(engine.getFrequences()) +
-                    " seconds\n"
-                );
+                log("Finished!");
 
                 return CityCrud.setLastScan(city.toLowerCase(), engine.name).then(() => resolve(true)).catch()
             }).catch(e => reject(e))

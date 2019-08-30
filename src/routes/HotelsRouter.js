@@ -24,7 +24,7 @@ router.get('/hotels/:from/:to/:city', (req, res) => {
     CityCrud.getByName(req.params.city).then(doc => {
         isProcessRunning(doc._id).then(a => res.send(getEta(a)))
             .catch(() => HotelCrud.getByDateAndCity(req.params.city, req.params.from, req.params.to).then(e =>
-                res.send(sendHotels(e, req.query.format, req.params.from, req.params.to))
+                res.send(sendHotels(e, req.query.format))
             ))
     }).catch(() => res.send(ERROR))
 });

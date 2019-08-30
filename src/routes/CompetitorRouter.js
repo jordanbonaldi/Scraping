@@ -4,26 +4,18 @@ const HotelCrud = require('../crud/HotelCrud');
 const CountryCrud = require('../crud/CountryCrud');
 const {ERROR, sendHotels} = require('../utils/utils');
 
-/**
- * Competitor
- *
- * Params: [String]
- *
- */
-router.get('/competitor/:country/:city/:from/:to', (req, res) => {
-    let data = req.body;
-
-    CountryCrud.getByNameAndCity(req.params.country, req.params.city)
-        .then(e =>
-            HotelCrud.getArray(data).then(e => {
+const actionToLoad = (countryCallback, hotelCallback, req, res) => {
+    countryCallback
+        .then(() =>
+            hotelCallback.then(e =>
                 res.send(sendHotels(e, req.query.format, req.params.from, req.params.to))
-            }).catch(e => console.log(e))
+            ).catch(e => console.log(e))
         )
-        .catch(e => res.send({
-            ...ERROR,
-            error: e
-        }));
-});
+            .catch(e => res.send({
+                ...ERROR,
+                error: e
+            }));
+};
 
 /**
  * Competitor
@@ -32,18 +24,17 @@ router.get('/competitor/:country/:city/:from/:to', (req, res) => {
  *
  */
 router.get('/competitor/:country/:from/:to', (req, res) => {
-    let data = req.body;
+    actionToLoad(CountryCrud.getByName(req.params.country), HotelCrud.getArray(req.body), req, res)
+});
 
-    CountryCrud.getByName(req.params.country)
-        .then(() =>
-            HotelCrud.getArray(data).then(e =>
-                res.send(sendHotels(e, req.query.format, req.params.from, req.params.to))
-            ).catch(e => console.log(e))
-        )
-        .catch(e => res.send({
-            ...ERROR,
-            error: e
-        }));
+/**
+ * Competitor
+ *
+ * Params: [String]
+ *
+ */
+router.get('/competitor/id/:country/:from/:to', (req, res) => {
+    actionToLoad(CountryCrud.getByName(req.params.country), HotelCrud.getArrayID(req.body), req, res)
 });
 
 /**
@@ -53,23 +44,17 @@ router.get('/competitor/:country/:from/:to', (req, res) => {
  *
  */
 router.get('/competitor/:from/:to/:country/:city', (req, res) => {
-    let data = req.body;
+    actionToLoad(CountryCrud.getByNameAndCity(req.params.country, req.params.city), HotelCrud.getArray(req.body), req, res)
+});
 
-    CountryCrud.getByNameAndCity(req.params.country, req.params.city)
-        .then(e => HotelCrud.getArray(data).then(e => {
-            e.forEach(a => {
-                a.engines.forEach(eg => {
-                    eg.datas = eg.datas.filter(data =>
-                        data.from == req.params.from && data.to == req.params.to
-                    )
-                })
-            });
-            res.send(sendHotels(e, req.query.format))
-        }).catch(e => console.log(e)))
-        .catch(e => res.send({
-            ...ERROR,
-            error: e
-    }));
+/**
+ * Competitor
+ *
+ * Params: [String]
+ *
+ */
+router.get('/competitor/id/:from/:to/:country/:city', (req, res) => {
+    actionToLoad(CountryCrud.getByNameAndCity(req.params.country, req.params.city), HotelCrud.getArrayID(req.body), req, res)
 });
 
 /**
