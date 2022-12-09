@@ -17,7 +17,7 @@
     "cors": "^2.8.5",
     "cryptiles": ">=4.1.2",
     "debug": "~2.6.9",
-    "express": "~4.16.0",
+    "express": "~4.17.3",
     "hoek": ">=4.2.1",
     "http-errors": "~1.6.2",
     "mongoose": "^5.7.5",
